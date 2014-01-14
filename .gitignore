@@ -1,10 +1,10 @@
+src/main/webapp/WEB-INF/source-jsp
 .logs
 log-usage.txt
-portal-files
-target
 config.json
-src/main/webapp/WEB-INF/source-jsp
+portal-files
 src/main/webapp/WEB-INF/tmp-file-upload
+target
 
-db
 .cache
+db

@@ -1,0 +1,75 @@
+
+
+
+types {
+  Boolean       bit;
+  InternalId    varchar(32);
+  Name          varchar(50);
+  Url           varchar(1024);
+}
+
+
+
+
+table label {
+  iid       InternalId key;
+  name      Name;
+}
+
+table label_children {
+
+  iid          InternalId key;
+  parent_iid   Label;
+  child_iid    Label;
+
+  unique parent_child (parent_iid child_iid);
+
+}
+
+table alias {
+  iid             InternalId key;
+  root_label_iid  Label;
+  name            Name;
+}
+
+table content {
+  
+  iid           InternalId key;
+  
+  content_type  varchar(32);
+  blob          Clob;
+  
+}
+
+table labeled_content {
+
+  iid           InternalId key;
+  
+  content_iid   Content;
+  label_iid     Label;
+
+  unique content_label (content_iid label_iid);
+  
+}
+
+
+table connection {
+  
+  iid           InternalId key;
+  
+  url           Url;
+
+}
+
+
+table label_acl {
+
+  iid           InternalId key;
+  
+  connection_iid   Connection;
+  label_iid     Label;
+
+}
+
+
+

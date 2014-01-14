@@ -1,11 +1,13 @@
+// this is a hocon config file https://github.com/typesafehub/config/blob/master/HOCON.md
 {
     "database": {
         "jdbcUrl": "jdbc:hsqldb:file:db/main",
         "driverClass": "org.hsqldb.jdbcDriver",
         "user": "sa",
         "password": "",
-        "validationQuery": "select 1+1",
+        "validationQuery": "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS LIMIT 1",
         "initialConnections": 10,
-        "maxConnections": 50
+        "maxConnections": 50,
+        jdbcLogging: true
     }
 }
