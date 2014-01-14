@@ -2,6 +2,9 @@
 log-usage.txt
 portal-files
 target
-
+config.json
 src/main/webapp/WEB-INF/source-jsp
 src/main/webapp/WEB-INF/tmp-file-upload
+
+db
+.cache

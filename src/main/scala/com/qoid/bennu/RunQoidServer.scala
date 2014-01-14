@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb
+package com.qoid.bennu
 
 import net.model3.servlet.runner.JettyRunner
 

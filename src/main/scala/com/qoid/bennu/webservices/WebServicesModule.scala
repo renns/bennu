@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb.webservices
+package com.qoid.bennu.webservices
 
 import m3.servlet.M3ServletModule
 import m3.servlet.CurlFilter

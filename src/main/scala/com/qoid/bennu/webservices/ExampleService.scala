@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb.webservices
+package com.qoid.bennu.webservices
 
 import net.model3.guice.bootstrap.ApplicationName
 import com.google.inject.Inject

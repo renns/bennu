@@ -1,8 +1,8 @@
 {
     "database": {
-        "jdbcUrl": "jdbc:mysql://localhost/information_schema?relaxAutoCommit=true",
-        "driverClass": "com.mysql.jdbc.Driver",
-        "user": "root",
+        "jdbcUrl": "jdbc:hsqldb:file:db/main",
+        "driverClass": "org.hsqldb.jdbcDriver",
+        "user": "sa",
         "password": "",
         "validationQuery": "select 1+1",
         "initialConnections": 10,

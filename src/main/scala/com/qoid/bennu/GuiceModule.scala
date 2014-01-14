@@ -1,18 +1,17 @@
-package com.ahsrcm.entdb
+package com.qoid.bennu
 
 import net.codingwell.scalaguice.ScalaModule
 import com.google.inject.Provider
 import com.google.inject.Module
 import com.google.inject.util.Modules
 import net.model3.guice.M3GuiceModule
-import com.ahsrcm.entdb.webservices.WebServicesModule
+import com.qoid.bennu.webservices.WebServicesModule
 import net.model3.guice.bootstrap.ApplicationName
 import net.model3.guice.bootstrap.ConfigurationDirectory
 import net.model3.newfile.Directory
 import com.google.inject.Provides
 import net.model3.newfile.File
 import javax.sql.DataSource
-import net.model3.guice.ProviderDataSource
 import java.sql.Connection
 import net.model3.guice.ProviderJdbcConnectionViaTxn
 import java.sql.DriverManager
@@ -25,6 +24,9 @@ import net.model3.collections.PropertiesX
 import net.model3.util.Versioning
 import net.model3.logging.Level
 import m3.jdbc.Database
+import m3.jdbc.M3ProviderDataSource
+import m3.predef._
+import m3.json.ConfigAssist
 
 object GuiceModule {
   
@@ -82,14 +84,14 @@ class GuiceModule extends ScalaModule with Provider[Module] {
 
   def configure = {
     
-    bind[ApplicationName].toInstance(new ApplicationName("entdb"))
+    bind[ApplicationName].toInstance(new ApplicationName("bennu"))
     
     bind[net.model3.guice.bootstrap.Bootstrapper].to[GuiceModule.Bootstrapper]
     
     // we can get a more clever config directory later
     bind[ConfigurationDirectory].toInstance(new ConfigurationDirectory(new Directory(".")))
     
-    bind[DataSource].toProvider[ProviderDataSource]
+    bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
     
   }
@@ -97,9 +99,14 @@ class GuiceModule extends ScalaModule with Provider[Module] {
   @Provides
   def config = {
     import JsonAssist._
-    val json = new File("./config.json").readText
-    logger.debug(s"using config \n${json}")
-    parseJson(json).deserialize[Config]
+    val possibleConfigFiles = List(
+      new File(System.getProperty("config_file", "./config.json")),
+      new File("config/config.json")
+    )
+    val file = possibleConfigFiles.find(_.exists).getOrError(s"unable to find a config file -- ${possibleConfigFiles}")
+    val json = file.readText
+    logger.debug(s"using config file ${file.getCanonicalPath} \n${json.indent("\t\t")}")
+    ConfigAssist.parseHoconToJson(json).deserialize[Config]
   }
     
   @Provides

@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb
+package com.qoid.bennu
 
 import m3.json.LiftJsonAssist
 import m3.json.Serialization

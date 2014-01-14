@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb
+package com.qoid.bennu
 
 import scala.beans.BeanProperty
 import com.google.inject.ProvidedBy

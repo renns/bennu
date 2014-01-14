@@ -1,4 +1,4 @@
-package com.ahsrcm.entdb.webservices
+package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
 import java.sql.Connection
