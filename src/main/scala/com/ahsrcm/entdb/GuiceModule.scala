@@ -24,7 +24,7 @@ import net.model3.lang.ClassX
 import net.model3.collections.PropertiesX
 import net.model3.util.Versioning
 import net.model3.logging.Level
-import net.model3.guice.DatabaseConfig
+import m3.jdbc.Database
 
 object GuiceModule {
   
@@ -103,7 +103,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
   }
     
   @Provides
-  def databaseConfig(config: Config): DatabaseConfig = config.database.databaseConfig
+  def databaseConfig(config: Config): Database = config.database
     
   
 }
