@@ -14,6 +14,7 @@ types {
 table label {
   iid       InternalId key;
   name      Name;
+  icon      varchar(50) nullable;
 }
 
 table label_children {

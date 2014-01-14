@@ -5,6 +5,7 @@ import java.sql.Connection
 import m3.predef._
 import m3.jdbc._
 import m3.json.Streamer._
+import m3.servlet.beans.Parm
 
 /**
  * A demo showing something a little cooler, database io with the json streaming api (aka the lazy json api)
@@ -32,7 +33,9 @@ import m3.json.Streamer._
  * 
  */
 case class DoSomethingWithDatabase @Inject() (
-  conn: Connection
+  conn: Connection,
+  @Parm foo: Int,
+  @Parm bar: Int
 ) extends Logging {
 
   def service = {
@@ -56,3 +59,4 @@ case class DoSomethingWithDatabase @Inject() (
   }
 
 }
+
