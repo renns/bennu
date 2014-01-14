@@ -1,0 +1,11 @@
+{
+    "database": {
+        "jdbcUrl": "jdbc:mysql://localhost/information_schema?relaxAutoCommit=true",
+        "driverClass": "com.mysql.jdbc.Driver",
+        "user": "root",
+        "password": "",
+        "validationQuery": "select 1+1",
+        "initialConnections": 10,
+        "maxConnections": 50
+    }
+}
