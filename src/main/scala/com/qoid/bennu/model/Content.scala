@@ -9,5 +9,5 @@ object Content extends Mapper.MapperCompanion[Content,InternalId] {
 case class Content(
   iid: InternalId,
   contentType: String,
-  blob: String //Is Clob a string?
+  blob: String
 )
