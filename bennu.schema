@@ -8,6 +8,9 @@ types {
   Url           varchar(1024);
 }
 
+import CommonFields {
+  deleted       Boolean;
+}
 
 
 
@@ -15,6 +18,7 @@ table label {
   iid       InternalId key;
   name      Name;
   icon      varchar(50) nullable;
+  import(CommonFields)
 }
 
 table label_children {
@@ -22,6 +26,8 @@ table label_children {
   iid          InternalId key;
   parent_iid   Label;
   child_iid    Label;
+
+  import(CommonFields)
 
   unique parent_child (parent_iid child_iid);
 
@@ -31,6 +37,7 @@ table alias {
   iid             InternalId key;
   root_label_iid  Label;
   name            Name;
+  import(CommonFields)
 }
 
 table content {
@@ -39,6 +46,7 @@ table content {
   
   content_type  varchar(32);
   blob          Clob;
+  import(CommonFields)
   
 }
 
@@ -48,6 +56,7 @@ table labeled_content {
   
   content_iid   Content;
   label_iid     Label;
+  import(CommonFields)
 
   unique content_label (content_iid label_iid);
   
@@ -60,6 +69,7 @@ table connection {
   
   url           Url;
 
+  import(CommonFields)
 }
 
 
@@ -69,6 +79,8 @@ table label_acl {
   
   connection_iid   Connection;
   label_iid     Label;
+
+  import(CommonFields)
 
 }
 
