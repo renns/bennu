@@ -1,0 +1,24 @@
+
+
+curl http://localhost:8080/api/channel/create
+
+responds with
+{
+  "id":"euHnGYdyIWwSL9cy1swyYNuHgpniUe08xFUoNTA8vMSRoDPe9m9O32OLw7pLpQaT"
+}
+
+
+Then us that id to poll (with a timeout of 10 seconds aka 10000 milliseconds
+
+curl http://localhost:8080/api/channel/poll/euHnGYdyIWwSL9cy1swyYNuHgpniUe08xFUoNTA8vMSRoDPe9m9O32OLw7pLpQaT\10000
+
+
+Then tell the server to do something and send the response to the channel you are now listening on
+
+curl \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"channel":"euHnGYdyIWwSL9cy1swyYNuHgpniUe08xFUoNTA8vMSRoDPe9m9O32OLw7pLpQaT","requests":[{"path":"/api/example/add", "context":1, "parms": {"left":1,"right":1} }]}' \
+  http://localhost:8080/api/channel/submit 
+
+
