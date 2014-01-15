@@ -17,5 +17,5 @@ object Label extends Mapper.MapperCompanion[Label,InternalId] {
 case class Label(
   iid: InternalId,
   name: String
-)
+) extends HasInternalId
 

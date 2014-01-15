@@ -9,4 +9,4 @@ object Connection extends Mapper.MapperCompanion[Connection,InternalId] {
 case class Connection(
   iid: InternalId,
   url: String
-)
+) extends HasInternalId

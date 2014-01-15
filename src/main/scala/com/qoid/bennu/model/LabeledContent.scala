@@ -10,4 +10,4 @@ case class LabeledContent(
   iid: InternalId,
   contentIid: InternalId,
   labelIid: InternalId
-)
+) extends HasInternalId

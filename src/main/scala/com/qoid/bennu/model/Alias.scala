@@ -10,4 +10,4 @@ case class Alias(
   iid: InternalId,
   rootLabelIid: InternalId,
   name: String
-)
+) extends HasInternalId

@@ -14,7 +14,7 @@ object InternalId extends HasStringConverter {
   
   val uidGenerator = inject[UidGenerator]
 
-  def apply: InternalId = InternalId(uidGenerator.create(32))
+  def random: InternalId = InternalId(uidGenerator.create(32))
   
 }
 

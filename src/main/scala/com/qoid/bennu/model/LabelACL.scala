@@ -10,4 +10,4 @@ case class LabelACL(
   iid: InternalId,
   connectionIid: InternalId,
   labelIid: InternalId
-)
+) extends HasInternalId

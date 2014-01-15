@@ -10,4 +10,4 @@ case class LabelChild(
   iid: InternalId,
   parentIid: InternalId,
   childIid: InternalId
-)
+) extends HasInternalId

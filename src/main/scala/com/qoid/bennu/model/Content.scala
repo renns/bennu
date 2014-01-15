@@ -10,4 +10,4 @@ case class Content(
   iid: InternalId,
   contentType: String,
   blob: String
-)
+) extends HasInternalId
