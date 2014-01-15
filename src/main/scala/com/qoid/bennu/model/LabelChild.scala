@@ -8,6 +8,6 @@ object LabelChild extends Mapper.MapperCompanion[LabelChild,InternalId] {
 
 case class LabelChild(
   iid: InternalId,
-  parent: Label, //How are relationships done in this model?
-  child: Label
+  parentIid: InternalId,
+  childIid: InternalId
 )

@@ -8,6 +8,6 @@ object LabelACL extends Mapper.MapperCompanion[LabelACL,InternalId] {
 
 case class LabelACL(
   iid: InternalId,
-  connection: Connection,
-  label: Label
+  connectionIid: InternalId,
+  labelIid: InternalId
 )

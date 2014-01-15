@@ -8,6 +8,6 @@ object LabeledContent extends Mapper.MapperCompanion[LabeledContent,InternalId] 
 
 case class LabeledContent(
   iid: InternalId,
-  content: Content,
-  label: Label
+  contentIid: InternalId,
+  labelIid: InternalId
 )

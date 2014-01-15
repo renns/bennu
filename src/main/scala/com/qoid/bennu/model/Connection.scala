@@ -8,5 +8,5 @@ object Connection extends Mapper.MapperCompanion[Connection,InternalId] {
 
 case class Connection(
   iid: InternalId,
-  url: String //Should url be a URI?
+  url: String
 )

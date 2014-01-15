@@ -8,6 +8,6 @@ object Alias extends Mapper.MapperCompanion[Alias,InternalId] {
 
 case class Alias(
   iid: InternalId,
-  rootLabel: Label,
+  rootLabelIid: InternalId,
   name: String
 )
