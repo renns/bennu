@@ -1,4 +1,4 @@
-package com.qoid.bennu.webservices
+package com.qoid.bennu.webservices.examples
 
 import net.model3.guice.bootstrap.ApplicationName
 import com.google.inject.Inject

@@ -1,4 +1,4 @@
-package com.qoid.bennu.webservices
+package com.qoid.bennu.webservices.examples
 
 import com.google.inject.Inject
 import java.sql.Connection

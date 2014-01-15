@@ -8,6 +8,10 @@ import m3.servlet.scalate.ScalateFilter
 import m3.servlet.RootServletFilter
 import m3.servlet.upload.FileUploadFilter
 import m3.servlet.TransactionFilter
+import com.qoid.bennu.webservices.examples.ExampleService
+import com.qoid.bennu.webservices.examples.DoSomethingWithDatabase
+import com.qoid.bennu.webservices.examples.AdditionService
+import com.qoid.bennu.webservices.examples.MultiplicationService
 
 
 
@@ -37,8 +41,15 @@ class WebServicesModule extends M3ServletModule {
     filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
     
-    serveBean[DoSomethingWithDatabase]("/api/doSomethingWithDatabase")
-    serveBean[ExampleService]("/api/exampleService")
+    serveBean[MailboxCreate]("/api/mailbox/create")
+    serveBean[MailboxPoll]("/api/mailbox/poll")
+    serveBean[MailboxSubmitRequests]("/api/mailbox/submit")
+    
+    serveBean[DoSomethingWithDatabase]("/api/example/doSomethingWithDatabase")
+    serveBean[ExampleService]("/api/example/exampleService")
+    
+    serveBean[AdditionService]("/api/example/add")
+    serveBean[MultiplicationService]("/api/example/multiply")
     
     addServletBeanFilter
     
