@@ -12,6 +12,9 @@ import com.qoid.bennu.webservices.examples.ExampleService
 import com.qoid.bennu.webservices.examples.DoSomethingWithDatabase
 import com.qoid.bennu.webservices.examples.AdditionService
 import com.qoid.bennu.webservices.examples.MultiplicationService
+import m3.servlet.longpoll.webservice.ChannelCreate
+import m3.servlet.longpoll.webservice.ChannelPoll
+import m3.servlet.longpoll.webservice.SubmitChannelRequests
 
 
 
@@ -23,7 +26,8 @@ class WebServicesModule extends M3ServletModule {
     // log a curl command for each request to the api (good for dev, BAD for production)
     filter("/api/*").through(classOf[CurlFilter])
     
-    filter("/*").through(classOf[CompressionFilter])
+    // currently this breaks long polling so we have it commented out
+//    filter("/*").through(classOf[CompressionFilter])
     
     // support multipart content types
     filter("/*").through(classOf[FileUploadFilter]) 
@@ -41,9 +45,9 @@ class WebServicesModule extends M3ServletModule {
     filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
     
-    serveBean[MailboxCreate]("/api/mailbox/create")
-    serveBean[MailboxPoll]("/api/mailbox/poll")
-    serveBean[MailboxSubmitRequests]("/api/mailbox/submit")
+    serveBean[ChannelCreate]("/api/channel/create")
+    serveBean[ChannelPoll]("/api/channel/poll")
+    serveBean[SubmitChannelRequests]("/api/channel/submit")
     
     serveBean[DoSomethingWithDatabase]("/api/example/doSomethingWithDatabase")
     serveBean[ExampleService]("/api/example/exampleService")
