@@ -4,13 +4,13 @@ import com.google.inject.Inject
 import com.qoid.bennu.model
 import com.qoid.bennu.model._
 import java.sql.Connection
-import m3.json.JsonSerializer
 import m3.predef._
+import m3.servlet.beans.JsonRequestBody
 import m3.servlet.beans.Parm
 
 case class DeleteService @Inject()(
   conn: Connection,
-  serializer: JsonSerializer,
+  requestBody: JsonRequestBody,
   @Parm("type") _type: String,
   @Parm("primaryKey") iid: InternalId
 ) extends Logging {
@@ -23,7 +23,7 @@ case class DeleteService @Inject()(
       case "alias" => Alias
       case "connection" => model.Connection
       case "content" => Content
-      case "label" => Content
+      case "label" => Label
       case "labelacl" => LabelAcl
       case "labelchild" => LabelChild
       case "labeledcontent" => LabeledContent
@@ -32,6 +32,6 @@ case class DeleteService @Inject()(
 
     mapper.softDeleteViaKey(iid)
 
-    //TODO: Return request JSON
+    requestBody
   }
 }

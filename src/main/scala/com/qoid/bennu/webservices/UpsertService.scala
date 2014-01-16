@@ -30,7 +30,7 @@ case class UpsertService @Inject()(
       case "alias" => Alias -> serializer.fromJson[Alias](instance)
       case "connection" => model.Connection -> serializer.fromJson[model.Connection](instance)
       case "content" => Content -> serializer.fromJson[Content](instance)
-      case "label" => Content -> serializer.fromJson[Content](instance)
+      case "label" => Label -> serializer.fromJson[Label](instance)
       case "labelacl" => LabelAcl -> serializer.fromJson[LabelAcl](instance)
       case "labelchild" => LabelChild -> serializer.fromJson[LabelChild](instance)
       case "labeledcontent" => LabeledContent -> serializer.fromJson[LabeledContent](instance)
@@ -45,6 +45,6 @@ case class UpsertService @Inject()(
       case Some(v) => mapper.update(v)
     }
 
-    //TODO: Return request JSON
+    requestBody
   }
 }
