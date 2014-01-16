@@ -12,7 +12,7 @@ object JdbcAssist {
 
   trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] {
     def softDeleteViaKey(iid: InternalId)(implicit conn: Connection): Unit = {
-      conn.update(s"update ${tableName.rawSql} set deleted = true where iid = ${iid}")
+      conn.update(sql"update ${tableName.rawSql} set deleted = true where iid = ${iid}")
     }
     def softDelete(t: T)(implicit conn: Connection): T = {
       softDeleteViaKey(t.iid)
