@@ -48,7 +48,10 @@ class WebServicesModule extends M3ServletModule {
     serveBean[ChannelCreate]("/api/channel/create")
     serveBean[ChannelPoll]("/api/channel/poll")
     serveBean[SubmitChannelRequests]("/api/channel/submit")
-    
+
+    serveBean[UpsertService]("/api/upsert")
+    serveBean[DeleteService]("/api/delete")
+
     serveBean[DoSomethingWithDatabase]("/api/example/doSomethingWithDatabase")
     serveBean[ExampleService]("/api/example/exampleService")
     

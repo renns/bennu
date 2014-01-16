@@ -22,3 +22,10 @@ curl \
   http://localhost:8080/api/channel/submit 
 
 
+The following performs an upsert. Replace IID and NAME with desired values.
+
+curl \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"type":"Label","instance":{"iid":"IID","name":"NAME","deleted":false}}'
+  localhost:8080/api/upsert
