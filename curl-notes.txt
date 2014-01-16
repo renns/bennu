@@ -22,10 +22,19 @@ curl \
   http://localhost:8080/api/channel/submit 
 
 
-The following performs an upsert. Replace IID and NAME with desired values.
+The following performs an upsert. Replace TYPE, IID and NAME with desired values.
 
 curl \
   -X POST \
   -H "Content-Type: application/json" \
-  -d '{"type":"Label","instance":{"iid":"IID","name":"NAME","deleted":false}}' \
+  -d '{"type":"TYPE","instance":{"iid":"IID","name":"NAME","deleted":false}}' \
   localhost:8080/api/upsert
+
+
+The following performs a delete. Replace TYPE and PRIMARY_KEY with desired values.
+
+curl \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"type":"TYPE","primaryKey":"PRIMARY_KEY"}' \
+  localhost:8080/api/delete

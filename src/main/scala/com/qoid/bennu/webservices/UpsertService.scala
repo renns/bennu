@@ -24,7 +24,7 @@ case class UpsertService @Inject()(
 
   implicit def _conn = conn
 
-  def service = {
+  def service: JValue = {
 
     val (mapper0, i0) = _type.toLowerCase match {
       case "alias" => Alias -> serializer.fromJson[Alias](instance)
@@ -42,9 +42,9 @@ case class UpsertService @Inject()(
 
     mapper.fetchOpt(i.iid) match {
       case None => mapper.insert(i)
-      case Some(v) => mapper.update(v)
+      case Some(_) => mapper.update(i)
     }
 
-    requestBody
+    requestBody.body
   }
 }

@@ -32,6 +32,6 @@ case class DeleteService @Inject()(
 
     mapper.softDeleteViaKey(iid)
 
-    requestBody
+    requestBody.body
   }
 }
