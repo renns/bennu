@@ -6,6 +6,7 @@ import com.qoid.bennu.JdbcAssist._
 object LabelACL extends BennuMapperCompanion[LabelACL] {
 }
 
+@SqlName("label_acl")
 case class LabelACL(
   iid: InternalId,
   connectionIid: InternalId,

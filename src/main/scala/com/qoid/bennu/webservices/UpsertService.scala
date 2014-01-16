@@ -13,16 +13,18 @@ import m3.json.JsonSerializer
 import net.liftweb.json.JValue
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.HasInternalId
+import m3.servlet.beans.JsonRequestBody
 
 case class UpsertService @Inject() (
   conn: Connection,
   serializer: JsonSerializer,
+  requestBody: JsonRequestBody,
   @Parm("type") _type: String,
   @Parm instance: JValue
 ) extends Logging {
- 
+
   implicit def _conn = conn
-  
+
 /*
   Need to deserialize json into _type
   What are the available actions?
