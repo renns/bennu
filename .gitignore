@@ -6,8 +6,7 @@ portal-files
 src/main/webapp/WEB-INF/tmp-file-upload
 target
 
-.cache
-db
-
-.idea
 *.iml
+.cache
+.idea
+db
