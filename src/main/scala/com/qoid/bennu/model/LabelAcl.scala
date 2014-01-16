@@ -1,12 +1,13 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import m3.jdbc.PrimaryKey
 
 object LabelAcl extends BennuMapperCompanion[LabelAcl] {
 }
 
 case class LabelAcl(
-  iid: InternalId,
+  @PrimaryKey iid: InternalId,
   connectionIid: InternalId,
   labelIid: InternalId,
   deleted: Boolean

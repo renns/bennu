@@ -1,12 +1,13 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import m3.jdbc.PrimaryKey
 
 object Content extends BennuMapperCompanion[Content] {
 }
 
 case class Content(
-  iid: InternalId,
+  @PrimaryKey iid: InternalId,
   contentType: String,
   blob: String,
   deleted: Boolean
