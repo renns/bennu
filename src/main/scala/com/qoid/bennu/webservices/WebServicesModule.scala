@@ -15,6 +15,7 @@ import com.qoid.bennu.webservices.examples.MultiplicationService
 import m3.servlet.longpoll.webservice.ChannelCreate
 import m3.servlet.longpoll.webservice.ChannelPoll
 import m3.servlet.longpoll.webservice.SubmitChannelRequests
+import m3.servlet.CorsFilter
 
 
 
@@ -25,6 +26,8 @@ class WebServicesModule extends M3ServletModule {
     
     // log a curl command for each request to the api (good for dev, BAD for production)
     filter("/api/*").through(classOf[CurlFilter])
+    
+    filter("/api/*").through(classOf[CorsFilter])
     
     // currently this breaks long polling so we have it commented out
 //    filter("/*").through(classOf[CompressionFilter])
