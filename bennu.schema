@@ -21,21 +21,21 @@ table label {
   import(CommonFields);
 }
 
-table label_child {
+table labelchild {
 
   iid          InternalId key;
-  parent_iid   Label;
-  child_iid    Label;
+  parentIid   Label;
+  childIid    Label;
 
   import(CommonFields);
 
-  unique parent_child (parent_iid child_iid);
+  unique parent_child (parentIid childIid);
 
 }
 
 table alias {
   iid             InternalId key;
-  root_label_iid  Label;
+  rootLabelIid  Label;
   name            Name;
   import(CommonFields);
 }
@@ -44,21 +44,21 @@ table content {
   
   iid           InternalId key;
   
-  content_type  varchar(32);
+  contentType  varchar(32);
   blob          Clob;
   import(CommonFields);
   
 }
 
-table labeled_content {
+table labeledContent {
 
   iid           InternalId key;
   
-  content_iid   Content;
-  label_iid     Label;
+  contentIid   Content;
+  labelIid     Label;
   import(CommonFields);
 
-  unique content_label (content_iid label_iid);
+  unique contentLabel (contentIid labelIid);
   
 }
 
@@ -73,12 +73,12 @@ table connection {
 }
 
 
-table label_acl {
+table labelAcl {
 
   iid           InternalId key;
   
-  connection_iid   Connection;
-  label_iid     Label;
+  connectionIid   Connection;
+  labelIid     Label;
 
   import(CommonFields);
 

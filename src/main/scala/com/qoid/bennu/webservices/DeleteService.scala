@@ -7,6 +7,7 @@ import java.sql.Connection
 import m3.predef._
 import m3.servlet.beans.JsonRequestBody
 import m3.servlet.beans.Parm
+import com.qoid.bennu.JdbcAssist
 
 case class DeleteService @Inject()(
   conn: Connection,
@@ -19,16 +20,7 @@ case class DeleteService @Inject()(
 
   def service = {
 
-    val mapper = _type.toLowerCase match {
-      case "alias" => Alias
-      case "connection" => model.Connection
-      case "content" => Content
-      case "label" => Label
-      case "labelacl" => LabelAcl
-      case "labelchild" => LabelChild
-      case "labeledcontent" => LabeledContent
-      case _ => m3x.error(s"don't know how to handle type ${_type}")
-    }
+    val mapper = JdbcAssist.findMapperByTypeName(_type)
 
     mapper.softDeleteViaKey(iid)
 

@@ -13,6 +13,7 @@ import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.HasInternalId
 import m3.servlet.beans.JsonRequestBody
 import scala.language.existentials
+import com.qoid.bennu.JdbcAssist
 
 case class UpsertService @Inject()(
   conn: Connection,
@@ -26,19 +27,8 @@ case class UpsertService @Inject()(
 
   def service: JValue = {
 
-    val (mapper0, i0) = _type.toLowerCase match {
-      case "alias" => Alias -> serializer.fromJson[Alias](instance)
-      case "connection" => model.Connection -> serializer.fromJson[model.Connection](instance)
-      case "content" => Content -> serializer.fromJson[Content](instance)
-      case "label" => Label -> serializer.fromJson[Label](instance)
-      case "labelacl" => LabelAcl -> serializer.fromJson[LabelAcl](instance)
-      case "labelchild" => LabelChild -> serializer.fromJson[LabelChild](instance)
-      case "labeledcontent" => LabeledContent -> serializer.fromJson[LabeledContent](instance)
-      case _ => m3x.error(s"don't know how to handle type ${_type}")
-    }
-
-    val mapper = mapper0.asInstanceOf[Mapper[HasInternalId, InternalId]]
-    val i = i0.asInstanceOf[HasInternalId]
+    val mapper = JdbcAssist.findMapperByTypeName(_type).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+    val i = mapper.fromJson(instance)
 
     mapper.fetchOpt(i.iid) match {
       case None => mapper.insert(i)
