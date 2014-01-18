@@ -10,7 +10,7 @@ case class Content(
   @PrimaryKey iid: InternalId,
   contentType: String,
   blob: String,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Content] {
   def mapper = Content
 }

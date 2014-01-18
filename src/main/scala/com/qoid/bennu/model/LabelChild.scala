@@ -10,7 +10,7 @@ case class LabelChild(
   @PrimaryKey iid: InternalId,
   parentIid: InternalId,
   childIid: InternalId,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[LabelChild] {
   def mapper = LabelChild
 }

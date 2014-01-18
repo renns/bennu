@@ -10,7 +10,7 @@ case class Alias(
   @PrimaryKey iid: InternalId,
   rootLabelIid: InternalId,
   name: String,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Alias] {
   def mapper = Alias
 }

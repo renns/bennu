@@ -10,7 +10,7 @@ case class LabelAcl(
   @PrimaryKey iid: InternalId,
   connectionIid: InternalId,
   labelIid: InternalId,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[LabelAcl] {
   def mapper = LabelAcl
 }

@@ -9,7 +9,7 @@ object Label extends BennuMapperCompanion[Label] {
 case class Label(
   @PrimaryKey iid: InternalId,
   name: String,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Label] {
   def mapper = Label
 }

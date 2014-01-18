@@ -9,7 +9,7 @@ object Connection extends BennuMapperCompanion[Connection] {
 case class Connection(
   @PrimaryKey iid: InternalId,
   url: String,
-  deleted: Boolean
+  deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Connection] {
   def mapper = Connection
 }

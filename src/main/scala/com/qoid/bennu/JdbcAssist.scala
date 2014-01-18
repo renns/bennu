@@ -14,7 +14,7 @@ object JdbcAssist {
   implicit val columnMapper = m3.jdbc.ColumnMapper.defaultColumnMapperFactory
 
 
-  trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] {
+  trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
     
     val serializer = inject[JsonSerializer]
     
@@ -25,7 +25,7 @@ object JdbcAssist {
       softDeleteViaKey(t.iid)
       t
     }
-    def fromJson(jv: JValue): T = serializer.fromJson(jv)
+    def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
     def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
   }
 
