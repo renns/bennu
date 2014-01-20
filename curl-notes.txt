@@ -38,3 +38,81 @@ curl \
   -H "Content-Type: application/json" \
   -d '{"type":"TYPE","primaryKey":"PRIMARY_KEY"}' \
   localhost:8080/api/delete
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+curl \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "label",
+    "instance": {
+        "iid": "sdfasfsadf",
+    "name": "music"
+    }
+  }' \
+    http://localhost:8080/api/upsert
+
+
+
+curl \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "label",
+    "primaryKey": "sdfasfsadf"
+  }' \
+    http://localhost:8080/api/delete
+
+
+
+curl http://localhost:8080/api/channel/poll/my_test_channel/10000
+
+
+
+curl \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "channel":"my_test_channel",
+  "requests":[
+    {
+      "path": "/api/upsert", 
+      "context": "insert_it", 
+      "parms": {
+          "type": "label",
+          "instance": {
+              "iid": "sdfasfsadf",
+          "name": "music"
+          }
+      } 
+    },{
+      "path": "/api/upsert", 
+      "context": "now_delete_it", 
+      "parms": {
+          "type": "label",
+          "instance": {
+              "iid": "sdfasfsadf",
+          "name": "music"
+          }
+      }
+    }
+  ]
+}' \
+    http://localhost:8080/api/channel/submit
+
+
+  
