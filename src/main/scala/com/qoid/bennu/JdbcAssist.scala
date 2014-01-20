@@ -7,11 +7,17 @@ import com.qoid.bennu.model.InternalId
 import m3.predef._
 import m3.json.JsonSerializer
 import net.liftweb.json.JValue
+import net.liftweb.json.JNothing
 import m3.TypeInfo
+import m3.jdbc.ColumnMapper.SingleColumnMapper
+import java.sql.Types
+import java.sql.ResultSet
+import java.sql.PreparedStatement
+import m3.jdbc.ColumnMapper
 
-object JdbcAssist {
+object JdbcAssist extends Logging {
 
-  implicit val columnMapper = m3.jdbc.ColumnMapper.defaultColumnMapperFactory
+  implicit val columnMapper = new ColumnMapper.DefaultColumnMapperFactory(jvalueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
 
 
   trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
@@ -45,6 +51,26 @@ object JdbcAssist {
       case "labelchild" => LabelChild
       case "labeledcontent" => LabeledContent
       case _ => m3x.error(s"don't know how to handle type ${_type}")
+    }
+  }
+  
+  object jvalueColumnMapper extends SingleColumnMapper[JValue] {
+    override val defaultValue = JNothing
+    def sqlType = Types.VARCHAR
+    override def fromResultSet(rs: ResultSet, col: Int) = rs.getString(col) match {
+      case _ if rs.wasNull => JNothing
+      case s => try {
+        JsonAssist.parseJson(s)
+      } catch {
+        case e: Exception => {
+          logger.warn(s"error parsing -- ${s}", e)
+          JNothing
+        }
+      }
+    }
+    override def toPreparedStatement(ps: PreparedStatement, col: Int, value: JValue) = {
+      val s = JsonAssist.prettyPrint(value)
+      ps.setString(col, s)
     }
   }
 

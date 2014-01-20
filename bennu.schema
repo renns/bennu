@@ -9,6 +9,7 @@ types {
 }
 
 import CommonFields {
+  data          Clob;
   deleted       Boolean;
 }
 

@@ -27,6 +27,7 @@ import m3.jdbc.Database
 import m3.jdbc.M3ProviderDataSource
 import m3.predef._
 import m3.json.ConfigAssist
+import m3.json.JsonSerializer
 
 object GuiceModule {
   
@@ -93,7 +94,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
-    
+        
   }
   
   @Provides
@@ -112,5 +113,8 @@ class GuiceModule extends ScalaModule with Provider[Module] {
   @Provides
   def databaseConfig(config: Config): Database = config.database
     
+  @Provides 
+  def jsonSerializer = JsonAssist.serializer
+
   
 }
