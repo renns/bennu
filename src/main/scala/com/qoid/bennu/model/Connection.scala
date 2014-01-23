@@ -9,6 +9,7 @@ object Connection extends BennuMapperCompanion[Connection] {
 
 case class Connection(
   @PrimaryKey iid: InternalId,
+  agentId: AgentId,
   url: String,
   data: JValue,
   deleted: Boolean = false

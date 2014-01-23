@@ -1,6 +1,16 @@
 
+create cached table agent (
+	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
+	name varchar(50) not NULL,
+	data Clob not NULL,
+	deleted bit not NULL,
+	primary key(iid)
+)
+;
 create cached table alias (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	rootLabelIid varchar(32) not NULL,
 	name varchar(50) not NULL,
 	data Clob not NULL,
@@ -10,6 +20,7 @@ create cached table alias (
 ;
 create cached table connection (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	url varchar(1024) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
@@ -18,6 +29,7 @@ create cached table connection (
 ;
 create cached table content (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	contentType varchar(32) not NULL,
 	blob Clob not NULL,
 	data Clob not NULL,
@@ -27,6 +39,7 @@ create cached table content (
 ;
 create cached table label (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	name varchar(50) not NULL,
 	icon varchar(50),
 	data Clob not NULL,
@@ -36,6 +49,7 @@ create cached table label (
 ;
 create cached table labelAcl (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	connectionIid varchar(32) not NULL,
 	labelIid varchar(32) not NULL,
 	data Clob not NULL,
@@ -45,6 +59,7 @@ create cached table labelAcl (
 ;
 create cached table labelchild (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	parentIid varchar(32) not NULL,
 	childIid varchar(32) not NULL,
 	data Clob not NULL,
@@ -56,6 +71,7 @@ CREATE UNIQUE INDEX labelchild_autogen_parent_child ON labelchild (parentIid,chi
 ;
 create cached table labeledContent (
 	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
 	contentIid varchar(32) not NULL,
 	labelIid varchar(32) not NULL,
 	data Clob not NULL,

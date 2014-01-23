@@ -4,15 +4,15 @@ import com.qoid.bennu.JdbcAssist._
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
 
-object Label extends BennuMapperCompanion[Label] {
+object Agent extends BennuMapperCompanion[Agent] {
 }
 
-case class Label(
+case class Agent(
   @PrimaryKey iid: InternalId,
-  agentId: AgentId,
   name: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[Label] {
-  def mapper = Label
+) extends HasInternalId with BennuMappedInstance[Agent] {
+  lazy val agentId: AgentId = AgentId(iid.value)
+  def mapper = Agent
 }

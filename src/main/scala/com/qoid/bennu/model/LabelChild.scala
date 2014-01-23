@@ -9,6 +9,7 @@ object LabelChild extends BennuMapperCompanion[LabelChild] {
 
 case class LabelChild(
   @PrimaryKey iid: InternalId,
+  agentId: AgentId,
   parentIid: InternalId,
   childIid: InternalId,
   data: JValue,

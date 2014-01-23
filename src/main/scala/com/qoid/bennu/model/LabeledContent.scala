@@ -9,6 +9,7 @@ object LabeledContent extends BennuMapperCompanion[LabeledContent] {
 
 case class LabeledContent(
   @PrimaryKey iid: InternalId,
+  agentId: AgentId,
   contentIid: InternalId,
   labelIid: InternalId,
   data: JValue,

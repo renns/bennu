@@ -1,9 +1,8 @@
 
-
-
 types {
   Boolean       bit;
   InternalId    varchar(32);
+  AgentId       varchar(32);
   Name          varchar(50);
   Url           varchar(1024);
 }
@@ -13,77 +12,66 @@ import CommonFields {
   deleted       Boolean;
 }
 
-
+table agent {
+  iid       InternalId key;
+  agentId   AgentId;
+  name      Name;
+  import(CommonFields);
+}
 
 table label {
   iid       InternalId key;
+  agentId   AgentId;
   name      Name;
   icon      varchar(50) nullable;
   import(CommonFields);
 }
 
 table labelchild {
-
-  iid          InternalId key;
+  iid         InternalId key;
+  agentId     AgentId;
   parentIid   Label;
   childIid    Label;
-
   import(CommonFields);
-
   unique parent_child (parentIid childIid);
-
 }
 
 table alias {
-  iid             InternalId key;
+  iid           InternalId key;
+  agentId       AgentId;
   rootLabelIid  Label;
-  name            Name;
+  name          Name;
   import(CommonFields);
 }
 
 table content {
-  
   iid           InternalId key;
-  
-  contentType  varchar(32);
+  agentId       AgentId;
+  contentType   varchar(32);
   blob          Clob;
   import(CommonFields);
-  
 }
 
 table labeledContent {
-
-  iid           InternalId key;
-  
+  iid          InternalId key;
+  agentId      AgentId;
   contentIid   Content;
   labelIid     Label;
   import(CommonFields);
-
   unique contentLabel (contentIid labelIid);
-  
 }
-
 
 table connection {
-  
   iid           InternalId key;
-  
+  agentId       AgentId;
   url           Url;
-
   import(CommonFields);
 }
-
 
 table labelAcl {
-
   iid           InternalId key;
-  
-  connectionIid   Connection;
-  labelIid     Label;
-
+  agentId       AgentId;
+  connectionIid Connection;
+  labelIid      Label;
   import(CommonFields);
-
 }
-
-
-

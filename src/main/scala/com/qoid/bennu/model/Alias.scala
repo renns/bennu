@@ -9,6 +9,7 @@ object Alias extends BennuMapperCompanion[Alias] {
 
 case class Alias(
   @PrimaryKey iid: InternalId,
+  agentId: AgentId,
   rootLabelIid: InternalId,
   name: String,
   deleted: Boolean = false,
