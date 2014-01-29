@@ -17,7 +17,7 @@ case class CreateChannel @Inject() (
 ) {
   
   def service = {
-//    val agent = Agent.fetch(agentId.asIid)
+    val agent = Agent.fetch(agentId.asIid)
     val channel = manager.createChannel()
     Agent.channelToAgentIdMap += channel.id -> agentId
     jobj("id", JString(channel.id.value))
