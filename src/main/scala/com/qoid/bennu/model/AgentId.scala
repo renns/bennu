@@ -21,4 +21,6 @@ object AgentId extends HasStringConverter {
   implicit def sqlEscape(agentId: AgentId): m3.jdbc.SqlEscaped = m3.jdbc.SqlEscaped.string(agentId.value)
 }
 
-case class AgentId(value: String)
+case class AgentId(value: String) {
+  def asIid = InternalId(value)
+}

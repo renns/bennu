@@ -28,6 +28,14 @@ import m3.jdbc.M3ProviderDataSource
 import m3.predef._
 import m3.json.ConfigAssist
 import m3.json.JsonSerializer
+import com.qoid.bennu.model.AgentId
+import com.google.inject.Singleton
+import net.model3.transaction.TransactionManager
+import com.qoid.bennu.SecurityContext.ProviderSecurityContext
+import m3.servlet.beans.Wrappers
+import m3.servlet.beans.guice.ProviderOptionalRequest
+import m3.servlet.longpoll.ChannelId
+import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
 
 object GuiceModule {
   
@@ -68,6 +76,13 @@ object GuiceModule {
     
   }
   
+  @Singleton
+  class ProviderAgentId @Inject() (
+    txnManager: TransactionManager
+  ) extends Provider[AgentId] {
+    def get = Option(txnManager.getTransaction.getAttribute[AgentId](classOf[AgentId].getName())).getOrError("no agent id found")
+  }
+
 }
 
 
@@ -94,6 +109,9 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
+    bind[SecurityContext].toProvider[ProviderSecurityContext]
+    bind[Option[Wrappers.Request]].toProvider[ProviderOptionalRequest]
+    bind[Option[ChannelId]].toProvider[ProviderOptionalChannelId]
         
   }
   

@@ -1,6 +1,8 @@
 
 
-curl http://localhost:8080/api/channel/create
+curl http://localhost:8080/api/channel/create/xyzpdq
+
+Where xyzpdq is the agentId
 
 responds with
 {
@@ -39,18 +41,6 @@ curl \
   -d '{"type":"TYPE","primaryKey":"PRIMARY_KEY"}' \
   localhost:8080/api/delete
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
 
 

@@ -1,8 +1,8 @@
 package playground
 
-import m3.GuiceApp
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.Alias
+import m3.guice.GuiceApp
 
 object DeSerializeAlias extends GuiceApp {
 

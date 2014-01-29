@@ -8,8 +8,6 @@ import m3.servlet.scalate.ScalateFilter
 import m3.servlet.RootServletFilter
 import m3.servlet.upload.FileUploadFilter
 import m3.servlet.TransactionFilter
-import com.qoid.bennu.webservices.examples.ExampleService
-import com.qoid.bennu.webservices.examples.DoSomethingWithDatabase
 import com.qoid.bennu.webservices.examples.AdditionService
 import com.qoid.bennu.webservices.examples.MultiplicationService
 import m3.servlet.longpoll.webservice.ChannelCreate
@@ -30,7 +28,7 @@ class WebServicesModule extends M3ServletModule {
     filter("/api/*").through(classOf[CorsFilter])
     
     // currently this breaks long polling so we have it commented out
-//    filter("/*").through(classOf[CompressionFilter])
+    filter("/*").through(classOf[CompressionFilter])
     
     // support multipart content types
     filter("/*").through(classOf[FileUploadFilter]) 
@@ -48,16 +46,13 @@ class WebServicesModule extends M3ServletModule {
     filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
     
-    serveBean[ChannelCreate]("/api/channel/create")
+    serveBean[CreateChannel]("/api/channel/create")
     serveBean[ChannelPoll]("/api/channel/poll")
     serveBean[SubmitChannelRequests]("/api/channel/submit")
 
     serveBean[UpsertService]("/api/upsert")
     serveBean[DeleteService]("/api/delete")
     serveBean[QueryService]("/api/query")
-
-    serveBean[DoSomethingWithDatabase]("/api/example/doSomethingWithDatabase")
-    serveBean[ExampleService]("/api/example/exampleService")
     
     serveBean[AdditionService]("/api/example/add")
     serveBean[MultiplicationService]("/api/example/multiply")

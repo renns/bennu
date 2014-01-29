@@ -8,10 +8,14 @@ import m3.predef._
 import m3.servlet.beans.JsonRequestBody
 import m3.servlet.beans.Parm
 import com.qoid.bennu.JdbcAssist
+import m3.servlet.longpoll.ChannelId
+import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 
 case class DeleteService @Inject()(
   conn: Connection,
   requestBody: JsonRequestBody,
+  securityContext: AgentCapableSecurityContext,
   @Parm("type") _type: String,
   @Parm("primaryKey") iid: InternalId
 ) extends Logging {

@@ -48,7 +48,6 @@ table content {
   iid           InternalId key;
   agentId       AgentId;
   contentType   varchar(32);
-  blob          Clob;
   import(CommonFields);
 }
 

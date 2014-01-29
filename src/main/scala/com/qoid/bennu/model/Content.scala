@@ -11,7 +11,6 @@ case class Content(
   @PrimaryKey iid: InternalId,
   agentId: AgentId,
   contentType: String,
-  blob: String,
   data: JValue,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Content] {

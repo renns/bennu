@@ -14,11 +14,14 @@ import com.qoid.bennu.model.HasInternalId
 import m3.servlet.beans.JsonRequestBody
 import scala.language.existentials
 import com.qoid.bennu.JdbcAssist
+import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 
 case class UpsertService @Inject()(
   conn: Connection,
   serializer: JsonSerializer,
   requestBody: JsonRequestBody,
+  securityContext: AgentCapableSecurityContext,
   @Parm("type") _type: String,
   @Parm instance: JValue
 ) extends Logging {

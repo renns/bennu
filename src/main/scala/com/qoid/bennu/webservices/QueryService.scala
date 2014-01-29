@@ -16,9 +16,14 @@ import scala.language.existentials
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import jsondsl._
+import m3.servlet.longpoll.ChannelId
+import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 
 case class QueryService @Inject()(
   implicit conn: Connection,
+  channelId: ChannelId,
+  securityContext: AgentCapableSecurityContext,
   @Parm("type") _type: String,
   @Parm("q") userWhere: String
 ) extends Logging {
