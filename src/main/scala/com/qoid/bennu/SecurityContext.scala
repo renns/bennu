@@ -17,7 +17,7 @@ object SecurityContext {
   case object SuperUserSecurityContext extends SecurityContext
 
   sealed trait AgentCapableSecurityContext extends SecurityContext {
-    def optAgentId: Option[AgentId] = Some(agentId)
+    override def optAgentId: Option[AgentId] = Some(agentId)
     def agentId: AgentId
   }
 
