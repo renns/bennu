@@ -36,6 +36,8 @@ import m3.servlet.beans.Wrappers
 import m3.servlet.beans.guice.ProviderOptionalRequest
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
+import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
+import com.qoid.bennu.SecurityContext.ProviderAgentCapableSecurityContext
 
 object GuiceModule {
   
@@ -110,6 +112,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
     bind[SecurityContext].toProvider[ProviderSecurityContext]
+    bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
     bind[Option[Wrappers.Request]].toProvider[ProviderOptionalRequest]
     bind[Option[ChannelId]].toProvider[ProviderOptionalChannelId]
         
