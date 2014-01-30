@@ -52,6 +52,17 @@ object SecurityContext {
       
     }
   }
+
+  class ProviderAgentCapableSecurityContext @Inject() (
+      provSecurityContext: Provider[SecurityContext]
+  ) extends Provider[AgentCapableSecurityContext] {
+    def get: AgentCapableSecurityContext = {
+      provSecurityContext.get match {
+        case a: AgentCapableSecurityContext => a
+        case s => m3x.error("found ${s} required AgentCapableSecurityContext")
+      }
+    }
+  }
   
 }
 
