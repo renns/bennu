@@ -16,11 +16,14 @@ object SecurityContext {
 
   case object SuperUserSecurityContext extends SecurityContext
 
-  sealed trait AgentCapableSecurityContext extends SecurityContext
-  
+  sealed trait AgentCapableSecurityContext extends SecurityContext {
+    def optAgentId: Option[AgentId] = Some(agentId)
+    def agentId: AgentId
+  }
+
   case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext
-  case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext
-  case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext
+//  case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext
+//  case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext
 
   
   /**
@@ -68,5 +71,5 @@ object SecurityContext {
 
 
 sealed trait SecurityContext {
-
+  def optAgentId: Option[AgentId] = None
 }

@@ -12,7 +12,7 @@ import m3.servlet.longpoll.ChannelId
 import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 
-case class DeleteService @Inject()(
+case class DeleteService @Inject() (
   conn: Connection,
   requestBody: JsonRequestBody,
   securityContext: AgentCapableSecurityContext,

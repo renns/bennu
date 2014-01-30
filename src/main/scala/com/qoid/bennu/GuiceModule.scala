@@ -111,10 +111,11 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
-    bind[SecurityContext].toProvider[ProviderSecurityContext]
-    bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
     bind[Option[Wrappers.Request]].toProvider[ProviderOptionalRequest]
     bind[Option[ChannelId]].toProvider[ProviderOptionalChannelId]
+
+    bind[SecurityContext].toProvider[ProviderSecurityContext]
+    bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
         
   }
   
