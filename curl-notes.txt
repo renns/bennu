@@ -1,6 +1,6 @@
 
 
-curl http://localhost:8080/api/channel/create/xyzpdq
+curl http://localhost:8080/api/channel/create/007
 
 Where xyzpdq is the agentId
 

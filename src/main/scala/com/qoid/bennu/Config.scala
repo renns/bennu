@@ -10,18 +10,18 @@ import m3.StringConverters
 
 object Config {
 
-  object Ring0Token extends StringConverters.HasStringConverter {
-    val stringConverter = new StringConverters.Converter[Ring0Token] {
-      override def toString(value: Ring0Token) = value.value
-      def fromString(value: String) = Ring0Token(value)
+  object SuperUserAuthToken extends StringConverters.HasStringConverter {
+    val stringConverter = new StringConverters.Converter[SuperUserAuthToken] {
+      override def toString(value: SuperUserAuthToken) = value.value
+      def fromString(value: String) = SuperUserAuthToken(value)
     }    
   }
   
-  case class Ring0Token(value: String)
+  case class SuperUserAuthToken(value: String)
   
 }
 
 case class Config(
     database: Database,
-    ring0Token: Config.Ring0Token = Config.Ring0Token("i_am_canadian")
+    superUserAuthTokens: List[Config.SuperUserAuthToken] = List(Config.SuperUserAuthToken("i_am_canadian"))
 )

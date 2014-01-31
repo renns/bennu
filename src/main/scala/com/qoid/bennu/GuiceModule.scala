@@ -38,6 +38,8 @@ import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu.SecurityContext.ProviderAgentCapableSecurityContext
+import m3.servlet.longpoll.JettyChannelManager
+import m3.servlet.longpoll.ChannelManager
 
 object GuiceModule {
   
@@ -116,7 +118,9 @@ class GuiceModule extends ScalaModule with Provider[Module] {
 
     bind[SecurityContext].toProvider[ProviderSecurityContext]
     bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
-        
+    
+    bind[ChannelManager].to[JettyChannelManager]
+
   }
   
   @Provides
