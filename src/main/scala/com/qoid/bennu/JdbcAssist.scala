@@ -1,19 +1,19 @@
 package com.qoid.bennu
 
-import m3.jdbc._
-import java.sql.Connection
 import com.qoid.bennu.model.HasInternalId
 import com.qoid.bennu.model.InternalId
-import m3.predef._
-import m3.json.JsonSerializer
-import net.liftweb.json.JValue
-import net.liftweb.json.JNothing
-import m3.TypeInfo
-import m3.jdbc.ColumnMapper.SingleColumnMapper
-import java.sql.Types
-import java.sql.ResultSet
+import java.sql.Connection
 import java.sql.PreparedStatement
-import m3.jdbc.ColumnMapper
+import java.sql.ResultSet
+import java.sql.Types
+import m3.jdbc.ColumnMapper.SingleColumnMapper
+import m3.jdbc._
+import m3.json.JsonSerializer
+import m3.predef._
+import m3.Txn
+import m3.TypeInfo
+import net.liftweb.json.JNothing
+import net.liftweb.json.JValue
 
 object JdbcAssist extends Logging {
 
@@ -28,8 +28,10 @@ object JdbcAssist extends Logging {
       conn.update(sql"update ${tableName.rawSql} set deleted = true where iid = ${iid}")
     }
     def softDelete(t: T)(implicit conn: Connection): T = {
-      softDeleteViaKey(t.iid)
-      t
+      Txn {
+        softDeleteViaKey(t.iid)
+        fetch(t.iid)
+      }
     }
     def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
     def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
