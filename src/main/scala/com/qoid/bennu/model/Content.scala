@@ -13,7 +13,7 @@ case class Content(
   contentType: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId[Content] with BennuMappedInstance[Content] {
+) extends HasInternalId with BennuMappedInstance[Content] {
   def mapper = Content
 }
 

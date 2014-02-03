@@ -9,19 +9,24 @@ import com.qoid.bennu.model.Agent
 import java.sql.Connection
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.security.ChannelMap
+import com.qoid.bennu.model.InternalId
+import m3.servlet.ForbiddenException
+import m3.predef._
+import box._
 
 case class CreateChannel @Inject() (
   implicit 
   conn: Connection,
   manager: ChannelManager,
-  @Parm agentId: AgentId
+  @Parm authenticationId: InternalId
 ) {
   
   def service = {
-    val agent = Agent.fetch(agentId.asIid)
-    val channel = manager.createChannel()
-    Agent.channelToAgentIdMap += channel.id -> agentId
-    jobj("id", JString(channel.id.value))
+    ChannelMap.authenticate(authenticationId) match {
+      case Full(channelId) => jobj("id", JString(channelId.value))
+      case _ => throw new ForbiddenException("authentication failed")
+    }
   }
   
 }

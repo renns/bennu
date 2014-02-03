@@ -7,11 +7,20 @@ import net.model3.logging.LoggerHelper
 import com.qoid.bennu.model.InternalId
 import net.model3.lang.TimeDuration
 
+/**
+ * 
+ * A script to test the standing query by running a few inserts (need to manually confirm via the logs that things worked)
+ * 
+ * + creates a channel and starts polling
+ * + registers an squery to listen for changes to label and labelchild
+ * + inserts a parent label, a child label and a labelchild to connect them
+ * + 
+ */
 object StandingQueryIntegrator extends GuiceApp with HttpAssist {
   
   LoggerHelper.getLogger()
   
-  implicit val config = HttpAssist.Config()
+  implicit val config = HttpAssist.HttpClientConfig()
   implicit val agentId = AgentId("007")
   implicit val channel = createChannel
   
@@ -56,7 +65,7 @@ object StandingQueryIntegrator extends GuiceApp with HttpAssist {
         }
       } 
     },{
-      "path": "/api/delete", 
+      "path": "/api/upsert", 
       "context": "insert_childlabel", 
       "parms": {
         "type": "labelchild",
@@ -64,8 +73,8 @@ object StandingQueryIntegrator extends GuiceApp with HttpAssist {
           "agentId": "${agentId.value}",
           "iid": "${labelChildIid.value}",
           "data": "",
-          "parentLabel": "${parentLabelIid.value}"
-          "childLabel": "${childLabelIid.value}"
+          "parentIid": "${parentLabelIid.value}"
+          "childIid": "${childLabelIid.value}"
         }
       }
     }

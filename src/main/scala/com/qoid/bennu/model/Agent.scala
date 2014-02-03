@@ -7,9 +7,6 @@ import m3.LockFreeMap
 import m3.servlet.longpoll.ChannelId
 
 object Agent extends BennuMapperCompanion[Agent] {
-  
-  val channelToAgentIdMap = LockFreeMap[ChannelId,AgentId]()
-  
 }
 
 case class Agent(
@@ -18,6 +15,6 @@ case class Agent(
   name: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId[Agent] with BennuMappedInstance[Agent] {
+) extends HasInternalId with BennuMappedInstance[Agent] {
   def mapper = Agent
 }

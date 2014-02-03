@@ -25,7 +25,7 @@ case class DeleteService @Inject() (
   def service: JValue = {
 
     // Get the mapper for the passed in type
-    val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId.GenericInstance]]
+    val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
 
     // Get the instance
     val i = mapper.fetch(iid)

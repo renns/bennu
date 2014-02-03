@@ -20,14 +20,15 @@ import java.sql.{ Connection => JdbcConn }
 import com.qoid.bennu.model.Connection
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
 import com.google.inject.Singleton
+import com.qoid.bennu.security.ChannelMap
 
 object SecurityContext {
 
   case object SuperUserSecurityContext extends SecurityContext {
     def createView = new AgentView {
-      override def validateInsertUpdateOrDelete[T <: HasInternalId[T]](t: T) = Full(t)
-      def constrict[T <: HasInternalId[T]](mapper: Mapper[T,InternalId], query: Query): Query = query
-      def readResolve[T <: HasInternalId[T]](t: T) = Full(t)
+      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Full(t)
+      def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = query
+      def readResolve[T <: HasInternalId](t: T) = Full(t)
     }
   }
 
@@ -39,12 +40,12 @@ object SecurityContext {
 
   case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext {
     def createView = new AgentView {
-      override def validateInsertUpdateOrDelete[T <: HasInternalId[T]](t: T) = {
+      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
         else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
       }
-      override def constrict[T <: HasInternalId[T]](mapper: Mapper[T,InternalId], query: Query): Query = query.and(agentWhereClause.expr)
-      override def readResolve[T <: HasInternalId[T]](t: T) = {
+      override def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = query.and(agentWhereClause.expr)
+      override def readResolve[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
         else Failure("agent cannot read another agents data")
       }
@@ -53,7 +54,7 @@ object SecurityContext {
 
   object ConnectionSecurityContext {
     import com.qoid.bennu.model._
-    val readableTypes: Set[Mapper[_ <: HasInternalId[_], InternalId]] = Set(
+    val readableTypes: Set[Mapper[_ <: HasInternalId, InternalId]] = Set(
       Content,
       Label,
       LabelAcl,
@@ -73,7 +74,7 @@ object SecurityContext {
       
       lazy val connection = Connection.fetch(connectionIid)
   
-      override def validateInsertUpdateOrDelete[T <: HasInternalId[T]](t: T) = Failure("connections cannot do insert, update or delete actions on other agents")
+      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Failure("connections cannot do insert, update or delete actions on other agents")
 
       lazy val reachableLabels = inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
@@ -94,12 +95,12 @@ object SecurityContext {
         select iid from labelacl where connectionIid = ${connectionIid}
       """).toList
       
-      override def constrict[T <: HasInternalId[T]](mapper: Mapper[T,InternalId], query: Query): Query = ???
+      override def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = ???
       
-      override def readResolve[T <: HasInternalId[T]](t: T) = {
+      override def readResolve[T <: HasInternalId](t: T) = {
         import ConnectionSecurityContext._
         if ( agentId != t.agentId ) Failure("agent cannot read another agents data")
-        else if ( readableTypes.contains(t.mapper) ) Full(t)
+        else if ( readableTypes.contains(t.mapper.asInstanceOf[Mapper[_ <: HasInternalId, InternalId]]) ) Full(t)
         else {
           Empty
         }
@@ -109,25 +110,13 @@ object SecurityContext {
   }
 
   
-  /**
-   * Stupid implementation to convert a channelId into a SecurityContext.  Right now it assumes
-   * all channels are agents.
-   */
-  def apply(channelId: ChannelId): SecurityContext = {
-    val agentId = Agent.channelToAgentIdMap.get(channelId).getOrElse(throw new NotFoundException(s"no agent id found for ${channelId}"))
-    AgentSecurityContext(agentId)
-  }
-  
   
   @Singleton
   class ProviderSecurityContext @Inject() (
       provChannelId: Provider[Option[ChannelId]]
   ) extends Provider[SecurityContext] {
     def get: SecurityContext = {
-      val ch = provChannelId.get
-      ch.map(chId=>SecurityContext(chId)).
-        getOrElse(throw new ForbiddenException("unable to find a channel id that could be translated into an agent id"))
-      
+      provChannelId.get.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException("unable to find security context"))
     }
   }
 
@@ -170,14 +159,14 @@ object SecurityContext {
 
 sealed trait AgentView {
   
-  def validateInsert[T <: HasInternalId[T]](t: T): Box[T] = validateInsertUpdateOrDelete(t)
-  def validateUpdate[T <: HasInternalId[T]](t: T): Box[T] = validateInsertUpdateOrDelete(t)
-  def validateDelete[T <: HasInternalId[T]](t: T): Box[T] = validateInsertUpdateOrDelete(t)
+  def validateInsert[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
+  def validateUpdate[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
+  def validateDelete[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
   
   /**
    * Ensure that t is can be inserted, updated and deleted from this view
    */
-  def validateInsertUpdateOrDelete[T <: HasInternalId[T]](t: T): Box[T]
+  def validateInsertUpdateOrDelete[T <: HasInternalId](t: T): Box[T]
   
   /**
    * Can remove data that should be hidden at this view or outright deny access.
@@ -185,9 +174,9 @@ sealed trait AgentView {
    * readResolve is called on data that has already been constricted
    * 
    */
-  def readResolve[T <: HasInternalId[T]](t: T): Box[T]
+  def readResolve[T <: HasInternalId](t: T): Box[T]
   
-  def constrict[T <: HasInternalId[T]](mapper: Mapper[T,InternalId], query: Query): Query
+  def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query
 
 }
 

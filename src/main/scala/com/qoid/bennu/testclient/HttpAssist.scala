@@ -19,7 +19,7 @@ import org.apache.http.entity.StringEntity
 
 object HttpAssist {
 
-  case class Config(
+  case class HttpClientConfig(
       server: String = "http://localhost:8080",
       pollTimeout: TimeDuration = new TimeDuration("30 seconds")
   )
@@ -32,7 +32,7 @@ trait HttpAssist extends Logging {
   
   def client = HttpClientBuilder.create.build
   
-  def spawnLongPoller(implicit id: ChannelId, config: Config) = spawn(s"long-poller-${id.value}"){
+  def spawnLongPoller(implicit id: ChannelId, config: HttpClientConfig) = spawn(s"long-poller-${id.value}"){
     while( true ) {
       longPoll.foreach { msg =>
         logger.debug(s"long poll response\n${msg.toJsonStr}")
@@ -40,7 +40,7 @@ trait HttpAssist extends Logging {
     }
   }
   
-  def longPoll(implicit id: ChannelId, config: Config): List[JValue] = {
+  def longPoll(implicit id: ChannelId, config: HttpClientConfig): List[JValue] = {
     
     val get = new HttpGet((config.server + "/api/channel/poll/" + id.value + "/" + config.pollTimeout.inMilliseconds).toString)
    
@@ -56,7 +56,7 @@ trait HttpAssist extends Logging {
     
   }
   
-  def createChannel(implicit agentId: AgentId, config: Config): ChannelId = {
+  def createChannel(implicit agentId: AgentId, config: HttpClientConfig): ChannelId = {
     
     val get = new HttpGet(config.server + "/api/channel/create/" + agentId.value)
    
@@ -71,7 +71,7 @@ trait HttpAssist extends Logging {
     
   }
 
-  def registerStandingQuery(types: List[String])(implicit channel: ChannelId, config: Config): InternalId = {
+  def registerStandingQuery(types: List[String])(implicit channel: ChannelId, config: HttpClientConfig): InternalId = {
     
     val handle = InternalId.random
     
@@ -85,7 +85,7 @@ trait HttpAssist extends Logging {
     
   }
   
-  def post(path: String, channel: Option[ChannelId], jsonBody: JValue)(implicit config: Config) = {
+  def post(path: String, channel: Option[ChannelId], jsonBody: JValue)(implicit config: HttpClientConfig) = {
 
     val post = new HttpPost(config.server + path)
    

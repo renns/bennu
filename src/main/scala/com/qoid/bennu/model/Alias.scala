@@ -14,6 +14,6 @@ case class Alias(
   name: String,
   deleted: Boolean = false,
   data: JValue
-) extends HasInternalId[Alias] with BennuMappedInstance[Alias] {
+) extends HasInternalId with BennuMappedInstance[Alias] {
   def mapper = Alias
 }
