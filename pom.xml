@@ -10,6 +10,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <dependencies>
+  
+		<dependency>
+		  <groupId>org.apache.httpcomponents</groupId>
+		  <artifactId>httpclient</artifactId>
+		  <version>4.3.2</version>
+		</dependency>
 
     <dependency>
       <groupId>net.model3</groupId>

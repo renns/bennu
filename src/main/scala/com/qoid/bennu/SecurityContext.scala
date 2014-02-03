@@ -11,6 +11,8 @@ import m3.predef._
 import com.qoid.bennu.model.Agent
 import m3.servlet.ForbiddenException
 import m3.servlet.NotFoundException
+import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
+import com.google.inject.Singleton
 
 object SecurityContext {
 
@@ -36,12 +38,30 @@ object SecurityContext {
   }
   
   
+  @Singleton
   class ProviderSecurityContext @Inject() (
-      provHttpReq: Provider[Option[Wrappers.Request]],
       provChannelId: Provider[Option[ChannelId]]
   ) extends Provider[SecurityContext] {
     def get: SecurityContext = {
+      val ch = provChannelId.get
+      ch.map(chId=>SecurityContext(chId)).
+        getOrElse(throw new ForbiddenException("unable to find a channel id that could be translated into an agent id"))
       
+    }
+  }
+
+  class BennuProviderChannelId @Inject() (
+    provOptChannelId: Provider[Option[ChannelId]]
+  ) extends Provider[ChannelId] {
+    def get = provOptChannelId.get.getOrError("unable to find channel id")
+  }
+
+  @Singleton
+  class BennuProviderOptionChannelId @Inject() (
+      provHttpReq: Provider[Option[Wrappers.Request]],
+      provChannelId: ProviderOptionalChannelId
+  ) extends Provider[Option[ChannelId]] {
+    def get = {
       provHttpReq.
         get.
         flatMap { req =>
@@ -49,10 +69,7 @@ object SecurityContext {
             orElse(req.cookieValue("channel")).
             map(ChannelId.apply)
         }.
-        orElse(provChannelId.get).
-        map(chId=>SecurityContext(chId)).
-        getOrElse(throw new ForbiddenException("unable to find a channel id that could be translated into an agent id"))
-      
+        orElse(provChannelId.get)
     }
   }
 
