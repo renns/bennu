@@ -28,7 +28,7 @@ case class UpsertService @Inject()(
   def service: JValue = {
 
     // Get the mapper for the passed in type
-    val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+    val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId.GenericInstance]]
 
     // Deserialize the passed in instance
     val i = mapper.fromJson(instance)

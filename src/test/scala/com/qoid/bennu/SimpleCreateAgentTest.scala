@@ -7,6 +7,7 @@ import java.sql.Connection
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.Agent
 import JsonAssist._
+import com.qoid.bennu.model.AgentId
 
 class SimpleCreateAgentTest extends ScalaUnitTest {
 
@@ -20,6 +21,7 @@ class SimpleCreateAgentTest extends ScalaUnitTest {
       
       val a0 = Agent(
         iid = iid,
+        agentId = AgentId(iid.value),
         name = "Betty",
         data = JNothing
       )

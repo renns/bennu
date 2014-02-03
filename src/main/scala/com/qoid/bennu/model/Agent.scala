@@ -14,10 +14,10 @@ object Agent extends BennuMapperCompanion[Agent] {
 
 case class Agent(
   @PrimaryKey iid: InternalId,
+  agentId: AgentId,
   name: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[Agent] {
-  lazy val agentId: AgentId = AgentId(iid.value)
+) extends HasInternalId[Agent] with BennuMappedInstance[Agent] {
   def mapper = Agent
 }

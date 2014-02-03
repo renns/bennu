@@ -14,6 +14,7 @@ import CommonFields {
 
 table agent {
   iid       InternalId key;
+  agentId   AgentId;
   name      Name;
   import(CommonFields);
 }

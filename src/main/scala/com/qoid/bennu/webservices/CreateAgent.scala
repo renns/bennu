@@ -14,8 +14,10 @@ case class CreateAgent @Inject() (
 ) {
   
   def service = {
+    val iid = id.asIid 
     Agent(
-      iid = id.asIid, 
+      iid = id.asIid,
+      agentId = AgentId(iid.value),
       name = id.value, 
       data = JNothing
     ).sqlInsert

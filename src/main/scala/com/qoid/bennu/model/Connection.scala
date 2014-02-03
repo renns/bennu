@@ -13,6 +13,6 @@ case class Connection(
   url: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[Connection] {
+) extends HasInternalId[Connection] with BennuMappedInstance[Connection] {
   def mapper = Connection
 }

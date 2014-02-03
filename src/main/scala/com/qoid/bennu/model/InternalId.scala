@@ -5,6 +5,8 @@ import m3.StringConverters.Converter
 import m3.predef._
 import net.model3.util.UidGenerator
 import scala.language.implicitConversions
+import m3.jdbc.RowMapper
+import m3.jdbc.Row
 
 object InternalId extends HasStringConverter {
   
@@ -19,6 +21,9 @@ object InternalId extends HasStringConverter {
   
   implicit def sqlEscape(iid: InternalId): m3.jdbc.SqlEscaped = m3.jdbc.SqlEscaped.string(iid.value)
   
+  implicit lazy val rowMapper: RowMapper[InternalId] = new RowMapper[InternalId] {
+    def get(i: Int, row: Row) = InternalId(row.get[String](i))
+  } 
 }
 
 

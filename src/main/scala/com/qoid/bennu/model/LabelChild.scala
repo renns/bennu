@@ -14,6 +14,6 @@ case class LabelChild(
   childIid: InternalId,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[LabelChild] {
+) extends HasInternalId[LabelChild] with BennuMappedInstance[LabelChild] {
   def mapper = LabelChild
 }

@@ -20,7 +20,7 @@ object JdbcAssist extends Logging {
   implicit val columnMapper = new ColumnMapper.DefaultColumnMapperFactory(jvalueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
 
 
-  trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
+  trait BennuMapperCompanion[T <: HasInternalId[T]] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
     
     val serializer = inject[JsonSerializer]
     
@@ -37,12 +37,12 @@ object JdbcAssist extends Logging {
     def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
   }
 
-  trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>
+  trait BennuMappedInstance[T <: HasInternalId[T]] extends Mapper.MappedInstance[T,InternalId] { self: T =>
     override def mapper: BennuMapperCompanion[T]
     def softDelete(implicit conn: Connection): Unit = mapper.softDelete(this)
   }
 
-  def findMapperByTypeName(_type: String): BennuMapperCompanion[_ <: HasInternalId] = {
+  def findMapperByTypeName(_type: String): BennuMapperCompanion[_ <: HasInternalId[_]] = {
     import model._
     _type.toLowerCase match {
       case "alias" => Alias

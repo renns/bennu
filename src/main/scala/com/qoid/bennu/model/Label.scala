@@ -13,6 +13,6 @@ case class Label(
   name: String,
   data: JValue,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[Label] {
+) extends HasInternalId[Label] with BennuMappedInstance[Label] {
   def mapper = Label
 }

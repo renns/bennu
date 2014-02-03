@@ -9,6 +9,7 @@ import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.JsonAssist._
 import net.model3.newfile.Directory
+import com.qoid.bennu.model.AgentId
 
 object CreateDatabase extends App {
 
@@ -31,9 +32,11 @@ object CreateDatabase extends App {
     schemaManager.createFullSchemaDdl.foreach { ddl =>
       conn.update(ddl)
     }
-   
+
+    val iid =  InternalId("007")
     Agent(
-      iid = InternalId("007"),
+      iid = iid,
+      agentId = AgentId(iid.value),
       name = "Bond, James Bond",
       data = JNothing
     ).sqlInsert
