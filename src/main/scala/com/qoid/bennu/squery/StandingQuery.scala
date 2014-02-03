@@ -7,5 +7,5 @@ case class StandingQuery(
   agentId: AgentId,
   channelId: ChannelId,
   handle: InternalId,
-  tpe: String
+  types: Set[String]
 )

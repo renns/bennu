@@ -25,7 +25,7 @@ class StandingQueryManager {
     for (
       sQueryMap <- map.get(agentId).toList;
       sQuery <- sQueryMap.values
-      if sQuery.tpe.toLowerCase == typeLowerCase
+      if sQuery.types.contains(typeLowerCase)
     ) yield sQuery
   }
 }

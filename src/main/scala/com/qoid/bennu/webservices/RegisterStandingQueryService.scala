@@ -19,11 +19,10 @@ case class RegisterStandingQueryService @Inject()(
 ) extends Logging {
 
   def service: JValue = {
-    types.foreach( tpe =>
-      sQueryMgr.add(
-        StandingQuery(securityContext.agentId, channelId, handle, tpe)
-      )
+    sQueryMgr.add(
+      StandingQuery(securityContext.agentId, channelId, handle, types.map(_.toLowerCase).toSet)
     )
     JString("success")
   }
+
 }
