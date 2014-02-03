@@ -6,10 +6,12 @@ import java.sql.Connection
 import m3.jdbc._
 import javax.sql.DataSource
 import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.JsonAssist._
 import net.model3.newfile.Directory
 import com.qoid.bennu.model.AgentId
+import com.qoid.bennu.webservices.CreateAgent
 
 object CreateDatabase extends App {
 
@@ -33,13 +35,7 @@ object CreateDatabase extends App {
       conn.update(ddl)
     }
 
-    val iid =  InternalId("007")
-    Agent(
-      iid = iid,
-      agentId = AgentId(iid.value),
-      name = "Bond, James Bond",
-      data = JNothing
-    ).sqlInsert
+    val agent = CreateAgent()(conn, AgentId("007")).doCreate
 
     conn.commit
     
