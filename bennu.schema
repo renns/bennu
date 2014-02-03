@@ -47,6 +47,7 @@ table alias {
 table content {
   iid           InternalId key;
   agentId       AgentId;
+  aliasIid		InternalId;
   contentType   varchar(32);
   import(CommonFields);
 }

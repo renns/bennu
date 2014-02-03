@@ -10,6 +10,7 @@ object Content extends BennuMapperCompanion[Content] {
 case class Content(
   @PrimaryKey iid: InternalId,
   agentId: AgentId,
+  aliasIid: InternalId,
   contentType: String,
   data: JValue,
   deleted: Boolean = false
