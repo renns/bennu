@@ -1,7 +1,6 @@
 package com.qoid.bennu.squery
-
-import scala.util.parsing.combinator.JavaTokenParsers
 import ast._
+import com.qoid.bennu.squery.ast.Node
 
 object QuerryParserDemo extends App {
   

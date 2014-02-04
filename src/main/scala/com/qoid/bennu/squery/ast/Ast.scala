@@ -61,7 +61,7 @@ case class NumericLit(value: BigDecimal) extends Node
 
 case class Parens(expr: Node) extends Node
 
-sealed trait Op {
+sealed trait Op extends Node {
   val left: Node
   val right: Node
   val op: Operator
@@ -73,28 +73,70 @@ case class BoolOp(left: Node, right: Node, op: BooleanOperator) extends Node wit
 case class FunctionCall(name: String, parms: List[Node]) extends Node
 
 sealed abstract class Operator {
-  def symbol: String 
+  def symbol: String
+  val evaluator: PartialFunction[(Evaluator.Value,Evaluator.Value), Evaluator.Value]
 }
 
-case class BooleanOperator(symbol: String) extends Operator
-case class ValueOperator(symbol: String) extends Operator 
+case class BooleanOperator(symbol: String)(val evaluator: PartialFunction[(Evaluator.Value,Evaluator.Value), Evaluator.Value]) extends Operator
+case class ValueOperator(symbol: String)(val evaluator: PartialFunction[(Evaluator.Value,Evaluator.Value), Evaluator.Value]) extends Operator 
 
 object operators {
   
-  val plus = ValueOperator("+")
-  val minus = ValueOperator("-")
-  val mult = ValueOperator("*")
-  val div = ValueOperator("/")
-
-  val lessThan = BooleanOperator("<")
-  val lessThanOrEqual = BooleanOperator("<=")
-  val greaterThan = BooleanOperator(">")
-  val greaterThanOrEqual = BooleanOperator(">=")
-  val equal = BooleanOperator("=")
-  val notEqual = BooleanOperator("!=")
+  import Evaluator._
   
-  val and = BooleanOperator("and")
-  val or = BooleanOperator("or")
+  val plus = ValueOperator("+") {
+    case (VNum(l), VNum(r)) => VNum(l+r)
+  }
+  
+  val minus = ValueOperator("-") {
+    case (VNum(l), VNum(r)) => VNum(l-r)
+  }
+  
+  val mult = ValueOperator("*") {
+    case (VNum(l), VNum(r)) => VNum(l*r)
+  }
+  
+  val div = ValueOperator("/") {
+    case (VNum(l), VNum(r)) => VNum(l/r)
+  }
+
+  val lessThan = BooleanOperator("<") {
+    case (VNum(l), VNum(r)) => VBool(l < r)
+    case (VStr(l), VStr(r)) => VBool(l < r)
+  }
+  
+  val lessThanOrEqual = BooleanOperator("<=") {
+    case (VNum(l), VNum(r)) => VBool(l <= r)
+    case (VStr(l), VStr(r)) => VBool(l <= r)
+  }
+  
+  val greaterThan = BooleanOperator(">") {
+    case (VNum(l), VNum(r)) => VBool(l > r)
+    case (VStr(l), VStr(r)) => VBool(l > r)
+  }
+  
+  val greaterThanOrEqual = BooleanOperator(">=") {
+    case (VNum(l), VNum(r)) => VBool(l >= r)
+    case (VStr(l), VStr(r)) => VBool(l >= r)
+  }
+  
+  val equal = BooleanOperator("=") {
+    case (VNum(l), VNum(r)) => VBool(l == r)
+    case (VStr(l), VStr(r)) => VBool(l == r)
+  }
+  
+  val notEqual = BooleanOperator("!=") {
+    case (VNum(l), VNum(r)) => VBool(l != r)
+    case (VStr(l), VStr(r)) => VBool(l != r)
+  }
+  
+  val and = BooleanOperator("and") {
+    case (VBool(l), VBool(r)) => VBool(l && r)
+  }
+  
+  val or = BooleanOperator("or") {
+    case (VBool(l), VBool(r)) => VBool(l || r)
+  }
   
 }
 

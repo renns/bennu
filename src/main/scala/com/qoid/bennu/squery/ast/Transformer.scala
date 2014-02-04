@@ -1,0 +1,31 @@
+package com.qoid.bennu.squery.ast
+
+import m3.Chord
+import Chord._
+import scala.language.implicitConversions
+
+object Transformer {
+
+
+  def queryToSql(query: Query, transformer: PartialFunction[Node,Chord] = PartialFunction.empty): Chord = {
+    implicit def p(n: Node): Chord = {
+      transformer.applyOrElse(n, simpleNodeToSql)
+    }
+    query.expr.map(p).getOrElse("")
+  }
+
+  def simpleNodeToSql(n: Node): Chord = transformNodeToSql(n)(simpleNodeToSql)
+  
+  def transformNodeToSql(n: Node)(transformer: Node=>Chord): Chord = n match {
+    case i: Identifier => i.parts.mkString(".")
+    case fc: FunctionCall => fc.name ~ "(" ~ fc.parms.map(transformer).mkChord(", ") ~ ")"
+    case op: Op => transformer(op.left) ~*~ op.op.symbol ~*~ transformer(op.right)
+    case NumericLit(value) => value.toString
+    case Parens(e) => "(" ~ transformer(e) ~ ")" 
+    case StringLit(value) => "'" ~ value ~ "'"
+  }
+
+  def reify(n: Node): Chord = simpleNodeToSql(n)
+
+  
+}

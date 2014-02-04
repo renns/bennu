@@ -82,7 +82,7 @@ class QueryParser extends JavaTokenParsers {
   override def stringLiteral = (
     super.stringLiteral
     | ("\'"+"""([^'\p{Cntrl}\\]|\\[\\/bfnrt]|\\u[a-fA-F0-9]{4})*"""+"\'").r
-  )
+  ) ^^ (s => s.substring(1, s.length()-1)) // strip quotes
 
   /** A parser that matches a case insensitive keyword string */
   def k(s: String): Parser[String] = new Parser[String] {

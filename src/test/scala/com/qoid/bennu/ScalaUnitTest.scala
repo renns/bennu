@@ -9,14 +9,16 @@ import org.junit.Before
 
 abstract class ScalaUnitTest extends JUnitSuite with org.scalatest.junit.AssertionsForJUnit {
 
+  case class TestData[TInput,TOutput](input: TInput, expectedOutput: TOutput)
+  
   @Before def initialize = {
     DependencyInjector.set(new GuiceTestModule().get)
   }
-  
-  def runTests[TInput,TOutput](tests: List[(TInput,TOutput)], context: String = "")( code: TInput => TOutput ) = {
 
-    val results = tests.map { case (input, expectedOutput) =>
-      expectedOutput -> code(input)
+  def runTests[TInput,TOutput](testData: List[TestData[TInput,TOutput]], context: String = "")( code: TInput => TOutput ) = {
+
+    val results = testData.map { td =>
+      td.expectedOutput -> code(td.input)
     }
 
     lazy val heading = println(s"==== ${context} - ${getClass.getName} ====")
