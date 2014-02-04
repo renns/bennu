@@ -11,6 +11,8 @@ import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.model.Alias
 
+import jsondsl._
+
 case class CreateAgent @Inject() (
   implicit
   conn: Connection,
@@ -28,14 +30,14 @@ case class CreateAgent @Inject() (
       iid = id.asIid ,
       agentId = id,
       name = id.value, 
-      data = JNothing
+      data = JObject(Nil)
     ).sqlInsert
     
     val rootLabel = Label(
       iid = InternalId.random,
       agentId = id,
       name = "uber label",
-      data = JNothing
+      data = ("color" -> "white")
     ).sqlInsert
 
     val rootAlias = Alias(
@@ -43,7 +45,7 @@ case class CreateAgent @Inject() (
       agentId = id,
       name = "uber alias",
       rootLabelIid = rootLabel.iid,
-      data = JNothing
+      data = ("name" -> "Uber Alias")
     ).sqlInsert
     
     agent
