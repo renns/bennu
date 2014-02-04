@@ -19,9 +19,9 @@ case class CreateAgent @Inject() (
   @Parm id: AgentId
 ) {
   
-  def service = {
+  def service: JValue = {
     doCreate
-    "successfully created the agent"
+    ("agentId" -> id.value)
   }
   
   def doCreate: Agent = {
