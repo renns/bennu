@@ -85,7 +85,7 @@ trait HttpAssist extends Logging {
     
   }
   
-  def post(path: String, channel: Option[ChannelId], jsonBody: JValue)(implicit config: HttpClientConfig) = {
+  def post(path: String, channel: Option[ChannelId] = None, jsonBody: JValue)(implicit config: HttpClientConfig) = {
 
     val post = new HttpPost(config.server + path)
    

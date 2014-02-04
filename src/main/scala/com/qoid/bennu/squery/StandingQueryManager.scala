@@ -5,6 +5,7 @@ import m3.LockFreeMap
 
 @com.google.inject.Singleton
 class StandingQueryManager {
+  
   private val map = new LockFreeMap[AgentId, LockFreeMap[InternalId, StandingQuery]]
 
   def add(sQuery: StandingQuery): Unit = {
