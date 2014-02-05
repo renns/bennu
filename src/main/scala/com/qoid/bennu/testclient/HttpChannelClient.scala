@@ -16,7 +16,7 @@ import scala.concurrent._
 
 class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClient {
   private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
-  private val pollTimeout = new TimeDuration("10 seconds")
+  private val pollTimeout = new TimeDuration("5 seconds")
 
   spawnLongPoller()
 
