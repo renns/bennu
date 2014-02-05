@@ -14,6 +14,7 @@ import m3.Txn
 import m3.TypeInfo
 import net.liftweb.json.JNothing
 import net.liftweb.json.JValue
+import net.model3.lang.ClassX
 
 object JdbcAssist extends Logging {
 
@@ -21,6 +22,8 @@ object JdbcAssist extends Logging {
 
 
   trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
+    
+    lazy val typeName = ClassX.getShortName(clazz) 
     
     val serializer = inject[JsonSerializer]
     
@@ -54,18 +57,9 @@ object JdbcAssist extends Logging {
   )
 
 
-  def findMapperByTypeName(_type: String): BennuMapperCompanion[_ <: HasInternalId] = {
+  def findMapperByTypeName(typeName: String): BennuMapperCompanion[_ <: HasInternalId] = {
     import model._
-    _type.toLowerCase match {
-      case "alias" => Alias
-      case "connection" => model.Connection
-      case "content" => Content
-      case "label" => Label
-      case "labelacl" => LabelAcl
-      case "labelchild" => LabelChild
-      case "labeledcontent" => LabeledContent
-      case _ => m3x.error(s"don't know how to handle type ${_type}")
-    }
+    allMappers.find(_.typeName =:= typeName).getOrError(s"don't know how to handle type ${typeName}")
   }
   
   object jvalueColumnMapper extends SingleColumnMapper[JValue] {
