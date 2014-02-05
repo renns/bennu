@@ -1,25 +1,19 @@
 package com.qoid.bennu.squery
 
-import m3.StringConverters._
+import com.qoid.bennu.Enum
 
 sealed trait StandingQueryAction
 
-object StandingQueryAction extends HasStringConverter {
+object StandingQueryAction extends Enum[StandingQueryAction] {
   case object Insert extends StandingQueryAction
   case object Update extends StandingQueryAction
   case object Delete extends StandingQueryAction
-  case class Unknown(value: String) extends StandingQueryAction
 
-  val stringConverter = new Converter[StandingQueryAction] {
-    override def toString(value: StandingQueryAction): String = value.toString.toLowerCase
+  override val values: Set[StandingQueryAction] = Set(
+    Insert,
+    Update,
+    Delete
+  )
 
-    override def fromString(value: String): StandingQueryAction = {
-      value.toLowerCase match {
-        case "insert" => StandingQueryAction.Insert
-        case "update" => StandingQueryAction.Update
-        case "delete" => StandingQueryAction.Delete
-        case _ => StandingQueryAction.Unknown(value)
-      }
-    }
-  }
+  override def valueToString(value: StandingQueryAction): String = String.valueOf(value).toLowerCase
 }
