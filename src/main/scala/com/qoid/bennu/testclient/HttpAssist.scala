@@ -16,6 +16,8 @@ import com.qoid.bennu.model.InternalId
 import m3.json.LiftJsonAssist._
 import jsondsl._
 import org.apache.http.entity.StringEntity
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.client.methods.CloseableHttpResponse
 
 object HttpAssist {
 
@@ -30,8 +32,6 @@ trait HttpAssist extends Logging {
   
   import HttpAssist._
   
-  def client = HttpClientBuilder.create.build
-  
   def spawnLongPoller(implicit id: ChannelId, config: HttpClientConfig) = spawn(s"long-poller-${id.value}"){
     while( true ) {
       longPoll.foreach { msg =>
@@ -40,11 +40,18 @@ trait HttpAssist extends Logging {
     }
   }
   
+  /**
+   * creates an agent if it already exists that agent is cleared
+   */
+  def createAgent(agentId: AgentId)(implicit config: HttpClientConfig) = {
+    httpGet(s"/api/agent/create/${agentId.value}/true")
+  }
+  
   def longPoll(implicit id: ChannelId, config: HttpClientConfig): List[JValue] = {
     
     val get = new HttpGet((config.server + "/api/channel/poll/" + id.value + "/" + config.pollTimeout.inMilliseconds).toString)
    
-    val response = client.execute(get)
+    val response = executeHttpRequest(get)
     
     val responseBody = response.getEntity.getContent.readString
     
@@ -60,7 +67,7 @@ trait HttpAssist extends Logging {
     
     val get = new HttpGet(config.server + "/api/channel/create/" + agentId.value)
    
-    val response = client.execute(get)
+    val response = executeHttpRequest(get)
     
     val responseBody = response.getEntity.getContent.readString
     
@@ -75,22 +82,41 @@ trait HttpAssist extends Logging {
     
     val handle = InternalId.random
     
-    post(
+    httpPost(
       path = "/api/squery/register",
       channel = Some(channel),
       jsonBody = ("handle" -> handle.value) ~ ("types" -> types)
     )
-    
+
     handle
-    
+
   }
   
-  def post(path: String, channel: Option[ChannelId] = None, jsonBody: JValue)(implicit config: HttpClientConfig) = {
+  def executeHttpRequest(req: HttpUriRequest): CloseableHttpResponse = {
+    val client = HttpClientBuilder.create.build
+    val response = client.execute(req)
+    if ( response.getStatusLine.getStatusCode != 200 ) {
+      m3x.error(response.getStatusLine().toString() )
+    }
+    response
+  }
+
+  def httpGet(path: String)(implicit config: HttpClientConfig) = {
+
+    val get = new HttpGet(config.server + path)
+
+    val response = executeHttpRequest(get)
+
+    val responseBody = response.getEntity.getContent.readString
+
+    responseBody
+
+  }
+  
+  def httpPost(path: String, channel: Option[ChannelId] = None, jsonBody: JValue)(implicit config: HttpClientConfig) = {
 
     val post = new HttpPost(config.server + path)
    
-    val cl = client
-    
     channel.foreach { ch =>
       post.setHeader("Cookie", s"channel=${ch.value}")
     }
@@ -99,7 +125,7 @@ trait HttpAssist extends Logging {
     
     post.setEntity(new StringEntity(jsonBody.toJsonStr))
     
-    val response = cl.execute(post)
+    val response = executeHttpRequest(post)
     
     response.getEntity.getContent.readString
     

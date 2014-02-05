@@ -10,18 +10,33 @@ import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.model.Alias
-
 import jsondsl._
+import com.qoid.bennu.model.LabeledContent
+import com.qoid.bennu.model.Content
+import com.qoid.bennu.model.LabelAcl
+import com.qoid.bennu.model.LabelChild
+import com.qoid.bennu.model
+import m3.predef._
+import com.qoid.bennu.JdbcAssist
+import m3.jdbc._
 
 case class CreateAgent @Inject() (
   implicit
   conn: Connection,
-  @Parm id: AgentId
+  @Parm id: AgentId,
+  @Parm deleteFirst: Boolean = false
 ) {
-  
+
   def service: JValue = {
+    if ( deleteFirst ) doDelete
     doCreate
     ("agentId" -> id.value)
+  }
+
+  def doDelete = {
+    JdbcAssist.allMappers.foreach { mapper =>
+      conn.update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${id.value}")
+    }
   }
   
   def doCreate: Agent = {

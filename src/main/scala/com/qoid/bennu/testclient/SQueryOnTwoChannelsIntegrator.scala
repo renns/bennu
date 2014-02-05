@@ -34,7 +34,7 @@ object SQueryOnTwoChannelsIntegrator extends GuiceApp with HttpAssist {
   
   val labelIid = InternalId.random
   
-  post(
+  httpPost(
     path = "/api/channel/submit",
     jsonBody = parseJson(s"""
 {

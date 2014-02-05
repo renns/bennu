@@ -19,28 +19,35 @@ import jsondsl._
 import m3.servlet.longpoll.ChannelId
 import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
+import com.qoid.bennu.squery.ast.Query
+import com.qoid.bennu.squery.ast.Transformer
+
+object QueryService {
+  val notDeleted = Query.parse("deleted = false")
+}
 
 case class QueryService @Inject()(
   implicit conn: Connection,
   channelId: ChannelId,
   securityContext: AgentCapableSecurityContext,
   @Parm("type") _type: String,
-  @Parm("q") userWhere: String
+  @Parm("q") queryStr: String
 ) extends Logging {
 
   def service = {
     val mapper = findMapperByTypeName(_type)
-    val partialWhere = 
-      if ( userWhere.isBlank ) "1 = 1"
-      else userWhere
-    val fullWhere = partialWhere + " and deleted = false"
+    val query = securityContext.createView.constrict(
+        mapper,
+        Query.parse(queryStr).and(QueryService.notDeleted.expr)
+    )
+    val querySql = Transformer.queryToSql(query).toString
     JArray(
       mapper.
-        select(fullWhere).
+        select(querySql).
         map(_.toJson).
         toList
     )
   }
-  
+
 }
 

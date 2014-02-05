@@ -33,7 +33,7 @@ object StandingQueryIntegrator extends GuiceApp with HttpAssist {
   val childLabelIid = InternalId.random
   val labelChildIid = InternalId.random
   
-  post(
+  httpPost(
     path = "/api/channel/submit",
     channel = Some(channel),
     jsonBody = parseJson(s"""

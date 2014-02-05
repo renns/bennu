@@ -41,6 +41,18 @@ object JdbcAssist extends Logging {
     override def mapper: BennuMapperCompanion[T]
     def softDelete(implicit conn: Connection): Unit = mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]].softDelete(self)
   }
+ 
+  lazy val allMappers = List(
+    model.Agent,
+    model.Alias,
+    model.Connection,
+    model.Content,
+    model.Label,
+    model.LabelAcl,
+    model.LabelChild,
+    model.LabeledContent
+  )
+
 
   def findMapperByTypeName(_type: String): BennuMapperCompanion[_ <: HasInternalId] = {
     import model._
