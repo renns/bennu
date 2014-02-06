@@ -1,10 +1,15 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.{ErrorCode, ServiceException, JdbcAssist}
+import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
+import com.qoid.bennu.ServiceException
 import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.security.ChannelMap
 import com.qoid.bennu.squery._
+import com.qoid.bennu.squery.ast.Evaluator
+import com.qoid.bennu.squery.ast.Query
 import java.sql.Connection
 import m3.json.JsonSerializer
 import m3.predef._
@@ -28,11 +33,9 @@ case class UpsertService @Inject()(
     val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
     val instance = mapper.fromJson(instanceJson)
 
-    val agentView = securityContext.createView
-
     val result = mapper.fetchOpt(instance.iid) match {
-      case None => doUpsert(true, agentView.validateInsert, mapper.insert, instance)
-      case _ => doUpsert(false, agentView.validateUpdate, mapper.update, instance)
+      case None => doUpsert(true, mapper, instance)
+      case _ => doUpsert(false, mapper, instance)
     }
 
     result.toJson
@@ -40,24 +43,36 @@ case class UpsertService @Inject()(
 
   private def doUpsert(
     isInsert: Boolean,
-    validateFn: HasInternalId => Box[HasInternalId],
-    upsertFn: HasInternalId => HasInternalId,
+    mapper: JdbcAssist.BennuMapperCompanion[HasInternalId],
     instance: HasInternalId
   ): HasInternalId = {
 
-    validateFn(instance) match {
+    val agentView = securityContext.createView
+
+    val validateResult = if (isInsert) agentView.validateInsert(instance) else agentView.validateUpdate(instance)
+
+    validateResult match {
       case Full(i) =>
-        val result = upsertFn(i)
-        notifyStandingQueries(isInsert, result)
+        val result = if (isInsert) mapper.insert(i) else mapper.update(i)
+        notifyStandingQueries(isInsert, mapper, result)
         result
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
-  private def notifyStandingQueries(isInsert: Boolean, instance: HasInternalId): Unit = {
+  private def notifyStandingQueries(
+    isInsert: Boolean,
+    mapper: JdbcAssist.BennuMapperCompanion[HasInternalId],
+    instance: HasInternalId
+  ): Unit = {
+
     val sQueries = sQueryMgr.get(securityContext.agentId, tpe)
 
-    for (sQuery <- sQueries) {
+    for {
+      sQuery <- sQueries
+      sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
+      if Evaluator.evaluateQuery(sc.createView.constrict(mapper, Query.nil), instance) == Evaluator.VTrue
+    } {
       val action = if (isInsert) StandingQueryAction.Insert else StandingQueryAction.Update
       val event = StandingQueryEvent(action, sQuery.handle, tpe, instance.toJson)
       val channel = channelMgr.channel(sQuery.channelId)
