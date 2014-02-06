@@ -37,8 +37,9 @@ class QueryParser extends JavaTokenParsers {
     }    
   }
   
+  def inClause = identifier ~ k("in") ~ "(" ~ repsep(literal, ",") ~ ")" ^^ { case expr ~ _ ~ _ ~ values ~ _ => InClause(expr, values) }
   
-  def factor: Parser[Node] = functionCall| identifier | stringLit | numericLit | parens 
+  def factor: Parser[Node] = inClause | functionCall | identifier | stringLit | numericLit | parens 
   
   def functionCall = ident ~ "(" ~ repsep(expr, ",") ~ ")" ^^ {
     case name ~ _ ~ parms ~ _ => FunctionCall(name, parms)
@@ -48,12 +49,16 @@ class QueryParser extends JavaTokenParsers {
   
   def identifier = ident ~ rep("." ~> ident) ^^ { case l ~ r => Identifier(l::r) }
   
+  def literal = stringLit | numericLit
+  
   def stringLit = stringLiteral ^^ StringLit
   
-  def numericLit = sign ~ unsignedDecimal ^^ { case s ~ num => NumericLit(s * num) }
+//  def numericLit = sign ~ unsignedDecimal ^^ { case s ~ num => NumericLit(s * num) }
+  def numericLit = unsignedDecimal ^^ { case num => NumericLit(num) }
   
   def unsignedDecimal = decimalNumber ^^ (d=>BigDecimal(d))
-  def sign = opt("-") ^^ { case s => if ( s.isDefined ) -1 else +1 }
+  
+//  def sign = opt("-") ^^ { case s => if ( s.isDefined ) -1 else +1 }
 
   def multOp = (
     "*" ^^ (_=>operators.mult) 

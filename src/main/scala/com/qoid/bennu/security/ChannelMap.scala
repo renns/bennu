@@ -11,6 +11,7 @@ import java.sql.{ Connection => JdbcConn }
 import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.Connection
 import m3.servlet.longpoll.ChannelManager
+import com.qoid.bennu.model.Alias
 object ChannelMap {
 
   val channelToSecurityContextMap = LockFreeMap[ChannelId,SecurityContext]()
@@ -34,6 +35,8 @@ object ChannelMap {
       map(_=>SecurityContext.SuperUserSecurityContext).
       orElse(
         Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId))
+      ).orElse(
+        Alias.fetchOpt(iid).map(a=>SecurityContext.AliasSecurityContext(iid))
       ).orElse (
         Connection.fetchOpt(iid).map(c=>SecurityContext.ConnectionSecurityContext(iid))
       ).map { sc =>

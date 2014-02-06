@@ -1,0 +1,22 @@
+
+
+*
+
+
+
+General Tasks
+
+* refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
+
+* move SecurityContext into security package 
+
+* 
+
+
+
+Feb 7 Milestone
+
+* peer to peer
+* queries on connections
+
+

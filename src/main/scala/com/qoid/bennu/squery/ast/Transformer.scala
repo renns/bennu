@@ -17,6 +17,8 @@ object Transformer {
   def simpleNodeToSql(n: Node): Chord = transformNodeToSql(n)(simpleNodeToSql)
   
   def transformNodeToSql(n: Node)(transformer: Node=>Chord): Chord = n match {
+    case InClause(e, List()) => transformer(e) ~*~ "in" ~*~ "(null)"
+    case InClause(e, v) => transformer(e) ~*~ "in" ~*~ "(" ~ v.map(transformer).mkChord(",") ~ ")"
     case i: Identifier => i.parts.mkString(".")
     case fc: FunctionCall => fc.name ~ "(" ~ fc.parms.map(transformer).mkChord(", ") ~ ")"
     case op: Op => transformer(op.left) ~*~ op.op.symbol ~*~ transformer(op.right)

@@ -16,13 +16,14 @@ import net.model3.lang.TimeDuration
 object TwoAgentsAndAQuery extends GuiceApp with HttpAssist {
   
   LoggerHelper.getLogger()
-
-  lazy val doubleZeroEight = AgentId("008")
-  createAgent(doubleZeroEight)
   
   implicit lazy val config = HttpAssist.HttpClientConfig()
   
   implicit lazy val agentId = AgentId("007")
+
+  lazy val doubleZeroEight = AgentId("008")
+  createAgent(doubleZeroEight)
+  
   createAgent(agentId)
   
   implicit lazy val channel = createChannel(agentId, config)

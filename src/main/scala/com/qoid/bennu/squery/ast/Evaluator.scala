@@ -23,6 +23,7 @@ object Evaluator {
     query.expr.map(e=>evaluateNode(e, row)).getOrElse(VTrue)
   
   def evaluateNode(n: Node, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter): Value = n match {
+    case InClause(e, v) => ??? //p(e) ~*~ "in" ~*~ "(" ~ v.map(p).mkChord(",") ~ ")"
     case i: Identifier => propertyGetter(row, i.parts.mkString("."))
     case fc: FunctionCall => m3x.error("we don't support any function calls yet.  Let alone the one you want -- " + reify(fc))
     case op: Op => {

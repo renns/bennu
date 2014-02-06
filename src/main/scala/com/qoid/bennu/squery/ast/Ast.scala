@@ -11,6 +11,7 @@ object Node {
     import Chord._
     
     def p(node: Node): Chord = node match {
+      case InClause(e, v) => p(e) ~*~ "in" ~*~ "(" ~ v.map(p).mkChord(",") ~ ")"
       case Identifier(p) => p.mkChord(".")
       case StringLit(s) => "\"" ~ s ~ "\""
       case NumericLit(n) => n.toString
@@ -49,6 +50,7 @@ case class Query(expr: Option[Node]) {
     }
     Query(e)
   }
+  def and(that: Query): Query = and(that.expr)
 }
 
 
@@ -69,6 +71,8 @@ sealed trait Op extends Node {
 
 case class ValueOp(left: Node, right: Node, op: ValueOperator) extends Node with Op
 case class BoolOp(left: Node, right: Node, op: BooleanOperator) extends Node with Op
+
+case class InClause(left: Node, values: List[Node]) extends Node
 
 case class FunctionCall(name: String, parms: List[Node]) extends Node
 
@@ -125,7 +129,7 @@ object operators {
     case (VStr(l), VStr(r)) => VBool(l == r)
   }
   
-  val notEqual = BooleanOperator("!=") {
+  val notEqual = BooleanOperator("<>") {
     case (VNum(l), VNum(r)) => VBool(l != r)
     case (VStr(l), VStr(r)) => VBool(l != r)
   }

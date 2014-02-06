@@ -21,13 +21,15 @@ import com.qoid.bennu.model.Connection
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
 import com.google.inject.Singleton
 import com.qoid.bennu.security.ChannelMap
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
+import com.qoid.bennu.model.Alias
 
 object SecurityContext {
 
   case object SuperUserSecurityContext extends SecurityContext {
     def createView = new AgentView {
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Full(t)
-      def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = query
+      def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = query
       def readResolve[T <: HasInternalId](t: T) = Full(t)
     }
   }
@@ -44,7 +46,7 @@ object SecurityContext {
         if ( agentId == t.agentId ) Full(t)
         else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
       }
-      override def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = query.and(agentWhereClause.expr)
+      override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = query.and(agentWhereClause.expr)
       override def readResolve[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
         else Failure("agent cannot read another agents data")
@@ -63,10 +65,67 @@ object SecurityContext {
     )
   }
   
+  case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext {
+   
+    lazy val agentId = Alias.fetch(aliasIid)(inject[JdbcConn]).agentId
+    
+    def createView = new AgentView {
+  
+      implicit val jdbcConn = inject[JdbcConn] 
+
+      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
+        if ( agentId == t.agentId ) Full(t)
+        else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
+      }
+
+      lazy val alias = Alias.fetch(aliasIid)
+
+      lazy val reachableLabels = inject[JdbcConn].queryFor[InternalId](sql"""
+  with recursive reachable_labels as (
+     select rootLabelIid as labelIid from alias where iid = ${aliasIid}
+     union all 
+     -- the following is the recursion query
+     select lc.childIid as labelIid
+     from labelchild lc
+       join reachable_labels lt on lt.labelIid = lc.parentIid
+  )
+  select *
+  from reachable_labels
+      """).toList
+      
+      val reachableLabelAcls = List[InternalId]()
+      
+      override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
+        mapper.typeName.toLowerCase match {
+          case "agent" => query.and(Query.parse(sql"""agentId = ${agentId}"""))
+          case "alias" => query.and(Query.parse(sql"""iid = ${aliasIid}"""))
+          case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
+          case "content" => {
+            // TODO this needs to be optimized
+            val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabels})""").toList
+            query.and(Query.parse(sql"""iid in (${content})"""))
+          }
+          case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
+          case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
+          case _ => query.and(Query.parse(sql"""1 <> 1"""))
+        }
+      }
+      
+      override def readResolve[T <: HasInternalId](t: T) = {
+        import ConnectionSecurityContext._
+        if ( agentId != t.agentId ) Failure("agent cannot read another agents data")
+        else if ( readableTypes.contains(t.mapper.asInstanceOf[Mapper[_ <: HasInternalId, InternalId]]) ) Full(t)
+        else {
+          Empty
+        }
+      }
+    }
+    
+  }
+  
   case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext {
     
-    lazy val connection = Connection.fetch(connectionIid)(inject[JdbcConn])
-    def agentId = connection.agentId
+    lazy val agentId = Connection.fetch(connectionIid)(inject[JdbcConn]).agentId
     
     def createView = new AgentView {
   
@@ -95,7 +154,20 @@ object SecurityContext {
         select iid from labelacl where connectionIid = ${connectionIid}
       """).toList
       
-      override def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query = ???
+      override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
+        
+        if ( ConnectionSecurityContext.readableTypes.contains(mapper) ) {
+          mapper.typeName.toLowerCase match {
+            case "labelacl" => query.and(Query.parse(sql"""iid in (${reachableLabelAcls})"""))
+            case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
+            case "content" => query.and(Query.parse(sql"""iid in (select contentIid from labeledcontent where labelIid in (${reachableLabels}))"""))
+            case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
+            case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
+          }
+        } else {
+          throw new ServiceException(s"connection is not allowed to access ${mapper.typeName}", ErrorCode.Forbidden)
+        }
+      }
       
       override def readResolve[T <: HasInternalId](t: T) = {
         import ConnectionSecurityContext._
@@ -176,7 +248,7 @@ sealed trait AgentView {
    */
   def readResolve[T <: HasInternalId](t: T): Box[T]
   
-  def constrict[T <: HasInternalId](mapper: Mapper[T,InternalId], query: Query): Query
+  def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query
 
 }
 
