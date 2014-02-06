@@ -1,6 +1,7 @@
 package com.qoid.bennu.testclient
 
-import com.qoid.bennu.JsonAssist
+import com.qoid.bennu.{JdbcAssist, JsonAssist}
+import com.qoid.bennu.model._
 import java.util.UUID
 import m3.LockFreeMap
 import m3.json.LiftJsonAssist._
@@ -11,12 +12,15 @@ import net.model3.lang.TimeDuration
 import org.apache.http.client.methods._
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
+import scala.collection.immutable.HashMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
+import com.qoid.bennu.squery.StandingQueryEvent
 
 class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClient {
   private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
-  private val pollTimeout = new TimeDuration("5 seconds")
+  private val squeryCallbacks = new LockFreeMap[InternalId, (InternalId, HasInternalId) => Unit]
+  private val pollTimeout = new TimeDuration("10 seconds")
 
   spawnLongPoller()
 
@@ -24,6 +28,7 @@ class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClien
     val promise = Promise[ChannelResponse]()
 
     future {
+      try {
       val client = HttpClientBuilder.create.build
       val httpPost = new HttpPost(host + ApiPath.submitChannel)
       val context = UUID.randomUUID().toString.replaceAll("-", "")
@@ -44,15 +49,36 @@ class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClien
       if (response.getStatusLine.getStatusCode != 200) {
         promise.failure(new Exception(s"Post to $path failed."))
       }
+      } catch {
+        case e: Exception => println(e)
+      }
     }
 
     promise.future
   }
 
+  override def registerStandingQuery(types: List[String])(callback: (InternalId, HasInternalId) => Unit): Future[InternalId] = {
+    val parms = HashMap("types" -> JArray(types.map(JString(_))))
+    post(ApiPath.registerStandingQuery, parms) map {
+      _.result match {
+        case JObject(JField("handle", JString(handle)) :: Nil) =>
+          squeryCallbacks += InternalId(handle) -> callback
+          InternalId(handle)
+        case r => throw new Exception(s"Result from ${ApiPath.registerStandingQuery} is invalid: " + r.toJsonStr)
+      }
+    }
+  }
+
+  override def deRegisterStandingQuery(handle: InternalId): Future[Boolean] = {
+    squeryCallbacks -= handle
+    val parms = HashMap("handle" -> JString(handle.value))
+    post(ApiPath.deRegisterStandingQuery, parms).map(_.success)
+  }
+
   private def createRequest(path: String, context: String, parms: Map[String, JValue]): ChannelRequest = {
-    val parmsJValue = parms.map{
+    val parmsJValue = JObject(parms.map{
       case (k, v) => JField(k, v)
-    }.foldLeft[JValue](JNothing)(_ ++ _)
+    }.toList)
 
     ChannelRequest(
       channelId,
@@ -81,8 +107,18 @@ class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClien
     parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
-          val channelResponse = JsonAssist.serializer.fromJson[ChannelResponse](message)
-          waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
+          message \ "success" match {
+            case JNothing =>
+              // This is a standing query event
+              val event = JsonAssist.serializer.fromJson[StandingQueryEvent](message)
+              val mapper = JdbcAssist.findMapperByTypeName(event.`type`).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+              val instance = mapper.fromJson(event.instance)
+              squeryCallbacks.get(event.handle).foreach(_(event.handle, instance))
+            case _ =>
+              // This is a channel response
+              val channelResponse = JsonAssist.serializer.fromJson[ChannelResponse](message)
+              waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
+          }
         }
       case _ => () //TODO: log an error with responseBody
     }

@@ -12,6 +12,8 @@ import scala.concurrent._
 
 trait ChannelClient {
   def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse]
+  def registerStandingQuery(types: List[String])(callback: (InternalId, HasInternalId) => Unit): Future[InternalId]
+  def deRegisterStandingQuery(handle: InternalId): Future[Boolean]
 }
 
 object ChannelClientFactory {
