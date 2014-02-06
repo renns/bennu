@@ -133,7 +133,6 @@ object operators {
   val equal = BooleanOperator("=") {
     case (VNum(l), VNum(r)) => VBool(l == r)
     case (VStr(l), VStr(r)) => VBool(l == r)
-    case (VAny(l), VAny(r)) => VBool(l == r)
   }
   
   val notEqual = BooleanOperator("<>") {

@@ -2,9 +2,13 @@ package com.qoid.bennu.squery.ast
 
 
 import m3.predef._
+import m3.StringConverters
+import m3.TypeInfo
 
 object Evaluator {
 
+  val stringConverters = inject[StringConverters]
+  
   import Transformer._
   
   sealed trait Value {
@@ -14,7 +18,6 @@ object Evaluator {
   case object VNull extends Value {
     def value = null
   }
-  case class VAny(value: Any) extends Value
   case class VNum(value: BigDecimal) extends Value
   case class VStr(value: String) extends Value
   case class VBool(value: Boolean) extends Value
@@ -55,7 +58,10 @@ object Evaluator {
         case Some(a) => wrap(a)
         case bd: BigDecimal => VNum(bd)
         case s: String => VStr(s)
-        case a: Any => VAny(a)
+        case a: Any => {
+          val converter = stringConverters.find(TypeInfo(a.getClass)).asInstanceOf[StringConverters.Converter[Any]]
+          VStr(converter.toString(a))
+        }
       }
       wrap(m.invoke(a))
     }.getOrError(s"cannot find property ${propertyName} in ${a.getClass()} -- ${a}")
