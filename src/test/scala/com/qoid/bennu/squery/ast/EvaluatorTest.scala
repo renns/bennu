@@ -29,6 +29,26 @@ class EvaluatorTest extends ScalaUnitTest {
     }
   
   }
+  
+  @Test def inClause = {
+    
+    runTests[(String,TestRow),Value](
+      List(
+        TestData(
+            "xyz in ('1')" -> TestRow("1"),
+            VTrue
+        ),
+        TestData(
+            "xyz in ('1')" -> TestRow("2"),
+            VFalse
+        )
+      )
+    ) { input =>
+      val query = Query.parse(input._1)
+      evaluateQuery(query, input._2)
+    }
+  
+  }
 
   
 }

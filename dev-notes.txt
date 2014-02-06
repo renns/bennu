@@ -10,7 +10,27 @@ General Tasks
 
 * move SecurityContext into security package 
 
-* 
+
+
+
+
+
+Internet Of Things
+
+  requirement - you should not be able to figure out if you are using the root/uber alias or not 
+
+* querying on the agent scrubs certain agent fields
+* remove agent id's from being surfaced sent to any clients (under the covers we have agent id's but nothing requires them).  This means the server will be responsible for injecting the agent id.  Also this would allow for our UI to work with a single agent server as well as a multi-agent server.
+
+
+
+
+
+
+
+
+
+
 
 
 

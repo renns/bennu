@@ -1,6 +1,7 @@
 package com.qoid.bennu.squery
 import ast._
 import com.qoid.bennu.squery.ast.Node
+import com.qoid.bennu.squery.ast.QueryParser
 
 object QuerryParserDemo extends App {
   

@@ -1,6 +1,5 @@
 package com.qoid.bennu.squery.ast
 
-import com.qoid.bennu.squery.QueryParser
 import m3.predef._
 
 object Node {
@@ -57,9 +56,16 @@ case class Query(expr: Option[Node]) {
 sealed trait Node
 
 
-case class Identifier(parts: List[String]) extends Node
-case class StringLit(value: String) extends Node
-case class NumericLit(value: BigDecimal) extends Node
+case class Identifier(parts: List[String]) extends Node {
+  val qname = parts.mkString(".")
+}
+
+sealed trait Literal extends Node {
+  def value: Any
+}
+
+case class StringLit(value: String) extends Literal
+case class NumericLit(value: BigDecimal) extends Literal
 
 case class Parens(expr: Node) extends Node
 
@@ -72,7 +78,7 @@ sealed trait Op extends Node {
 case class ValueOp(left: Node, right: Node, op: ValueOperator) extends Node with Op
 case class BoolOp(left: Node, right: Node, op: BooleanOperator) extends Node with Op
 
-case class InClause(left: Node, values: List[Node]) extends Node
+case class InClause(left: Identifier, values: List[Literal]) extends Node
 
 case class FunctionCall(name: String, parms: List[Node]) extends Node
 
@@ -127,6 +133,7 @@ object operators {
   val equal = BooleanOperator("=") {
     case (VNum(l), VNum(r)) => VBool(l == r)
     case (VStr(l), VStr(r)) => VBool(l == r)
+    case (VAny(l), VAny(r)) => VBool(l == r)
   }
   
   val notEqual = BooleanOperator("<>") {

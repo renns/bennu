@@ -7,13 +7,17 @@ object Evaluator {
 
   import Transformer._
   
-  sealed trait Value 
+  sealed trait Value {
+    def value: Any
+  }
   
-  case object VNull extends Value
+  case object VNull extends Value {
+    def value = null
+  }
+  case class VAny(value: Any) extends Value
   case class VNum(value: BigDecimal) extends Value
   case class VStr(value: String) extends Value
-  
-  case class VBool(b: Boolean) extends Value
+  case class VBool(value: Boolean) extends Value
   
   val VFalse = VBool(false)
   val VTrue = VBool(true)
@@ -23,8 +27,11 @@ object Evaluator {
     query.expr.map(e=>evaluateNode(e, row)).getOrElse(VTrue)
   
   def evaluateNode(n: Node, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter): Value = n match {
-    case InClause(e, v) => ??? //p(e) ~*~ "in" ~*~ "(" ~ v.map(p).mkChord(",") ~ ")"
-    case i: Identifier => propertyGetter(row, i.parts.mkString("."))
+    case InClause(i, v) => {
+      val columnValue = propertyGetter(row, i.qname).value
+      VBool(v.find(_.value == columnValue).isDefined)
+    }
+    case i: Identifier => propertyGetter(row, i.qname)
     case fc: FunctionCall => m3x.error("we don't support any function calls yet.  Let alone the one you want -- " + reify(fc))
     case op: Op => {
       val l = evaluateNode(op.left, row)
@@ -48,6 +55,7 @@ object Evaluator {
         case Some(a) => wrap(a)
         case bd: BigDecimal => VNum(bd)
         case s: String => VStr(s)
+        case a: Any => VAny(a)
       }
       wrap(m.invoke(a))
     }.getOrError(s"cannot find property ${propertyName} in ${a.getClass()} -- ${a}")
