@@ -21,7 +21,9 @@ create cached table alias (
 create cached table connection (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,
-	url varchar(1024) not NULL,
+	aliasIid varchar(32) not NULL,
+	localPeerId varchar(32) not NULL,
+	remotePeerId varchar(32) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)
@@ -30,8 +32,8 @@ create cached table connection (
 create cached table content (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,
+	aliasIid varchar(32) not NULL,
 	contentType varchar(32) not NULL,
-	blob Clob not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)
@@ -80,3 +82,14 @@ create cached table labeledContent (
 )
 ;
 CREATE UNIQUE INDEX labeledContent_autogen_contentLabel ON labeledContent (contentIid,labelIid)
+;
+create cached table notification (
+	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
+	consumed bit not NULL,
+	fromConnectionIid varchar(32) not NULL,
+	kind varchar(50) not NULL,
+	data Clob not NULL,
+	deleted bit not NULL,
+	primary key(iid)
+)

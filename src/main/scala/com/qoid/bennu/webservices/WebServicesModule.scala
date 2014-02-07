@@ -1,25 +1,21 @@
 package com.qoid.bennu.webservices
 
-import m3.servlet.M3ServletModule
-import m3.servlet.CurlFilter
-import m3.servlet.RequestDumpFilter
-import m3.servlet.compression.CompressionFilter
-import m3.servlet.scalate.ScalateFilter
-import m3.servlet.RootServletFilter
-import m3.servlet.upload.FileUploadFilter
-import m3.servlet.TransactionFilter
+import com.qoid.bennu.ServicePath
 import com.qoid.bennu.webservices.examples.AdditionService
 import com.qoid.bennu.webservices.examples.MultiplicationService
-import m3.servlet.longpoll.webservice.ChannelCreate
+import m3.servlet.CorsFilter
+import m3.servlet.CurlFilter
+import m3.servlet.M3ServletModule
+import m3.servlet.RootServletFilter
+import m3.servlet.TransactionFilter
+import m3.servlet.compression.CompressionFilter
 import m3.servlet.longpoll.webservice.ChannelPoll
 import m3.servlet.longpoll.webservice.SubmitChannelRequests
-import m3.servlet.CorsFilter
-
-
+import m3.servlet.scalate.ScalateFilter
+import m3.servlet.upload.FileUploadFilter
 
 class WebServicesModule extends M3ServletModule {
 
-  
   override def configureServlets = {
     
     // log a curl command for each request to the api (good for dev, BAD for production)
@@ -45,30 +41,24 @@ class WebServicesModule extends M3ServletModule {
     // we use scalate for our templating needs think (jsp - java) + scala = scalate -- http://scalate.fusesource.org/
     filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
-    
-    serveBean[CreateAgent]("/api/agent/create")
+    serveBean[CreateAgent](ServicePath.createAgent)
 
-    serveBean[CreateChannel]("/api/channel/create")
-    serveBean[ChannelPoll]("/api/channel/poll")
-    serveBean[SubmitChannelRequests]("/api/channel/submit")
+    serveBean[CreateChannel](ServicePath.createChannel)
+    serveBean[ChannelPoll](ServicePath.pollChannel)
+    serveBean[SubmitChannelRequests](ServicePath.submitChannel)
 
-    serveBean[UpsertService]("/api/upsert")
-    serveBean[DeleteService]("/api/delete")
-    serveBean[QueryService]("/api/query")
+    serveBean[UpsertService](ServicePath.upsert)
+    serveBean[DeleteService](ServicePath.delete)
+    serveBean[QueryService](ServicePath.query)
 
-    serveBean[SendNotification]("/api/sendNotification")
+    serveBean[SendNotification](ServicePath.sendNotification)
 
-    serveBean[RegisterStandingQueryService]("/api/squery/register")
-    serveBean[DeRegisterStandingQueryService]("/api/squery/deregister")
+    serveBean[RegisterStandingQueryService](ServicePath.registerStandingQuery)
+    serveBean[DeRegisterStandingQueryService](ServicePath.deRegisterStandingQuery)
 
     serveBean[AdditionService]("/api/example/add")
     serveBean[MultiplicationService]("/api/example/multiply")
     
     addServletBeanFilter
-    
-    
   }
-  
-  
-  
 }

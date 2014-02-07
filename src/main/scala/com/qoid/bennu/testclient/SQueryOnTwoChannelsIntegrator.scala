@@ -16,50 +16,50 @@ import net.model3.lang.TimeDuration
  * + inserts a parent label, a child label and a labelchild to connect them
  * + 
  */
-object SQueryOnTwoChannelsIntegrator extends GuiceApp with HttpAssist {
-  
-  LoggerHelper.getLogger()
-  
-  implicit val config = HttpAssist.HttpClientConfig()
-  implicit val agentId = AgentId("007")
-  
-  val channel1 = createChannel
-  val channel2 = createChannel
-  
-  spawnLongPoller(channel1, config)
-  spawnLongPoller(channel2, config)
-  
-  registerStandingQuery(List("label"))(channel1, config)
-  registerStandingQuery(List("label"))(channel2, config)
-  
-  val labelIid = InternalId.random
-  
-  httpPost(
-    path = "/api/channel/submit",
-    jsonBody = parseJson(s"""
-{
-  "channel":"${channel1.value}",
-  "requests":[
-    {
-      "path": "/api/upsert", 
-      "context": "insert_label", 
-      "parms": {
-        "type": "label",
-        "instance": {
-          "agentId": "${agentId.value}",
-          "iid": "${labelIid.value}",
-          "data": "{}",
-          "name": "parent"
-        }
-      } 
-    }
-  ]
-}
-    """.trim)
-  )
-  
-  new TimeDuration("10 seconds").sleep
-  
-  System.exit(0)
+object SQueryOnTwoChannelsIntegrator extends GuiceApp {
+//
+//  LoggerHelper.getLogger()
+//
+//  implicit val config = HttpAssist.HttpClientConfig()
+//  implicit val agentId = AgentId("007")
+//
+//  val channel1 = createChannel
+//  val channel2 = createChannel
+//
+//  spawnLongPoller(channel1, config)
+//  spawnLongPoller(channel2, config)
+//
+//  registerStandingQuery(List("label"))(channel1, config)
+//  registerStandingQuery(List("label"))(channel2, config)
+//
+//  val labelIid = InternalId.random
+//
+//  httpPost(
+//    path = "/api/channel/submit",
+//    jsonBody = parseJson(s"""
+//{
+//  "channel":"${channel1.value}",
+//  "requests":[
+//    {
+//      "path": "/api/upsert",
+//      "context": "insert_label",
+//      "parms": {
+//        "type": "label",
+//        "instance": {
+//          "agentId": "${agentId.value}",
+//          "iid": "${labelIid.value}",
+//          "data": "{}",
+//          "name": "parent"
+//        }
+//      }
+//    }
+//  ]
+//}
+//    """.trim)
+//  )
+//
+//  new TimeDuration("10 seconds").sleep
+//
+//  System.exit(0)
   
 }

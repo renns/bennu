@@ -13,46 +13,46 @@ import net.model3.lang.TimeDuration
  * agent we requested labels for
  * + 
  */
-object TwoAgentsAndAQuery extends GuiceApp with HttpAssist {
-  
-  LoggerHelper.getLogger()
-  
-  implicit lazy val config = HttpAssist.HttpClientConfig()
-  
-  implicit lazy val agentId = AgentId("007")
-
-  lazy val doubleZeroEight = AgentId("008")
-  createAgent(doubleZeroEight)
-  
-  createAgent(agentId)
-  
-  implicit lazy val channel = createChannel(agentId, config)
-  
-  spawnLongPoller
-  
-  // query labels we should only see 007's labels
-  httpPost(
-    path = "/api/channel/submit",
-    channel = Some(channel),
-    jsonBody = parseJson(s"""
-{
-  "channel":"${channel.value}",
-  "requests":[
-    {
-      "path": "/api/query", 
-      "context": "queray_007_labels_there_should_be_only_one", 
-      "parms": {
-        "type": "label",
-        "q": "1=1"
-      }
-    }
-  ]
-}
-    """.trim)
-  )
-  
-  new TimeDuration("10 seconds").sleep
-  
-  System.exit(0)
-  
+object TwoAgentsAndAQuery extends GuiceApp {
+//
+//  LoggerHelper.getLogger()
+//
+//  implicit lazy val config = HttpAssist.HttpClientConfig()
+//
+//  implicit lazy val agentId = AgentId("007")
+//
+//  lazy val doubleZeroEight = AgentId("008")
+//  createAgent(doubleZeroEight)
+//
+//  createAgent(agentId)
+//
+//  implicit lazy val channel = createChannel(agentId, config)
+//
+//  spawnLongPoller
+//
+//  // query labels we should only see 007's labels
+//  httpPost(
+//    path = "/api/channel/submit",
+//    channel = Some(channel),
+//    jsonBody = parseJson(s"""
+//{
+//  "channel":"${channel.value}",
+//  "requests":[
+//    {
+//      "path": "/api/query",
+//      "context": "queray_007_labels_there_should_be_only_one",
+//      "parms": {
+//        "type": "label",
+//        "q": "1=1"
+//      }
+//    }
+//  ]
+//}
+//    """.trim)
+//  )
+//
+//  new TimeDuration("10 seconds").sleep
+//
+//  System.exit(0)
+//
 }

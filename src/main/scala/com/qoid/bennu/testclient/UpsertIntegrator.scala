@@ -1,14 +1,16 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.model._
+import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
-import net.liftweb.json.JNothing
-import net.liftweb.json.JString
-import scala.collection.immutable.HashMap
+import m3.json.LiftJsonAssist._
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 object UpsertIntegrator extends GuiceApp {
+  implicit val config = HttpAssist.HttpClientConfig()
+
   insertLabel()
   updateLabel()
   insertLabelWithWrongAgent()
@@ -16,102 +18,78 @@ object UpsertIntegrator extends GuiceApp {
   System.exit(0)
 
   def insertLabel(): Unit = {
-    logger.debug("Starting insertLabel...")
+    try {
+      val agentId = AgentId("Agent1")
+      ServiceAssist.createAgent(agentId, true)
+      val client = ChannelClientFactory.createHttpChannelClient(agentId)
+      val label = Label(InternalId.random, agentId, "Insert Label", JNothing)
+      val fInsert = client.upsert(label)
 
-    val agentId = AgentId("007")
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val label = Label(InternalId.random, agentId, "Insert Label", JNothing)
-    val parms = HashMap("type" -> JString("Label"), "instance" -> label.toJson)
-    val f = client.post(ApiPath.upsert, parms)
-    val response = Await.result(f, Duration("10 seconds"))
+      Await.result(fInsert, Duration("10 seconds"))
 
-    if (response.success) {
-      logger.debug("Insert Result: " + response.result.toString)
-      logger.debug("Finished insertLabel: Success")
-    } else {
-      logger.debug("Finished insertLabel: Failed")
+      logger.debug("insertLabel: PASS")
+    } catch {
+      case e: Exception => logger.warn("insertLabel: FAIL -- " + e)
     }
   }
 
   def updateLabel(): Unit = {
-    logger.debug("Starting updateLabel...")
+    try {
+      val agentId = AgentId("Agent1")
+      ServiceAssist.createAgent(agentId, true)
+      val client = ChannelClientFactory.createHttpChannelClient(agentId)
+      val insertLabel = Label(InternalId.random, agentId, "Insert Label", JNothing)
+      val fInsert = client.upsert(insertLabel)
 
-    val agentId = AgentId("007")
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val labelId = InternalId.random
+      val newLabel = Await.result(fInsert, Duration("10 seconds"))
 
-    val insertLabel = Label(labelId, agentId, "Insert Label", JNothing)
-    val insertParms = HashMap("type" -> JString("Label"), "instance" -> insertLabel.toJson)
-    val insertFuture = client.post(ApiPath.upsert, insertParms)
-    val insertResponse = Await.result(insertFuture, Duration("10 seconds"))
+      val updateLabel = Label(newLabel.iid, agentId, "Update Label", JNothing)
+      val fUpdate = client.upsert(updateLabel)
 
-    if (insertResponse.success) {
-      logger.debug("Insert Result: " + insertResponse.result.toString)
+      Await.result(fUpdate, Duration("10 seconds"))
 
-      val updateLabel = Label(labelId, agentId, "Update Label", JNothing)
-      val updateParms = HashMap("type" -> JString("Label"), "instance" -> updateLabel.toJson)
-      val updateFuture = client.post(ApiPath.upsert, updateParms)
-      val updateResponse = Await.result(updateFuture, Duration("10 seconds"))
-
-      if (updateResponse.success) {
-        logger.debug("Update Result: " + updateResponse.result.toString)
-        logger.debug("Finished updateLabel: Success")
-      } else {
-        logger.debug("Finished updateLabel: Update Failed")
-      }
-    } else {
-      logger.debug("Finished updateLabel: Insert Failed")
+      logger.debug("updateLabel: PASS")
+    } catch {
+      case e: Exception => logger.warn("updateLabel: FAIL -- " + e)
     }
   }
 
   def insertLabelWithWrongAgent(): Unit = {
-    logger.debug("Starting insertLabelWithWrongAgent...")
+    try {
+      val agentId1 = AgentId("Agent1")
+      val agentId2 = AgentId("Agent2")
+      ServiceAssist.createAgent(agentId1, true)
+      val client = ChannelClientFactory.createHttpChannelClient(agentId1)
+      val label = Label(InternalId.random, agentId2, "Insert Label", JNothing)
+      val fInsert = client.upsert(label)
 
-    val agentId = AgentId("007")
-    val wrongAgentId = AgentId("008")
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val label = Label(InternalId.random, wrongAgentId, "Insert Label", JNothing)
-    val parms = HashMap("type" -> JString("Label"), "instance" -> label.toJson)
-    val f = client.post(ApiPath.upsert, parms)
-    val response = Await.result(f, Duration("10 seconds"))
+      Await.result(fInsert, Duration("10 seconds"))
 
-    if (response.success) {
-      logger.debug("Insert Result: " + response.result.toString)
-      logger.debug("Finished insertLabelWithWrongAgent: Success")
-    } else {
-      logger.debug("Finished insertLabelWithWrongAgent: Failed")
+      logger.warn("insertLabelWithWrongAgent: FAIL -- Validation didn't work")
+    } catch {
+      case e: Exception => logger.debug("insertLabelWithWrongAgent: PASS")
     }
   }
 
   def updateLabelWithWrongAgent(): Unit = {
-    logger.debug("Starting updateLabelWithWrongAgent...")
+    try {
+      val agentId1 = AgentId("Agent1")
+      val agentId2 = AgentId("Agent2")
+      ServiceAssist.createAgent(agentId1, true)
+      val client = ChannelClientFactory.createHttpChannelClient(agentId1)
+      val insertLabel = Label(InternalId.random, agentId1, "Insert Label", JNothing)
+      val fInsert = client.upsert(insertLabel)
 
-    val agentId = AgentId("007")
-    val wrongAgentId = AgentId("008")
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val labelId = InternalId.random
+      val newLabel = Await.result(fInsert, Duration("10 seconds"))
 
-    val insertLabel = Label(labelId, agentId, "Insert Label", JNothing)
-    val insertParms = HashMap("type" -> JString("Label"), "instance" -> insertLabel.toJson)
-    val insertFuture = client.post(ApiPath.upsert, insertParms)
-    val insertResponse = Await.result(insertFuture, Duration("10 seconds"))
+      val updateLabel = Label(newLabel.iid, agentId2, "Update Label", JNothing)
+      val fUpdate = client.upsert(updateLabel)
 
-    if (insertResponse.success) {
-      logger.debug("Insert Result: " + insertResponse.result.toString)
+      Await.result(fUpdate, Duration("10 seconds"))
 
-      val updateLabel = Label(labelId, wrongAgentId, "Update Label", JNothing)
-      val updateParms = HashMap("type" -> JString("Label"), "instance" -> updateLabel.toJson)
-      val updateFuture = client.post(ApiPath.upsert, updateParms)
-      val updateResponse = Await.result(updateFuture, Duration("10 seconds"))
-
-      if (updateResponse.success) {
-        logger.debug("Update Result: " + updateResponse.result.toString)
-        logger.debug("Finished updateLabelWithWrongAgent: Success")
-      } else {
-        logger.debug("Finished updateLabelWithWrongAgent: Update Failed")
-      }
-    } else {
-      logger.debug("Finished updateLabelWithWrongAgent: Insert Failed")
+      logger.warn("updateLabelWithWrongAgent: FAIL -- Validation didn't work")
+    } catch {
+      case e: Exception => logger.debug("updateLabelWithWrongAgent: PASS")
     }
   }
 }

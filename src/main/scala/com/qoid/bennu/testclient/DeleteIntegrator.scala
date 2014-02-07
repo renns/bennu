@@ -1,44 +1,64 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.model._
+import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
-import net.liftweb.json.JNothing
-import net.liftweb.json.JString
-import scala.collection.immutable.HashMap
+import m3.json.LiftJsonAssist._
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 object DeleteIntegrator extends GuiceApp {
+  implicit val config = HttpAssist.HttpClientConfig()
+
   deleteLabel()
+  deleteLabelWithWrongAgent()
   System.exit(0)
 
   def deleteLabel(): Unit = {
-    logger.debug("Starting deleteLabel...")
+    try {
+      val agentId = AgentId("Agent1")
+      ServiceAssist.createAgent(agentId, true)
+      val client = ChannelClientFactory.createHttpChannelClient(agentId)
+      val label = Label(InternalId.random, agentId, "Insert Label", JNothing)
+      val fInsert = client.upsert(label)
 
-    val agentId = AgentId("007")
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val labelId = InternalId.random
+      val newLabel = Await.result(fInsert, Duration("10 seconds"))
 
-    val insertLabel = Label(labelId, agentId, "Insert Label", JNothing)
-    val insertParms = HashMap("type" -> JString("Label"), "instance" -> insertLabel.toJson)
-    val insertFuture = client.post(ApiPath.upsert, insertParms)
-    val insertResponse = Await.result(insertFuture, Duration("10 seconds"))
+      val fDelete = client.delete(newLabel)
 
-    if (insertResponse.success) {
-      logger.debug("Insert Result: " + insertResponse.result.toString)
+      val deletedLabel = Await.result(fDelete, Duration("10 seconds"))
 
-      val deleteParms = HashMap("type" -> JString("Label"), "primaryKey" -> JString(labelId.value))
-      val deleteFuture = client.post(ApiPath.delete, deleteParms)
-      val deleteResponse = Await.result(deleteFuture, Duration("10 seconds"))
-
-      if (deleteResponse.success) {
-        logger.debug("Delete Result: " + deleteResponse.result.toString)
-        logger.debug("Finished deleteLabel: Success")
+      if (deletedLabel.deleted) {
+        logger.debug("deleteLabel: PASS")
       } else {
-        logger.debug("Finished deleteLabel: Delete Failed")
+        logger.warn("deleteLabel: FAIL -- Returned label not marked deleted")
       }
-    } else {
-      logger.debug("Finished deleteLabel: Insert Failed")
+    } catch {
+      case e: Exception => logger.warn("deleteLabel: FAIL -- " + e)
+    }
+  }
+
+  def deleteLabelWithWrongAgent(): Unit = {
+    try {
+      val agentId1 = AgentId("Agent1")
+      val agentId2 = AgentId("Agent2")
+      ServiceAssist.createAgent(agentId1, true)
+      ServiceAssist.createAgent(agentId2, true)
+      val client1 = ChannelClientFactory.createHttpChannelClient(agentId1)
+      val client2 = ChannelClientFactory.createHttpChannelClient(agentId2)
+      val label = Label(InternalId.random, agentId1, "Insert Label", JNothing)
+      val fInsert = client1.upsert(label)
+
+      val newLabel = Await.result(fInsert, Duration("10 seconds"))
+
+      val fDelete = client2.delete(newLabel)
+
+      Await.result(fDelete, Duration("10 seconds"))
+
+      logger.debug("deleteLabelWithWrongAgent: FAIL -- Validation didn't work")
+    } catch {
+      case e: Exception => logger.debug("deleteLabelWithWrongAgent: PASS")
     }
   }
 }
