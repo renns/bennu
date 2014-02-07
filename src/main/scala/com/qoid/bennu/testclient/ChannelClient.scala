@@ -16,6 +16,22 @@ trait ChannelClient {
   def deRegisterStandingQuery(handle: InternalId): Future[Boolean]
 }
 
+object AgentManager extends Logging {
+  def createAgent(agentId: AgentId): Unit = {
+    val host = "http://localhost:8080"
+
+    val client = HttpClientBuilder.create.build
+    val httpGet = new HttpGet(s"$host${ApiPath.createAgent}/${agentId.value}/true")
+    val response = client.execute(httpGet)
+    val responseBody = response.getEntity.getContent.readString
+
+    parseJson(responseBody) \ "agentId" match {
+      case JString(agentId.value) => logger.debug(s"Created agent ${agentId.value}")
+      case _ => m3x.error(s"don't know how to handle create agent response -- ${responseBody}")
+    }
+  }
+}
+
 object ChannelClientFactory {
   def createHttpChannelClient(agentId: AgentId): HttpChannelClient = {
     val host = "http://localhost:8080"
@@ -35,6 +51,7 @@ object ChannelClientFactory {
 }
 
 object ApiPath {
+  val createAgent = "/api/agent/create"
   val createChannel = "/api/channel/create"
   val submitChannel = "/api/channel/submit"
   val pollChannel = "/api/channel/poll"
