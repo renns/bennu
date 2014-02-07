@@ -9,19 +9,56 @@ import net.liftweb.json.JString
 import org.apache.http.client.methods._
 import org.apache.http.impl.client.HttpClientBuilder
 import scala.concurrent._
+import com.qoid.bennu.model.Alias
+import scala.collection.immutable.HashMap
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ChannelClient {
+
+  def agentId: AgentId
+  
   def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse]
   def registerStandingQuery(types: List[String])(callback: (InternalId, HasInternalId) => Unit): Future[InternalId]
   def deRegisterStandingQuery(handle: InternalId): Future[Boolean]
+  
+  def createAlias(aliasName: String): (Future[Alias],Future[Label]) = {
+    
+    val aliasIid = InternalId.random
+    val rootLabelIid = InternalId.random
+    
+    // create alias here
+    val aliasFuture = upsert(Alias(
+        iid = aliasIid, 
+        agentId = agentId,
+        rootLabelIid = rootLabelIid,
+        name = aliasName,
+        data = JNothing
+    ))
+
+    // create alias here
+    val rootLabelFuture = upsert(Label(
+        iid = rootLabelIid, 
+        agentId = agentId,
+        name = aliasName,
+        data = JNothing
+    ))
+
+    aliasFuture -> rootLabelFuture
+    
+  }
+
+  def upsert[T <: HasInternalId](v: T): Future[T] = {
+    post(ApiPath.upsert, HashMap("type" -> JString(v.mapper.typeName), "instance" -> v.toJson)).map(_ => v)
+  }
+  
 }
 
 object AgentManager extends Logging {
-  def createAgent(agentId: AgentId): Unit = {
+  def createAgent(agentId: AgentId, overwrite: Boolean = true): Unit = {
     val host = "http://localhost:8080"
 
     val client = HttpClientBuilder.create.build
-    val httpGet = new HttpGet(s"$host${ApiPath.createAgent}/${agentId.value}/true")
+    val httpGet = new HttpGet(s"$host${ApiPath.createAgent}/${agentId.value}/${overwrite}")
     val response = client.execute(httpGet)
     val responseBody = response.getEntity.getContent.readString
 
@@ -33,7 +70,7 @@ object AgentManager extends Logging {
 }
 
 object ChannelClientFactory {
-  def createHttpChannelClient(agentId: AgentId): HttpChannelClient = {
+  def createHttpChannelClient(agentId: AgentId): HttpChannelClient with SendNotification = {
     val host = "http://localhost:8080"
 
     val client = HttpClientBuilder.create.build
@@ -46,7 +83,7 @@ object ChannelClientFactory {
       case _ => m3x.error(s"don't know how to handle create channel response -- ${responseBody}")
     }
 
-    new HttpChannelClient(host, channelId)
+    new HttpChannelClient(host, agentId, channelId) with SendNotification
   }
 }
 

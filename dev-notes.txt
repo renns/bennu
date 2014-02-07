@@ -10,7 +10,7 @@ General Tasks
 
 * move SecurityContext into security package 
 
-
+* use case, an alias based standing query where a labelchild is added after the label is created.  In this use case the label wouldn't get sent (but it should get sent once it is reachable)
 
 
 

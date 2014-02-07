@@ -2,9 +2,15 @@ package com.qoid.bennu.squery
 
 import com.qoid.bennu.model._
 import m3.LockFreeMap
+import com.qoid.bennu.JdbcAssist
+import com.qoid.bennu.security.ChannelMap
+import com.qoid.bennu.squery.ast.Evaluator
+import com.qoid.bennu.squery.ast.Query
+import m3.servlet.longpoll.ChannelManager
+import com.google.inject.Inject
 
 @com.google.inject.Singleton
-class StandingQueryManager {
+class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
   
   private val map = new LockFreeMap[AgentId, LockFreeMap[InternalId, StandingQuery]]
 
@@ -29,4 +35,24 @@ class StandingQueryManager {
       if sQuery.types.contains(typeLowerCase)
     ) yield sQuery
   }
+  
+  def notify[T <: HasInternalId](
+    mapper: JdbcAssist.BennuMapperCompanion[T],
+    instance: T,
+    action: StandingQueryAction
+  ): Unit = {
+
+    val sQueries = get(instance.agentId, mapper.typeName)
+
+    for {
+      sQuery <- sQueries
+      sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
+      if Evaluator.evaluateQuery(sc.createView.constrict(mapper, Query.nil), instance) == Evaluator.VTrue
+    } {
+      val event = StandingQueryEvent(action, sQuery.handle, mapper.typeName, instance.toJson)
+      val channel = channelMgr.channel(sQuery.channelId)
+      channel.put(event.toJson)
+    }
+  }
+
 }

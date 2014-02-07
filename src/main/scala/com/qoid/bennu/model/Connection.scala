@@ -10,9 +10,12 @@ object Connection extends BennuMapperCompanion[Connection] {
 case class Connection(
   @PrimaryKey iid: InternalId,
   agentId: AgentId,
-  url: String,
+  aliasIid: InternalId,
+  localPeerId: PeerId,
+  remotePeerId: PeerId,
   data: JValue,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Connection] {
   def mapper = Connection
 }
+

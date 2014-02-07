@@ -53,7 +53,8 @@ object JdbcAssist extends Logging {
     model.Label,
     model.LabelAcl,
     model.LabelChild,
-    model.LabeledContent
+    model.LabeledContent,
+    model.Notification
   )
 
 

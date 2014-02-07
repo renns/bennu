@@ -56,6 +56,8 @@ class WebServicesModule extends M3ServletModule {
     serveBean[DeleteService]("/api/delete")
     serveBean[QueryService]("/api/query")
 
+    serveBean[SendNotification]("/api/sendNotification")
+
     serveBean[RegisterStandingQueryService]("/api/squery/register")
     serveBean[DeRegisterStandingQueryService]("/api/squery/deregister")
 

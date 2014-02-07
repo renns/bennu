@@ -2,6 +2,7 @@
 types {
   Boolean       bit;
   InternalId    varchar(32);
+  PeerId        varchar(32);
   AgentId       varchar(32);
   Name          varchar(50);
   Url           varchar(1024);
@@ -64,9 +65,21 @@ table labeledContent {
 table connection {
   iid           InternalId key;
   agentId       AgentId;
-  url           Url;
+  aliasIid      InternalId;
+  localPeerId   PeerId;
+  remotePeerId  PeerId;
   import(CommonFields);
 }
+
+table notification {
+  iid           InternalId key;
+  agentId       AgentId;
+  consumed      Boolean;
+  fromConnectionIid  InternalId;  
+  kind          varchar(50);
+  import(CommonFields);
+}
+
 
 table labelAcl {
   iid           InternalId key;

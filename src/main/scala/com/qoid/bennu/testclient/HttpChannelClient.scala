@@ -17,7 +17,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import com.qoid.bennu.squery.StandingQueryEvent
 
-class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClient {
+case class HttpChannelClient(host: String, agentId: AgentId, channelId: ChannelId) extends ChannelClient {
+  
   private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
   private val squeryCallbacks = new LockFreeMap[InternalId, (InternalId, HasInternalId) => Unit]
   private val pollTimeout = new TimeDuration("10 seconds")
@@ -123,4 +124,20 @@ class HttpChannelClient(host: String, channelId: ChannelId) extends ChannelClien
       case _ => () //TODO: log an error with responseBody
     }
   }
+}
+
+trait SendNotification { self: ChannelClient =>
+  
+  def sendNotification(toPeer: PeerId, kind: String, data: JValue) = {
+    
+    val parms = HashMap(
+      "toPeer" -> JString(toPeer.value),
+      "kind" -> JString(kind),
+      "data" -> data
+    )
+    
+    self.post("/api/sendNotification", parms)
+    
+  }
+  
 }
