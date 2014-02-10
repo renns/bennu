@@ -24,11 +24,11 @@ case class CreateAgent @Inject() (
   implicit
   conn: Connection,
   @Parm id: AgentId,
-  @Parm deleteFirst: Boolean = false
+  @Parm overWrite: Boolean = false
 ) {
 
   def service: JValue = {
-    if ( deleteFirst ) doDelete
+    if ( overWrite ) doDelete
     doCreate
     ("agentId" -> id.value)
   }

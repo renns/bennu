@@ -8,24 +8,10 @@ import scala.language.implicitConversions
 import m3.jdbc.RowMapper
 import m3.jdbc.Row
 
-object InternalId extends HasStringConverter {
-  
-  val stringConverter = new Converter[InternalId] {
-    override def toString(value: InternalId) = value.value
-    def fromString(value: String) = InternalId(value)
-  }
-  
-  val uidGenerator = inject[UidGenerator]
-
-  def random: InternalId = InternalId(uidGenerator.create(32))
-  
-  implicit def sqlEscape(iid: InternalId): m3.jdbc.SqlEscaped = m3.jdbc.SqlEscaped.string(iid.value)
-  
-  implicit lazy val rowMapper: RowMapper[InternalId] = new RowMapper[InternalId] {
-    def get(i: Int, row: Row) = InternalId(row.get[String](i))
-  } 
+object InternalId extends AbstractIdCompanion[InternalId] {
+  def fromString(value: String) = InternalId(value)
 }
 
 
-case class InternalId(value: String)
+case class InternalId(value: String) extends AbstractId
 

@@ -6,21 +6,12 @@ import m3.predef._
 import net.model3.util.UidGenerator
 import scala.language.implicitConversions
 
-object AgentId extends HasStringConverter {
+object AgentId extends AbstractIdCompanion[AgentId] {
 
-  val stringConverter = new Converter[AgentId] {
-    override def toString(value: AgentId) = value.value
+  def fromString(value: String) = AgentId(value)
 
-    def fromString(value: String) = AgentId(value)
-  }
-
-  val uidGenerator = inject[UidGenerator]
-
-  def random: AgentId = AgentId(uidGenerator.create(32))
-
-  implicit def sqlEscape(agentId: AgentId): m3.jdbc.SqlEscaped = m3.jdbc.SqlEscaped.string(agentId.value)
 }
 
-case class AgentId(value: String) {
+case class AgentId(value: String) extends AbstractId {
   def asIid = InternalId(value)
 }

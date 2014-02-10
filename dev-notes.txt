@@ -29,14 +29,25 @@ Internet Of Things
 
 
 
+Raph Test Client Things
+
+* improved default values on model objects
+* added copy2 method
+* soft delete no longer does a fetch (uses copy2 and sqlUpdate)
+* added iplicit conversion
+
+* can replace 
+      def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse]
+   with
+      def post(path: String, body: JValue): Future[ChannelResponse]
+* ModelAssist create methods can be replaced with
+    def upsert[T <: HasInternalId](t: T)(implicit ec: ExecutionContext): Future[T]
+    
+   
 
 
 
 
 
-Feb 7 Milestone
-
-* peer to peer
-* queries on connections
 
 

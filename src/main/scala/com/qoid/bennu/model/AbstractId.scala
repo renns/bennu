@@ -8,6 +8,7 @@ import net.model3.util.UidGenerator
 import m3.jdbc.RowMapper
 import m3.jdbc.Row
 import scala.language.implicitConversions
+import net.liftweb.json.JString
 
 trait AbstractIdCompanion[IdType <: AbstractId] extends HasStringConverter { outer =>
   
@@ -24,9 +25,12 @@ trait AbstractIdCompanion[IdType <: AbstractId] extends HasStringConverter { out
   
   implicit def sqlEscape(id: IdType): m3.jdbc.SqlEscaped = m3.jdbc.SqlEscaped.string(id.value)
   
-  implicit lazy val rowMapper: RowMapper[InternalId] = new RowMapper[InternalId] {
-    def get(i: Int, row: Row) = InternalId(row.get[String](i))
-  } 
+  implicit lazy val rowMapper: RowMapper[IdType] = new RowMapper[IdType] {
+    def get(i: Int, row: Row) = fromString(row.get[String](i))
+  }
+  
+  implicit def toJValue(id: IdType) = JString(id.value)
+  
 }
 
 trait AbstractId {

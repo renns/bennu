@@ -8,12 +8,25 @@ object LabelAcl extends BennuMapperCompanion[LabelAcl] {
 }
 
 case class LabelAcl(
-  @PrimaryKey iid: InternalId,
+  @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId,
   connectionIid: InternalId,
   labelIid: InternalId,
-  data: JValue,
+  data: JValue = JNothing,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[LabelAcl] {
+) extends HasInternalId with BennuMappedInstance[LabelAcl] { self =>
+  
+  type TInstance = LabelAcl
+  
   def mapper = LabelAcl
+  
+  override def copy2(
+      iid: InternalId = self.iid, 
+      agentId: AgentId = self.agentId, 
+      data: JValue = self.data, 
+      deleted: Boolean = self.deleted
+  ) = {
+    copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
+  }
+
 }

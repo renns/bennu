@@ -10,11 +10,24 @@ object Agent extends BennuMapperCompanion[Agent] {
 }
 
 case class Agent(
-  @PrimaryKey iid: InternalId,
+  @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId,
   name: String,
-  data: JValue,
+  data: JValue = JNothing,
   deleted: Boolean = false
-) extends HasInternalId with BennuMappedInstance[Agent] {
+) extends HasInternalId with BennuMappedInstance[Agent] { self =>
+  
+  type TInstance = Agent
+  
   def mapper = Agent
+
+  override def copy2(
+      iid: InternalId = self.iid, 
+      agentId: AgentId = self.agentId, 
+      data: JValue = self.data, 
+      deleted: Boolean = self.deleted
+  ) = {
+    copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
+  }
+  
 }

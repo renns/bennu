@@ -44,15 +44,28 @@ object Notification extends BennuMapperCompanion[Notification] {
 }
 
 case class Notification(
-  @PrimaryKey iid: InternalId,
+  @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId,
   consumed: Boolean,
   fromConnectionIid: InternalId,  
   kind: String,
-  data: JValue,
+  data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Notification] {
+ self =>
+  
+  type TInstance = Notification
+  
   def mapper = Notification
+  
+  override def copy2(
+      iid: InternalId = self.iid, 
+      agentId: AgentId = self.agentId, 
+      data: JValue = self.data, 
+      deleted: Boolean = self.deleted
+  ) = {
+    copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
+  }
 }
 
 

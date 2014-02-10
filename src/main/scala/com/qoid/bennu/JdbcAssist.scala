@@ -1,5 +1,6 @@
 package com.qoid.bennu
 
+
 import com.qoid.bennu.model.HasInternalId
 import com.qoid.bennu.model.InternalId
 import java.sql.Connection
@@ -15,6 +16,7 @@ import m3.TypeInfo
 import net.liftweb.json.JNothing
 import net.liftweb.json.JValue
 import net.model3.lang.ClassX
+import scala.language.implicitConversions
 
 object JdbcAssist extends Logging {
 
@@ -32,17 +34,19 @@ object JdbcAssist extends Logging {
     }
     def softDelete(t: T)(implicit conn: Connection): T = {
       Txn {
-        softDeleteViaKey(t.iid)
-        fetch(t.iid)
+        val i = t.copy2(deleted=true)
+        t.mapper.update(i)
+        i.asInstanceOf[T]
       }
     }
     def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
-    def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
+    
+    implicit def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
+    
   }
 
   trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>
-    override def mapper: BennuMapperCompanion[T]
-    def softDelete(implicit conn: Connection): Unit = mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]].softDelete(self)
+    def softDelete(implicit conn: Connection): Unit = mapper.softDelete(cast)
   }
  
   lazy val allMappers = List(
