@@ -12,21 +12,21 @@ import m3.servlet.longpoll.ChannelId
 import net.liftweb.json.JString
 import scala.concurrent._
 
-trait ChannelClient {
+trait ChannelClient extends ServiceAssist with ModelAssist {
   def agentId: AgentId
+
   protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
 
-  def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse]
+  def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse]
+  def post(path: String, parms: Map[String, JValue]): ChannelResponse
 }
 
 object ChannelClientFactory extends HttpAssist {
   def createHttpChannelClient(
     agentId: AgentId
   )(
-    implicit
-    config: HttpClientConfig,
-    ec: ExecutionContext
-  ): HttpChannelClient with ServiceAssist with ModelAssist = {
+    implicit config: HttpClientConfig
+  ): HttpChannelClient = {
 
     val response = httpGet(s"${config.server}${ServicePath.createChannel}/${agentId.value}")
 
@@ -35,7 +35,7 @@ object ChannelClientFactory extends HttpAssist {
       case _ => m3x.error(s"Invalid create channel response -- ${response}")
     }
 
-    new HttpChannelClient(agentId, channelId) with ServiceAssist with ModelAssist
+    new HttpChannelClient(agentId, channelId)
   }
 }
 

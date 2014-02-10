@@ -4,9 +4,6 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
 import m3.json.LiftJsonAssist._
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
 object UpsertIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -19,13 +16,9 @@ object UpsertIntegrator extends GuiceApp {
 
   def insertLabel(): Unit = {
     try {
-      val agentId = AgentId("Agent1")
-      ServiceAssist.createAgent(agentId, true)
-      val client = ChannelClientFactory.createHttpChannelClient(agentId)
-      val label = Label(InternalId.random, agentId, "Insert Label", JNothing)
-      val fInsert = client.upsert(label)
-
-      Await.result(fInsert, Duration("10 seconds"))
+      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val label = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      client.upsert(label)
 
       logger.debug("insertLabel: PASS")
     } catch {
@@ -35,18 +28,11 @@ object UpsertIntegrator extends GuiceApp {
 
   def updateLabel(): Unit = {
     try {
-      val agentId = AgentId("Agent1")
-      ServiceAssist.createAgent(agentId, true)
-      val client = ChannelClientFactory.createHttpChannelClient(agentId)
-      val insertLabel = Label(InternalId.random, agentId, "Insert Label", JNothing)
-      val fInsert = client.upsert(insertLabel)
-
-      val newLabel = Await.result(fInsert, Duration("10 seconds"))
-
-      val updateLabel = Label(newLabel.iid, agentId, "Update Label", JNothing)
-      val fUpdate = client.upsert(updateLabel)
-
-      Await.result(fUpdate, Duration("10 seconds"))
+      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val insertLabel = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val newLabel = client.upsert(insertLabel)
+      val updateLabel = Label(newLabel.iid, client.agentId, "Update Label", JNothing)
+      client.upsert(updateLabel)
 
       logger.debug("updateLabel: PASS")
     } catch {
@@ -56,14 +42,9 @@ object UpsertIntegrator extends GuiceApp {
 
   def insertLabelWithWrongAgent(): Unit = {
     try {
-      val agentId1 = AgentId("Agent1")
-      val agentId2 = AgentId("Agent2")
-      ServiceAssist.createAgent(agentId1, true)
-      val client = ChannelClientFactory.createHttpChannelClient(agentId1)
-      val label = Label(InternalId.random, agentId2, "Insert Label", JNothing)
-      val fInsert = client.upsert(label)
-
-      Await.result(fInsert, Duration("10 seconds"))
+      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val label = Label(InternalId.random, AgentId("Agent2"), "Insert Label", JNothing)
+      client.upsert(label)
 
       logger.warn("insertLabelWithWrongAgent: FAIL -- Validation didn't work")
     } catch {
@@ -73,19 +54,11 @@ object UpsertIntegrator extends GuiceApp {
 
   def updateLabelWithWrongAgent(): Unit = {
     try {
-      val agentId1 = AgentId("Agent1")
-      val agentId2 = AgentId("Agent2")
-      ServiceAssist.createAgent(agentId1, true)
-      val client = ChannelClientFactory.createHttpChannelClient(agentId1)
-      val insertLabel = Label(InternalId.random, agentId1, "Insert Label", JNothing)
-      val fInsert = client.upsert(insertLabel)
-
-      val newLabel = Await.result(fInsert, Duration("10 seconds"))
-
-      val updateLabel = Label(newLabel.iid, agentId2, "Update Label", JNothing)
-      val fUpdate = client.upsert(updateLabel)
-
-      Await.result(fUpdate, Duration("10 seconds"))
+      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val insertLabel = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val newLabel = client.upsert(insertLabel)
+      val updateLabel = Label(newLabel.iid, AgentId("Agent2"), "Update Label", JNothing)
+      client.upsert(updateLabel)
 
       logger.warn("updateLabelWithWrongAgent: FAIL -- Validation didn't work")
     } catch {

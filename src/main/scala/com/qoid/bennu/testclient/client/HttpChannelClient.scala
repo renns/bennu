@@ -3,8 +3,7 @@ package com.qoid.bennu.testclient.client
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JsonAssist
 import com.qoid.bennu.ServicePath
-import com.qoid.bennu.model.AgentId
-import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryEvent
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import java.util.UUID
@@ -13,21 +12,20 @@ import m3.json.LiftJsonAssist._
 import m3.predef._
 import m3.servlet.longpoll.ChannelId
 import scala.concurrent._
+import scala.concurrent.duration.Duration
 
 case class HttpChannelClient(
   agentId: AgentId,
   channelId: ChannelId
 )(
-  implicit
-  config: HttpClientConfig,
-  ec: ExecutionContext
+  implicit config: HttpClientConfig
 ) extends ChannelClient with HttpAssist {
 
   private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
 
   spawnLongPoller()
 
-  override def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse] = {
+  override def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse] = {
     val promise = Promise[ChannelResponse]()
 
     future {
@@ -50,6 +48,11 @@ case class HttpChannelClient(
     promise.future
   }
 
+  override def post(path: String, parms: Map[String, JValue]): ChannelResponse = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Await.result(postAsync(path, parms), Duration(s"${config.requestTimeout.inSeconds()} seconds"))
+  }
+
   private def createRequest(path: String, context: String, parms: Map[String, JValue]): ChannelRequest = {
     val parmsJValue = JObject(parms.map{
       case (k, v) => JField(k, v)
@@ -66,7 +69,7 @@ case class HttpChannelClient(
   }
 
   private def spawnLongPoller(): Unit = {
-    spawn(s"long-poller-${channelId.value}"){
+    spawn(s"long-poller-${channelId.value}") {
       while (true) {
         longPoll()
       }
@@ -85,7 +88,12 @@ case class HttpChannelClient(
               val event = JsonAssist.serializer.fromJson[StandingQueryEvent](message)
               val mapper = JdbcAssist.findMapperByTypeName(event.`type`).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
               val instance = mapper.fromJson(event.instance)
-              squeryCallbacks.get(event.handle).foreach(_(event.action, event.handle, instance))
+
+              for (callback <- squeryCallbacks.get(event.handle)) {
+                spawn(s"squery-${event.handle}") {
+                  callback(event.action, event.handle, instance)
+                }
+              }
             case _ =>
               // This is a channel response
               val channelResponse = JsonAssist.serializer.fromJson[ChannelResponse](message)

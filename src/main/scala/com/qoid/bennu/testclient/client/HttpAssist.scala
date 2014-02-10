@@ -1,5 +1,7 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.ServicePath
+import com.qoid.bennu.model._
 import m3.json.LiftJsonAssist._
 import m3.predef._
 import net.model3.lang.TimeDuration
@@ -7,11 +9,29 @@ import org.apache.http.client.methods._
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 
-object HttpAssist {
+object HttpAssist extends HttpAssist with Logging {
   case class HttpClientConfig(
     server: String = "http://localhost:8080",
-    pollTimeout: TimeDuration = new TimeDuration("10 seconds")
+    pollTimeout: TimeDuration = new TimeDuration("10 seconds"),
+    requestTimeout: TimeDuration = new TimeDuration("30 seconds")
   )
+
+  def initAgent(agentId: AgentId)(implicit config: HttpClientConfig): (ChannelClient, Label, Alias) = {
+    createAgent(agentId)
+    val client = ChannelClientFactory.createHttpChannelClient(agentId)
+    val rootLabel = client.createLabel("root")
+    val uberAlias = client.createAlias(rootLabel.iid, "uber")
+    (client, rootLabel, uberAlias)
+  }
+
+  def createAgent(agentId: AgentId, overwrite: Boolean = true)(implicit config: HttpClientConfig): Unit = {
+    val response = httpGet(s"${config.server}${ServicePath.createAgent}/${agentId.value}/${overwrite}")
+
+    parseJson(response) \ "agentId" match {
+      case JString(agentId.value) => logger.debug(s"Created agent ${agentId.value}")
+      case _ => m3x.error(s"Invalid create agent response -- ${response}")
+    }
+  }
 }
 
 trait HttpAssist {
