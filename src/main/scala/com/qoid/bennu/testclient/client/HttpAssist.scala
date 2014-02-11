@@ -16,21 +16,15 @@ object HttpAssist extends HttpAssist with Logging {
     requestTimeout: TimeDuration = new TimeDuration("30 seconds")
   )
 
-  def initAgent(agentId: AgentId)(implicit config: HttpClientConfig): (ChannelClient, Label, Alias) = {
-    createAgent(agentId)
-    val client = ChannelClientFactory.createHttpChannelClient(agentId)
-    val rootLabel = client.createLabel("root")
-    val uberAlias = client.createAlias(rootLabel.iid, "uber")
-    (client, rootLabel, uberAlias)
-  }
-
-  def createAgent(agentId: AgentId, overwrite: Boolean = true)(implicit config: HttpClientConfig): Unit = {
+  def createAgent(agentId: AgentId, overwrite: Boolean = true)(implicit config: HttpClientConfig): ChannelClient = {
     val response = httpGet(s"${config.server}${ServicePath.createAgent}/${agentId.value}/${overwrite}")
 
     parseJson(response) \ "agentId" match {
       case JString(agentId.value) => logger.debug(s"Created agent ${agentId.value}")
       case _ => m3x.error(s"Invalid create agent response -- ${response}")
     }
+
+    ChannelClientFactory.createHttpChannelClient(agentId)
   }
 }
 

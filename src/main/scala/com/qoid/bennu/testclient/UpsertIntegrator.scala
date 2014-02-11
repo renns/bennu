@@ -3,7 +3,6 @@ package com.qoid.bennu.testclient
 import com.qoid.bennu.model._
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
-import m3.json.LiftJsonAssist._
 
 object UpsertIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -16,7 +15,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def insertLabel(): Unit = {
     try {
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       val label = Label(client.agentId, "Insert Label")
       client.upsert(label)
 
@@ -28,7 +27,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def updateLabel(): Unit = {
     try {
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       val insertLabel = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(insertLabel)
       val updateLabel = newLabel.copy(name = "UpdateLabel")
@@ -42,7 +41,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def insertLabelWithWrongAgent(): Unit = {
     try {
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       val label = Label(AgentId("Agent2"), "Insert Label")
       client.upsert(label)
 
@@ -54,7 +53,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def updateLabelWithWrongAgent(): Unit = {
     try {
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       val insertLabel = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(insertLabel)
       val updateLabel = newLabel.copy(agentId = AgentId("Agent2"), name = "Update Label")

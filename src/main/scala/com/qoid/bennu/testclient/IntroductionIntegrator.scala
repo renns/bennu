@@ -19,9 +19,12 @@ object IntroductionIntegrator extends GuiceApp {
   def run(): Unit = {
     try {
       // Initialize agents and connections
-      val (clientA, _, aliasA) = HttpAssist.initAgent(AgentId("A"))
-      val (clientB, _, aliasB) = HttpAssist.initAgent(AgentId("B"))
-      val (clientC, _, aliasC) = HttpAssist.initAgent(AgentId("C"))
+      val clientA = HttpAssist.createAgent(AgentId("A"))
+      val clientB = HttpAssist.createAgent(AgentId("B"))
+      val clientC = HttpAssist.createAgent(AgentId("C"))
+      val aliasA = clientA.getUberAlias()
+      val aliasB = clientB.getUberAlias()
+      val aliasC = clientC.getUberAlias()
       val (connAC, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
       val (connBC, connCB) = TestAssist.createConnection(clientB, aliasB, clientC, aliasC)
 

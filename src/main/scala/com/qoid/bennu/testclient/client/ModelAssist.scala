@@ -20,4 +20,12 @@ trait ModelAssist {
   def createLabelChild(parentIid: InternalId, childIid: InternalId): LabelChild = {
     upsert(LabelChild(agentId, parentIid, childIid))
   }
+
+  def getUberLabel(): Label = {
+    query[Label]("name = 'uber label'").head
+  }
+
+  def getUberAlias(): Alias = {
+    query[Alias]("name = 'uber alias'").head
+  }
 }

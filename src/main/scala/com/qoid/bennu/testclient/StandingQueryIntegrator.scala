@@ -17,7 +17,7 @@ object StandingQueryIntegrator extends GuiceApp {
     try {
       val p = Promise[Unit]()
 
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       client.registerStandingQuery(List("label", "labelchild"))(handleStandingQueryResult(_, _, _, client, p))
       val parentLabel = client.createLabel("parent")
       val childLabel = client.createLabel("child")

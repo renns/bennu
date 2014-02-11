@@ -3,7 +3,6 @@ package com.qoid.bennu.testclient
 import com.qoid.bennu.model._
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
-import m3.json.LiftJsonAssist._
 
 object DeleteIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -14,7 +13,7 @@ object DeleteIntegrator extends GuiceApp {
 
   def deleteLabel(): Unit = {
     try {
-      val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent(AgentId("Agent1"))
       val label = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(label)
       val deletedLabel = client.delete(newLabel)
@@ -31,8 +30,8 @@ object DeleteIntegrator extends GuiceApp {
 
   def deleteLabelWithWrongAgent(): Unit = {
     try {
-      val (client1, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val (client2, _, _) = HttpAssist.initAgent(AgentId("Agent2"))
+      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
+      val client2 = HttpAssist.createAgent(AgentId("Agent2"))
       val label = Label(client1.agentId, "Insert Label")
       val newLabel = client1.upsert(label)
       client2.delete(newLabel)
