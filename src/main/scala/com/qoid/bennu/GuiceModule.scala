@@ -43,43 +43,32 @@ import m3.servlet.longpoll.JettyChannelManager
 import m3.servlet.longpoll.ChannelManager
 import com.qoid.bennu.SecurityContext.BennuProviderOptionChannelId
 import com.qoid.bennu.SecurityContext.BennuProviderChannelId
+import net.model3.guice.LifeCycleManager
+import net.model3.guice.LifeCycleListeners
+import com.qoid.bennu.util.HsqldbServerStarterUpper
 
 object GuiceModule {
   
   class Bootstrapper @Inject() (
-    autoLoggingConfigurator: AutoLoggingConfigurator
-
+    autoLoggingConfigurator: AutoLoggingConfigurator,
+    lifeCycle: LifeCycleManager
   ) extends AbstractBootstrapper {
     
     lazy val logger = Logger.getLogger
     
     override def bootstrap = {
       autoLoggingConfigurator.apply()
-    }
-    
 
-    @Override
-    def postBootstrap() {
-      PropertiesX.logProperties(System.getProperties(), Level.DEBUG );
-      Versioning.logAllVersioningFound(Thread.currentThread().getContextClassLoader());
-
-//      registerDriver("com.ibm.as400.access.AS400JDBCDriver");
-      registerDriver("net.sf.log4jdbc.DriverSpy");
-      registerDriver("com.mysql.jdbc.Driver");
-//      registerDriver("org.postgresql.Driver");
-//      registerDriver("org.hsqldb.jdbcDriver");
+      lifeCycle.config.add(new LifeCycleListeners.Config {
+        def configComplete = {
+          // tickle the hsqldb server
+          inject[HsqldbServerStarterUpper]
+          PropertiesX.logProperties(System.getProperties(), Level.DEBUG );
+          Versioning.logAllVersioningFound(Thread.currentThread().getContextClassLoader());
+        }
+      })
 
     }
-    
-    def registerDriver(driverClassname: String) {
-      try {
-        val clazz = ClassX.load(driverClassname);
-        DriverManager.registerDriver(clazz.newInstance.asInstanceOf[java.sql.Driver]);
-      } catch {
-        case e: Exception => logger.warn("error registering " + driverClassname, e);
-      }
-    }
-
     
   }
   

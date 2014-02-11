@@ -23,5 +23,6 @@ object Config {
 
 case class Config(
     database: Database,
-    superUserAuthTokens: List[Config.SuperUserAuthToken] = List(Config.SuperUserAuthToken("i_am_canadian"))
+    superUserAuthTokens: List[Config.SuperUserAuthToken] = List(Config.SuperUserAuthToken("i_am_canadian")),
+    startHsqldbTooling: Boolean = true
 )

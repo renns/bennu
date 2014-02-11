@@ -39,7 +39,7 @@ class WebServicesModule extends M3ServletModule {
     filter("/*").through(classOf[TransactionFilter])
     
     // we use scalate for our templating needs think (jsp - java) + scala = scalate -- http://scalate.fusesource.org/
-    filter("*.ssp", "*.html").through(classOf[ScalateFilter])
+//    filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
     serveBean[CreateAgent](ServicePath.createAgent)
 
