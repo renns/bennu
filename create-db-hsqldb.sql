@@ -39,6 +39,18 @@ create cached table content (
 	primary key(iid)
 )
 ;
+create cached table introduction (
+	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
+	aConnectionIid varchar(32) not NULL,
+	aState varchar(50) not NULL,
+	bConnectionIid varchar(32) not NULL,
+	bState varchar(50) not NULL,
+	data Clob not NULL,
+	deleted bit not NULL,
+	primary key(iid)
+)
+;
 create cached table label (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,

@@ -17,7 +17,7 @@ object UpsertIntegrator extends GuiceApp {
   def insertLabel(): Unit = {
     try {
       val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val label = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val label = Label(client.agentId, "Insert Label")
       client.upsert(label)
 
       logger.debug("insertLabel: PASS")
@@ -29,9 +29,9 @@ object UpsertIntegrator extends GuiceApp {
   def updateLabel(): Unit = {
     try {
       val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val insertLabel = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val insertLabel = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(insertLabel)
-      val updateLabel = Label(newLabel.iid, client.agentId, "Update Label", JNothing)
+      val updateLabel = newLabel.copy(name = "UpdateLabel")
       client.upsert(updateLabel)
 
       logger.debug("updateLabel: PASS")
@@ -43,7 +43,7 @@ object UpsertIntegrator extends GuiceApp {
   def insertLabelWithWrongAgent(): Unit = {
     try {
       val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val label = Label(InternalId.random, AgentId("Agent2"), "Insert Label", JNothing)
+      val label = Label(AgentId("Agent2"), "Insert Label")
       client.upsert(label)
 
       logger.warn("insertLabelWithWrongAgent: FAIL -- Validation didn't work")
@@ -55,9 +55,9 @@ object UpsertIntegrator extends GuiceApp {
   def updateLabelWithWrongAgent(): Unit = {
     try {
       val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val insertLabel = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val insertLabel = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(insertLabel)
-      val updateLabel = Label(newLabel.iid, AgentId("Agent2"), "Update Label", JNothing)
+      val updateLabel = newLabel.copy(agentId = AgentId("Agent2"), name = "Update Label")
       client.upsert(updateLabel)
 
       logger.warn("updateLabelWithWrongAgent: FAIL -- Validation didn't work")

@@ -18,16 +18,11 @@ object PingPongNotificationsIntegrator extends GuiceApp {
     try {
       val p = Promise[Unit]()
 
-      val (client1, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val (client2, _, _) = HttpAssist.initAgent(AgentId("Agent2"))
+      val (client1, _, alias1) = HttpAssist.initAgent(AgentId("Agent1"))
+      val (client2, _, alias2) = HttpAssist.initAgent(AgentId("Agent2"))
 
+      val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
       client1.registerStandingQuery(List("notification"))(handleStandingQueryResult(_, _, _, client1, p))
-      val label1 = client1.createLabel("root")
-      val label2 = client2.createLabel("root")
-      val alias1 = client1.createAlias(label1.iid, "alias")
-      val alias2 = client2.createAlias(label2.iid, "alias")
-      val conn1 = client1.createConnection(alias1.iid, PeerId.random, PeerId.random)
-      client2.createConnection(alias2.iid, conn1.remotePeerId, conn1.localPeerId)
       client1.sendNotification(conn1.remotePeerId, "ping", "hello" -> "world")
 
       Await.result(p.future, Duration("30 seconds"))

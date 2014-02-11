@@ -15,7 +15,7 @@ object DeleteIntegrator extends GuiceApp {
   def deleteLabel(): Unit = {
     try {
       val (client, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
-      val label = Label(InternalId.random, client.agentId, "Insert Label", JNothing)
+      val label = Label(client.agentId, "Insert Label")
       val newLabel = client.upsert(label)
       val deletedLabel = client.delete(newLabel)
 
@@ -33,7 +33,7 @@ object DeleteIntegrator extends GuiceApp {
     try {
       val (client1, _, _) = HttpAssist.initAgent(AgentId("Agent1"))
       val (client2, _, _) = HttpAssist.initAgent(AgentId("Agent2"))
-      val label = Label(InternalId.random, client1.agentId, "Insert Label", JNothing)
+      val label = Label(client1.agentId, "Insert Label")
       val newLabel = client1.upsert(label)
       client2.delete(newLabel)
 

@@ -54,6 +54,7 @@ object JdbcAssist extends Logging {
     model.Alias,
     model.Connection,
     model.Content,
+    model.Introduction,
     model.Label,
     model.LabelAcl,
     model.LabelChild,

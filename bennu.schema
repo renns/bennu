@@ -88,3 +88,13 @@ table labelAcl {
   labelIid      Label;
   import(CommonFields);
 }
+
+table introduction {
+  iid               InternalId key;
+  agentId           AgentId;
+  aConnectionIid    InternalId;
+  aState            varchar(50);
+  bConnectionIid    InternalId;
+  bState            varchar(50);
+  import(CommonFields);
+}

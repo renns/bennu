@@ -1,24 +1,21 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.model.PeerId
-import net.liftweb.json.JValue
-import m3.servlet.beans.Parm
+import com.qoid.bennu.model._
 import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.model.Notification
+import m3.servlet.beans.Parm
+import net.liftweb.json._
 
 case class SendNotification @Inject() (
-  @Parm toPeer: PeerId, 
-  @Parm kind: String,
+  @Parm toPeer: PeerId,
+  @Parm kind: NotificationKind,
   @Parm data: JValue
 )(
   implicit 
   jdbcConn: JdbcConn
 ) {
-  
-  def service = {
+  def service: JValue = {
     Notification.sendNotification(toPeer, kind, data)
+    JString("success")
   }
-  
-
 }

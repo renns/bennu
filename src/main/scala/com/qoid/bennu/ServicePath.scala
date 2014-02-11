@@ -11,4 +11,6 @@ object ServicePath {
   val sendNotification = "/api/notification/send"
   val registerStandingQuery = "/api/squery/register"
   val deRegisterStandingQuery = "/api/squery/deregister"
+  val initiateIntroduction = "/api/introduction/initiate"
+  val respondToIntroduction = "/api/introduction/respond"
 }

@@ -2,18 +2,16 @@ package com.qoid.bennu.model
 
 
 import com.qoid.bennu.JdbcAssist._
-import m3.jdbc.PrimaryKey
-import net.liftweb.json._
-import m3.predef._
-import m3.jdbc._
-import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.squery.StandingQueryManager
 import com.qoid.bennu.squery.StandingQueryAction
-import m3.Txn
+import com.qoid.bennu.squery.StandingQueryManager
+import java.sql.{ Connection => JdbcConn }
+import m3.jdbc._
+import m3.predef._
+import net.liftweb.json._
 
 object Notification extends BennuMapperCompanion[Notification] {
 
-  def sendNotification(toPeer: PeerId, kind: String, data: JValue)(implicit jdbcConn: JdbcConn) = {
+  def sendNotification(toPeer: PeerId, kind: NotificationKind, data: JValue)(implicit jdbcConn: JdbcConn): Unit = {
     
     val toConn = Connection.selectBox(sql"localPeerId = ${toPeer}").open_$
     
@@ -38,9 +36,7 @@ object Notification extends BennuMapperCompanion[Notification] {
       notification,
       StandingQueryAction.Insert
     )
-    
   }
-  
 }
 
 case class Notification(
@@ -48,11 +44,11 @@ case class Notification(
   agentId: AgentId,
   consumed: Boolean,
   fromConnectionIid: InternalId,  
-  kind: String,
+  kind: NotificationKind,
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Notification] {
- self =>
+  self =>
   
   type TInstance = Notification
   

@@ -17,7 +17,7 @@ trait ServiceAssist {
     response.result match {
       case JNothing => throw new Exception(s"Upsert didn't complete successfully")
       case r =>
-        val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+        val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName)
         mapper.fromJson(r).asInstanceOf[T]
     }
   }
@@ -30,8 +30,24 @@ trait ServiceAssist {
     response.result match {
       case JNothing => throw new Exception(s"Delete didn't complete successfully")
       case r =>
-        val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+        val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName)
         mapper.fromJson(r).asInstanceOf[T]
+    }
+  }
+
+  def query[T <: HasInternalId : Manifest](query: String): List[T] = {
+    val typeName = manifest[T].runtimeClass.getSimpleName
+
+    val parms = Map("type" -> JString(typeName), "q" -> JString(query))
+
+    val response = post(ServicePath.query, parms)
+
+    response.result match {
+      case JNothing => throw new Exception("Query didn't complete successfully")
+      case JArray(instances) =>
+        val mapper = JdbcAssist.findMapperByTypeName(typeName)
+        instances.map(mapper.fromJson(_).asInstanceOf[T])
+      case _ => throw new Exception("Query returned invalid results")
     }
   }
 
@@ -68,6 +84,30 @@ trait ServiceAssist {
     )
 
     val response = post(ServicePath.sendNotification, parms)
+
+    response.success
+  }
+
+  def initiateIntroduction(aConnection: Connection, aMessage: String, bConnection: Connection, bMessage: String): Boolean = {
+    val parms = Map(
+      "aConnectionIid" -> JString(aConnection.iid.value),
+      "aMessage" -> JString(aMessage),
+      "bConnectionIid" -> JString(bConnection.iid.value),
+      "bMessage" -> JString(bMessage)
+    )
+
+    val response = post(ServicePath.initiateIntroduction, parms)
+
+    response.success
+  }
+
+  def respondToIntroduction(notification: Notification, accepted: Boolean): Boolean = {
+    val parms = Map(
+      "notificationIid" -> JString(notification.iid.value),
+      "accepted" -> JBool(accepted)
+    )
+
+    val response = post(ServicePath.respondToIntroduction, parms)
 
     response.success
   }

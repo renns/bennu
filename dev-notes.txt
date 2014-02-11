@@ -1,9 +1,4 @@
 
-
-*
-
-
-
 General Tasks
 
 * refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
@@ -12,6 +7,10 @@ General Tasks
 
 * use case, an alias based standing query where a labelchild is added after the label is created.  In this use case the label wouldn't get sent (but it should get sent once it is reachable)
 
+* Update IntroductionResponse handler in NotificationListener so that it handles race conditions
+    - It should make sure that if both parties accept, connections will always be made
+    - It should make sure that if both parties accept, only one pair of connections will be made
+    - A possible solution is to use database locking, preferably on the one introduction row
 
 
 

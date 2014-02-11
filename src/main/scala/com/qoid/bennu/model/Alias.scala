@@ -8,10 +8,10 @@ object Alias extends BennuMapperCompanion[Alias] {
 }
 
 case class Alias(
-  @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId,
   rootLabelIid: InternalId,
   name: String,
+  @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Alias] { self =>
