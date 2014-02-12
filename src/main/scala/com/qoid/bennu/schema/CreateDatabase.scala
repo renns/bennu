@@ -12,6 +12,7 @@ import com.qoid.bennu.JsonAssist._
 import net.model3.newfile.Directory
 import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.webservices.CreateAgent
+import m3.fs._
 
 object CreateDatabase extends App {
 
@@ -32,6 +33,10 @@ object CreateDatabase extends App {
     implicit val conn = inject[Connection]
     
     schemaManager.createFullSchemaDdl.foreach { ddl =>
+      conn.update(ddl)
+    }
+    
+    file("bennu-extra-ddl.sql").readText.splitList(";;;").foreach { ddl =>
       conn.update(ddl)
     }
 
