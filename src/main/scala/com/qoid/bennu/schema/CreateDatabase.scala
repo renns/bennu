@@ -35,7 +35,10 @@ object CreateDatabase extends App {
       conn.update(ddl)
     }
 
-    val agent = CreateAgent()(conn, AgentId("007")).doCreate
+    CreateAgent()(conn, CreateAgent.introducerAgentId, true, false).doCreate
+    
+    CreateAgent()(conn, AgentId("007"), true, true).doCreate
+    CreateAgent()(conn, AgentId("008"), true, true).doCreate
 
     conn.commit
     
