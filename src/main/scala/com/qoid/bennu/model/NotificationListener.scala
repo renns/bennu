@@ -2,17 +2,16 @@ package com.qoid.bennu.model
 
 import com.google.inject.Singleton
 import com.qoid.bennu.model.notification.IntroductionResponse
+import com.qoid.bennu.squery.StandingQueryAction
 import java.sql.{Connection => JdbcConn}
 import m3.jdbc._
 import m3.predef._
-import com.qoid.bennu.squery.{StandingQueryAction, StandingQueryManager}
 
 @Singleton
 class NotificationListener extends Logging {
   case class Listener(kind: NotificationKind, fn: Notification => Unit)
 
   private lazy val _listeners: List[Listener] = List(
-    Listener(NotificationKind.Ping, listenForPing),
     Listener(NotificationKind.IntroductionResponse, listenForIntroductionResponse)
   )
   
@@ -20,18 +19,6 @@ class NotificationListener extends Logging {
   
   def fireNotification(n: Notification) = {
     _listenersByKind.get(n.kind).getOrElse(Nil).foreach(_.fn(n))
-  }
-
-  def listenForPing(ping: Notification): Unit = {
-    implicit val jdbcConn = inject[JdbcConn]
-
-    val conn = Connection.fetch(ping.fromConnectionIid)
-    
-    Notification.sendNotification(
-        toPeer = conn.remotePeerId,
-        kind = NotificationKind.Pong,
-        data = ping.data
-    )
   }
 
   def listenForIntroductionResponse(n: Notification): Unit = {

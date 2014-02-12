@@ -1,10 +1,10 @@
 package com.qoid.bennu.testclient.client
 
 import com.qoid.bennu.JdbcAssist
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryAction
-import m3.json.LiftJsonAssist._
 
 trait ServiceAssist {
   this: ChannelClient =>
@@ -110,5 +110,15 @@ trait ServiceAssist {
     val response = post(ServicePath.respondToIntroduction, parms)
 
     response.success
+  }
+
+  def getProfiles(connections: List[Connection]): JValue = {
+    val parms = Map(
+      "connectionIids" -> JArray(connections.map(c => JString(c.iid.value)))
+    )
+
+    val response = post(ServicePath.getProfiles, parms)
+
+    response.result
   }
 }

@@ -2,6 +2,7 @@ package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
+import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.notification.IntroductionRequest
 import com.qoid.bennu.squery._
@@ -15,6 +16,7 @@ case class InitiateIntroductionService @Inject()(
   implicit conn: JdbcConn,
   securityContext: AgentCapableSecurityContext,
   sQueryMgr: StandingQueryManager,
+  distributedMgr: DistributedManager,
   @Parm aConnectionIid: InternalId,
   @Parm aMessage: String,
   @Parm bConnectionIid: InternalId,
@@ -31,8 +33,8 @@ case class InitiateIntroductionService @Inject()(
     val aIntroductionRequest = IntroductionRequest(introduction.iid, aMessage)
     val bIntroductionRequest = IntroductionRequest(introduction.iid, bMessage)
 
-    Notification.sendNotification(aConnection.remotePeerId, NotificationKind.IntroductionRequest, aIntroductionRequest.toJson)
-    Notification.sendNotification(bConnection.remotePeerId, NotificationKind.IntroductionRequest, bIntroductionRequest.toJson)
+    distributedMgr.sendNotification(aConnection.iid, NotificationKind.IntroductionRequest, aIntroductionRequest.toJson)
+    distributedMgr.sendNotification(bConnection.iid, NotificationKind.IntroductionRequest, bIntroductionRequest.toJson)
 
     JString("success")
   }

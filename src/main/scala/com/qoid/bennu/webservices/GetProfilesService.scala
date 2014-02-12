@@ -5,18 +5,18 @@ import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.model._
 import java.sql.{ Connection => JdbcConn }
 import m3.servlet.beans.Parm
-import net.liftweb.json._
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 
-case class SendNotification @Inject() (
+case class GetProfilesService @Inject() (
   implicit
   jdbcConn: JdbcConn,
   distributedMgr: DistributedManager,
-  @Parm connectionIid: InternalId,
-  @Parm kind: NotificationKind,
-  @Parm data: JValue
+  @Parm connectionIids: List[InternalId]
 ) {
   def service: JValue = {
-    distributedMgr.sendNotification(connectionIid, kind, data)
-    JString("success")
+    for (
+      connectionIid <- connectionIids
+    ) yield connectionIid.value -> distributedMgr.getProfile(connectionIid)
   }
 }
