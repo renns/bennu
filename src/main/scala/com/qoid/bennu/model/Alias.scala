@@ -10,7 +10,6 @@ object Alias extends BennuMapperCompanion[Alias] {
 case class Alias(
   agentId: AgentId,
   rootLabelIid: InternalId,
-  name: String, //TODO: This is a duplicate of profile/name. Either remove or make a calculated field
   profile: JValue,
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,

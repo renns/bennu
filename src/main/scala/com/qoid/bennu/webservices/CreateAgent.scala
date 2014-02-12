@@ -63,7 +63,6 @@ case class CreateAgent @Inject() (
 
     val rootAlias = Alias(
       agentId = id,
-      name = "uber alias",
       profile = List("name" -> "Uber Alias", "imgSrc" -> ""),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
@@ -76,7 +75,6 @@ case class CreateAgent @Inject() (
 
     val introAlias = Alias(
       agentId = id,
-      name = "intro alias",
       profile = List("name" -> "Intro Alias", "imgSrc" -> ""),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
@@ -91,8 +89,8 @@ case class CreateAgent @Inject() (
       
       val introducer = Agent.fetch(CreateAgent.introducerAgentId.asIid)
       
-      val introducerAlias = Alias.selectOne(sql"""agentId = 'introducer' and name = 'intro alias'""")
-      
+      val introducerAlias = Alias.selectOne(sql"""agentId = 'introducer' and json_str(profile, 'name') = 'Uber Alias'""")
+
       val left = Connection(
         agentId = introducer.agentId,
         aliasIid = introducerAlias.iid,
