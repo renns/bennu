@@ -1,12 +1,14 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 
 trait ModelAssist {
   this: ChannelClient with ServiceAssist =>
 
   def createAlias(rootLabelIid: InternalId, name: String): Alias = {
-    upsert(Alias(agentId, rootLabelIid, name))
+    val profile = List("name" -> name, "imgSrc" -> "")
+    upsert(Alias(agentId, rootLabelIid, name, profile))
   }
 
   def createConnection(aliasId: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {

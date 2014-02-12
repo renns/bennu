@@ -64,23 +64,21 @@ case class CreateAgent @Inject() (
     val rootAlias = Alias(
       agentId = id,
       name = "uber alias",
-      rootLabelIid = rootLabel.iid,
-      data = ("name" -> "Uber Alias")
+      profile = List("name" -> "Uber Alias", "imgSrc" -> ""),
+      rootLabelIid = rootLabel.iid
     ).sqlInsert
     
     val introLabel = Label(
-      iid = InternalId.random,
       agentId = id,
       name = "intro label",
       data = ("color" -> "white")
     ).sqlInsert
 
     val introAlias = Alias(
-      iid = InternalId.random,
       agentId = id,
       name = "intro alias",
-      rootLabelIid = rootLabel.iid,
-      data = ("name" -> "Intro Alias")
+      profile = List("name" -> "Intro Alias", "imgSrc" -> ""),
+      rootLabelIid = rootLabel.iid
     ).sqlInsert
     
     LabelChild(

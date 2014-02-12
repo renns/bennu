@@ -13,6 +13,7 @@ create cached table alias (
 	agentId varchar(32) not NULL,
 	rootLabelIid varchar(32) not NULL,
 	name varchar(50) not NULL,
+	profile Clob not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)

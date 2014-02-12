@@ -45,6 +45,7 @@ object IntroductionIntegrator extends GuiceApp {
       // Give C time to create connections
       Thread.sleep(1000)
 
+      // TODO: Change queries to also ignore connections to introducer
       val aConnections = clientA.query[Connection](sql"iid <> ${connAC.iid}")
       val bConnections = clientB.query[Connection](sql"iid <> ${connBC.iid}")
 
