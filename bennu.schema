@@ -42,6 +42,7 @@ table alias {
   agentId       AgentId;
   rootLabelIid  Label;
   name          Name;
+  profile       Clob;
   import(CommonFields);
 }
 
