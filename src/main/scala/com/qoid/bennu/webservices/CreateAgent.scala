@@ -1,26 +1,19 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.model.AgentId
-import m3.servlet.beans.Parm
-import com.qoid.bennu.model.Agent
-import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.model.Alias
-import com.qoid.bennu.model.PeerId
-import com.qoid.bennu.model.InternalId
-import com.qoid.bennu.model.Label
-import com.qoid.bennu.model.Alias
-import jsondsl._
-import com.qoid.bennu.model.LabeledContent
-import com.qoid.bennu.model.Content
-import com.qoid.bennu.model.LabelAcl
-import com.qoid.bennu.model.LabelChild
-import com.qoid.bennu.model
-import m3.predef._
 import com.qoid.bennu.JdbcAssist
-import m3.jdbc._
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.AgentId
+import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.LabelChild
+import com.qoid.bennu.model.PeerId
+import java.sql.{ Connection => JdbcConn }
+import jsondsl._
+import m3.jdbc._
+import m3.servlet.beans.Parm
 
 object CreateAgent {
   val introducerAgentId = AgentId("introducer")
@@ -63,7 +56,7 @@ case class CreateAgent @Inject() (
 
     val rootAlias = Alias(
       agentId = id,
-      profile = List("name" -> "Uber Alias", "imgSrc" -> ""),
+      profile = JObject(List(JField("name", "Uber Alias"), JField("imgSrc", ""))),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
     
@@ -75,7 +68,7 @@ case class CreateAgent @Inject() (
 
     val introAlias = Alias(
       agentId = id,
-      profile = List("name" -> "Intro Alias", "imgSrc" -> ""),
+      profile = JObject(List(JField("name", "Intro Alias"), JField("imgSrc", ""))),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
     
@@ -89,7 +82,7 @@ case class CreateAgent @Inject() (
       
       val introducer = Agent.fetch(CreateAgent.introducerAgentId.asIid)
       
-      val introducerAlias = Alias.selectOne(sql"""agentId = 'introducer' and json_str(profile, 'name') = 'Uber Alias'""")
+      val introducerAlias = Alias.selectOne(sql"""agentId = 'introducer' and json_str(profile, 'name') = 'Intro Alias'""")
 
       val left = Connection(
         agentId = introducer.agentId,
