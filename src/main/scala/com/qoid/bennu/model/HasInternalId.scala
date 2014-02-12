@@ -17,7 +17,13 @@ trait HasInternalId extends JsonCapable { self =>
   
   def mapper: BennuMapperCompanion[TInstance]
   
-  def cast: TInstance = this.asInstanceOf[TInstance]
+  /**
+   * A safeCast to it's type (one asInstanceOf's to rule them all)
+   * 
+   * Had some type challenges using a self type of TInstance so settled on having this single safeCast to get the same effect
+   * 
+   */
+  def safeCast: TInstance = this.asInstanceOf[TInstance]
   
   def copy2(
       iid: InternalId = self.iid, 
@@ -27,7 +33,7 @@ trait HasInternalId extends JsonCapable { self =>
   ): TInstance
 
   def notifyStandingQueries(action: StandingQueryAction): TInstance = {
-    inject[StandingQueryManager].notify(mapper, cast, action)
-    cast
+    inject[StandingQueryManager].notify(mapper, safeCast, action)
+    safeCast
   }
 }

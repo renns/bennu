@@ -46,7 +46,7 @@ object JdbcAssist extends Logging {
   }
 
   trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>
-    def softDelete(implicit conn: Connection): Unit = mapper.softDelete(cast)
+    def softDelete(implicit conn: Connection): Unit = mapper.softDelete(safeCast)
   }
  
   lazy val allMappers = List(
