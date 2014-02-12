@@ -1,11 +1,10 @@
 package com.qoid.bennu.model
 
-import com.qoid.bennu.JsonCapable
-import net.liftweb.json.JValue
-import m3.jdbc.ColumnMapper
-import m3.jdbc.Mapper
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
-
+import com.qoid.bennu.JsonCapable
+import com.qoid.bennu.squery._
+import m3.predef._
+import net.liftweb.json.JValue
 
 trait HasInternalId extends JsonCapable { self =>
   
@@ -26,5 +25,9 @@ trait HasInternalId extends JsonCapable { self =>
       data: JValue = self.data, 
       deleted: Boolean = self.deleted
   ): TInstance
-  
+
+  def notifyStandingQueries(action: StandingQueryAction): TInstance = {
+    inject[StandingQueryManager].notify(mapper, cast, action)
+    cast
+  }
 }

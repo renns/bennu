@@ -5,6 +5,7 @@ import com.qoid.bennu.model.notification.IntroductionResponse
 import java.sql.{Connection => JdbcConn}
 import m3.jdbc._
 import m3.predef._
+import com.qoid.bennu.squery.{StandingQueryAction, StandingQueryManager}
 
 @Singleton
 class NotificationListener extends Logging {
@@ -43,8 +44,16 @@ class NotificationListener extends Logging {
       val intro = Introduction.fetch(introResponse.introductionIid)
 
       val updatedIntro = n.fromConnectionIid match {
-        case intro.aConnectionIid => intro.copy(aState = calculateState(introResponse.accepted)).sqlUpdate
-        case intro.bConnectionIid => intro.copy(bState = calculateState(introResponse.accepted)).sqlUpdate
+        case intro.aConnectionIid =>
+          intro
+            .copy(aState = calculateState(introResponse.accepted))
+            .sqlUpdate
+            .notifyStandingQueries(StandingQueryAction.Update)
+        case intro.bConnectionIid =>
+          intro
+            .copy(bState = calculateState(introResponse.accepted))
+            .sqlUpdate
+            .notifyStandingQueries(StandingQueryAction.Update)
         case _ => m3x.error("IntroductionResponse notification: fromConnectionIid doesn't match introduction")
       }
 
@@ -52,7 +61,7 @@ class NotificationListener extends Logging {
         createConnections(updatedIntro)
       }
 
-      n.copy(consumed = true).sqlUpdate
+      n.copy(consumed = true).sqlUpdate.notifyStandingQueries(StandingQueryAction.Update)
     } catch {
       case e: Exception => logger.warn(e.toString)
     }
@@ -70,8 +79,13 @@ class NotificationListener extends Logging {
       val connFromA = Connection.selectBox(sql"localPeerId = ${connToA.remotePeerId}").open_$
       val connFromB = Connection.selectBox(sql"localPeerId = ${connToB.remotePeerId}").open_$
 
-      Connection(connFromA.agentId, connFromA.aliasIid, peerId1, peerId2).sqlInsert
-      Connection(connFromB.agentId, connFromB.aliasIid, peerId2, peerId1).sqlInsert
+      Connection(connFromA.agentId, connFromA.aliasIid, peerId1, peerId2)
+        .sqlInsert
+        .notifyStandingQueries(StandingQueryAction.Insert)
+
+      Connection(connFromB.agentId, connFromB.aliasIid, peerId2, peerId1)
+        .sqlInsert
+        .notifyStandingQueries(StandingQueryAction.Insert)
     }
   }
 }
