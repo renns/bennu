@@ -103,8 +103,8 @@ case class CreateAgent @Inject() (
       ).sqlInsert
       
       val right = Connection(
-        agentId = introducer.agentId,
-        aliasIid = introducerAlias.iid,
+        agentId = id,
+        aliasIid = introAlias.iid,
         localPeerId = left.remotePeerId,
         remotePeerId = left.localPeerId
       ).sqlInsert
