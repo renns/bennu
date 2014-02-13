@@ -49,10 +49,10 @@ class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
       sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
       if Evaluator.evaluateQuery(sc.createView.constrict(mapper, Query.nil), instance) == Evaluator.VTrue
     } {
-      val event = StandingQueryEvent(action, sQuery.handle, mapper.typeName, instance.toJson)
+      val event = StandingQueryEvent(action, mapper.typeName, instance.toJson)
+      val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, event.toJson)
       val channel = channelMgr.channel(sQuery.channelId)
-      channel.put(event.toJson)
+      channel.put(response.toJson)
     }
   }
-
 }

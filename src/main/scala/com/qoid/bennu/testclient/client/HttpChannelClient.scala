@@ -84,15 +84,28 @@ case class HttpChannelClient(
         for (message <- messages) {
           message \ "success" match {
             case JNothing =>
-              // This is a standing query event
-              val event = JsonAssist.serializer.fromJson[StandingQueryEvent](message)
-              val mapper = JdbcAssist.findMapperByTypeName(event.`type`).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
-              val instance = mapper.fromJson(event.instance)
+              // This is an async response
+              val response = JsonAssist.serializer.fromJson[AsyncResponse](message)
 
-              for (callback <- squeryCallbacks.get(event.handle)) {
-                spawn(s"squery-${event.handle}") {
-                  callback(event.action, event.handle, instance)
-                }
+              response.responseType match {
+                case AsyncResponseType.SQuery =>
+                  // This is an squery response
+                  val event = JsonAssist.serializer.fromJson[StandingQueryEvent](response.data)
+                  val mapper = JdbcAssist.findMapperByTypeName(event.`type`).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+                  val instance = mapper.fromJson(event.instance)
+
+                  for (callback <- squeryCallbacks.get(response.handle)) {
+                    spawn(s"squery-${response.handle}") {
+                      callback(event.action, response.handle, instance)
+                    }
+                  }
+                case _ =>
+                  // This is any async response other than squery
+                  for (callback <- asyncCallbacks.get(response.handle)) {
+                    spawn(s"async-${response.handle}") {
+                      callback(response.responseType, response.handle, response.data)
+                    }
+                  }
               }
             case _ =>
               // This is a channel response

@@ -1,12 +1,12 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
-import com.qoid.bennu.JsonCapable
+import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.squery._
 import m3.predef._
 import net.liftweb.json.JValue
 
-trait HasInternalId extends JsonCapable { self =>
+trait HasInternalId extends ToJsonCapable { self =>
   
   type TInstance <: HasInternalId
   

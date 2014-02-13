@@ -76,10 +76,10 @@ trait ServiceAssist {
     response.success
   }
 
-  def sendNotification(toPeer: PeerId, kind: String, data: JValue): Boolean = {
+  def sendNotification(connectionIid: InternalId, kind: NotificationKind, data: JValue): Boolean = {
     val parms = Map(
-      "toPeer" -> JString(toPeer.value),
-      "kind" -> JString(kind),
+      "connectionIid" -> JString(connectionIid.value),
+      "kind" -> JString(kind.toString),
       "data" -> data
     )
 
@@ -112,13 +112,21 @@ trait ServiceAssist {
     response.success
   }
 
-  def getProfiles(connections: List[Connection]): JValue = {
-    val parms = Map(
-      "connectionIids" -> JArray(connections.map(c => JString(c.iid.value)))
-    )
+  def getProfiles(
+    connections: List[Connection]
+  )(
+    callback: (AsyncResponseType, InternalId, JValue) => Unit
+  ): InternalId = {
+
+    val parms = Map("connectionIids" -> JArray(connections.map(c => JString(c.iid.value))))
 
     val response = post(ServicePath.getProfiles, parms)
 
-    response.result
+    response.result match {
+      case JObject(JField("handle", JString(handle)) :: Nil) =>
+        asyncCallbacks += InternalId(handle) -> callback
+        InternalId(handle)
+      case r => throw new Exception("Get profiles didn't complete successfully")
+    }
   }
 }
