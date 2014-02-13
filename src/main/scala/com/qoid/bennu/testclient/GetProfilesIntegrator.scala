@@ -23,9 +23,9 @@ object GetProfilesIntegrator extends GuiceApp {
       val alias1 = client1.getUberAlias()
       val label2 = client2.getUberLabel()
       val alias2 = client2.createAlias(label2.iid, "Test")
-      TestAssist.createConnection(client1, alias1, client2, alias2)
+      val (conn12, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
       val connections = client1.query[Connection]("")
-      val expected = JObject(List(JField("name", "Test"), JField("imgSrc", "")))
+      val expected = JObject(List(JField("connectionIid", conn12.iid.value), JField("profile", JObject(List(JField("name", "Test"), JField("imgSrc", ""))))))
       client1.getProfiles(connections)(handleAsyncResponse(_, _, _, expected, p))
 
       Await.result(p.future, Duration("30 seconds"))
