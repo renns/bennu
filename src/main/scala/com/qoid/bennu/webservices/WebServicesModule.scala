@@ -53,8 +53,6 @@ class WebServicesModule extends M3ServletModule {
 
     serveBean[SendNotification](ServicePath.sendNotification)
 
-    serveBean[GetProfilesService](ServicePath.getProfiles)
-    
     serveBean[RegisterStandingQueryService](ServicePath.registerStandingQuery)
     serveBean[DeRegisterStandingQueryService](ServicePath.deRegisterStandingQuery)
 
