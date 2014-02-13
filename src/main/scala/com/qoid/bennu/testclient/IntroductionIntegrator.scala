@@ -39,9 +39,11 @@ object IntroductionIntegrator extends GuiceApp {
       Thread.sleep(1000)
 
       val notificationA = clientA.query[Notification](s"consumed = false and fromConnectionIid = '${connAC.iid.value}' and kind = '${NotificationKind.IntroductionRequest}'").head
+      logger.debug(s"Received notification -- $notificationA")
       clientA.respondToIntroduction(notificationA, aAccept)
 
       val notificationB = clientB.query[Notification](s"consumed = false and fromConnectionIid = '${connBC.iid.value}' and kind = '${NotificationKind.IntroductionRequest}'").head
+      logger.debug(s"Received notification -- $notificationB")
       clientB.respondToIntroduction(notificationB, bAccept)
 
       // Give C time to create connections
@@ -108,8 +110,10 @@ object IntroductionIntegrator extends GuiceApp {
     ): Unit = {
       (action, instance) match {
         case (StandingQueryAction.Insert, n: Notification) if n.kind == NotificationKind.IntroductionRequest =>
+          logger.debug(s"Received notification -- $n")
           client.respondToIntroduction(n, true)
         case (StandingQueryAction.Insert, c: Connection) =>
+          logger.debug(s"Connection created -- $c")
           client.deRegisterStandingQuery(handle)
           p.success(c)
         case _ => ()
