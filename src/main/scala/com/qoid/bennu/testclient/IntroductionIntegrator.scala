@@ -28,6 +28,8 @@ object IntroductionIntegrator extends GuiceApp {
       val aliasA = clientA.getUberAlias()
       val aliasB = clientB.getUberAlias()
       val aliasC = clientC.getUberAlias()
+      val connAIntro = clientA.query[Connection]("").head
+      val connBIntro = clientB.query[Connection]("").head
       val (connAC, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
       val (connBC, connCB) = TestAssist.createConnection(clientB, aliasB, clientC, aliasC)
 
@@ -45,9 +47,8 @@ object IntroductionIntegrator extends GuiceApp {
       // Give C time to create connections
       Thread.sleep(1000)
 
-      // TODO: Change queries to also ignore connections to introducer
-      val aConnections = clientA.query[Connection](sql"iid <> ${connAC.iid}")
-      val bConnections = clientB.query[Connection](sql"iid <> ${connBC.iid}")
+      val aConnections = clientA.query[Connection](sql"iid <> ${connAC.iid} and iid <> ${connAIntro.iid}")
+      val bConnections = clientB.query[Connection](sql"iid <> ${connBC.iid} and iid <> ${connBIntro.iid}")
 
       if (aAccept && bAccept) {
         if (aConnections.head.localPeerId == bConnections.head.remotePeerId && aConnections.head.remotePeerId == bConnections.head.localPeerId) {

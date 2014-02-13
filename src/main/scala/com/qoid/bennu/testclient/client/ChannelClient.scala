@@ -1,7 +1,7 @@
 package com.qoid.bennu.testclient.client
 
-import com.qoid.bennu.JsonCapable
 import com.qoid.bennu.ServicePath
+import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
@@ -16,6 +16,7 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
   def agentId: AgentId
 
   protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
+  protected val asyncCallbacks = new LockFreeMap[InternalId, (AsyncResponseType, InternalId, JValue) => Unit]
 
   def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse]
   def post(path: String, parms: Map[String, JValue]): ChannelResponse
@@ -42,7 +43,7 @@ object ChannelClientFactory extends HttpAssist {
 case class ChannelRequest(
   channel: ChannelId,
   requests: List[ChannelRequestRequest]
-) extends JsonCapable
+) extends ToJsonCapable
 
 case class ChannelRequestRequest(
   path: String,

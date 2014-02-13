@@ -4,7 +4,7 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
-import m3.json.LiftJsonAssist.jsondsl._
+import m3.json.LiftJsonAssist._
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 
@@ -25,7 +25,8 @@ object PingPongNotificationsIntegrator extends GuiceApp {
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
       client1.registerStandingQuery(List("notification"))(handleStandingQueryResult(_, _, _, client1, p))
-      client1.sendNotification(conn1.remotePeerId, "ping", "hello" -> "world")
+      client2.registerStandingQuery(List("notification"))(handleStandingQueryResult(_, _, _, client2, p))
+      client1.sendNotification(conn1.iid, NotificationKind.Ping, JString("hello"))
 
       Await.result(p.future, Duration("30 seconds"))
 
@@ -44,9 +45,16 @@ object PingPongNotificationsIntegrator extends GuiceApp {
       (action, instance) match {
         case (StandingQueryAction.Insert, n: Notification) =>
           logger.debug(s"notification received $n")
-          client.deRegisterStandingQuery(handle)
-          p.success()
-        case (a, i) => logger.debug(s"Invalid action / type in standing query -- $a / $i")
+          n.kind match {
+            case NotificationKind.Ping =>
+              client.deRegisterStandingQuery(handle)
+              client.sendNotification(n.fromConnectionIid, NotificationKind.Pong, JString("world"))
+            case NotificationKind.Pong =>
+              client.deRegisterStandingQuery(handle)
+              p.success()
+            case _ =>
+          }
+        case _ =>
       }
     }
   }
