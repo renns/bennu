@@ -72,7 +72,7 @@ class DistributedManager {
     ec: ExecutionContext
   ): Future[JValue] = {
 
-    val notificationRequest = NotificationRequest(
+    val notificationRequest = NotificationHandler.Request(
       kind = kind,
       data = data
     )
