@@ -28,8 +28,10 @@ object DistQueryIntegrator extends GuiceApp {
       val labels1 = createSampleContent(client1, alias1)
       val labels2 = createSampleContent(client2, alias2)
 
+      val label1_c = labels1.last
+      
       client1.query[Content](s"hasLabelPath('A','B')")
-      client1.query[Content](s"hasLabel('${labels1.last.iid.value}')")
+      client1.query[Content](s"hasLabel('${label1_c.iid.value}')")
       
       Await.result(p.future, Duration("30 seconds"))
 

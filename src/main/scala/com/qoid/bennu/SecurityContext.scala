@@ -256,12 +256,12 @@ object SecurityContext {
   def resolveLabelAncestry(parentLabelIid: InternalId)(implicit jdbcConn: JdbcConn): Iterator[InternalId] = {
     jdbcConn.queryFor[InternalId](sql"""
   with recursive reachable_labels as (
-     select iid as labelIid from label where iid = ${parentLabelIid}
-     union all 
-     -- the following is the recursion query
-     select lc.childIid as labelIid
-     from labelchild lc
-       join reachable_labels lt on lt.labelIid = lc.parentIid
+      select iid as labelIid from label where iid = ${parentLabelIid}
+    union all 
+      -- the following is the recursion query
+      select lc.childIid as labelIid
+      from labelchild lc
+         join reachable_labels lt on lt.labelIid = lc.parentIid
   )
   select *
   from reachable_labels
