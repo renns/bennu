@@ -1,5 +1,15 @@
 
-General Tasks
+
+== Bugs ==
+
+* modifying alias doesn't update it right away
+
+
+
+
+== General Tasks ==
+
+* profile updates in realtime
 
 * refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
 
@@ -18,7 +28,7 @@ General Tasks
 
 
 
-Internet Of Things
+== Internet Of Things ==
 
   requirement - you should not be able to figure out if you are using the root/uber alias or not 
 
@@ -36,11 +46,6 @@ Internet Of Things
 * changing an ACL or the label tree structures updates any existing standing queries
 
 
-
-
-
-
-   
 
 
 
