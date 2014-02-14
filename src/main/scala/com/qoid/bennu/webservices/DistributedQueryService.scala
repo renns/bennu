@@ -22,34 +22,41 @@ import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu.squery.ast.Query
 import com.qoid.bennu.squery.ast.Transformer
 import com.qoid.bennu.squery.ast.ContentQuery
+import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedRequestKind
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.qoid.bennu.JdbcAssist._
+import m3.servlet.longpoll.ChannelManager
+import scala.util.Failure
+import scala.util.Success
 
-object QueryService {
-  val notDeleted = Query.parse("deleted = false")
-}
-
-case class QueryService @Inject()(
+case class DistributedQueryService @Inject()(
   implicit conn: Connection,
+  distributedMgr: DistributedManager,
   channelId: ChannelId,
+  channelMgr: ChannelManager,
   securityContext: AgentCapableSecurityContext,
   @Parm("type") _type: String,
-  @Parm("q") queryStr: String
+  @Parm("q") queryStr: String,
+  @Parm connectionIids: List[InternalId]
 ) extends Logging {
 
   def service = {
-    val mapper = findMapperByTypeName(_type)
-    val query = securityContext.createView.constrict(
-        mapper,
-        Query.parse(queryStr).and(QueryService.notDeleted.expr)
-    )
-    val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString
-    JArray(
-      mapper.
-        select(querySql).
-        map(_.toJson).
-        toList
-    )
+    
+    val handle = InternalId.random
+
+    for (connectionIid <- connectionIids) {
+      distributedMgr.sendRequest(connectionIid, DistributedRequestKind.Query, ("type"->_type) ~ ("q" -> queryStr)).onComplete {
+        case Success(data) =>
+          val responseData = ("connectionIid" -> connectionIid) ~ ("results" -> data)
+          val response = AsyncResponse(AsyncResponseType.Query, handle, responseData)
+          val channel = channelMgr.channel(channelId)
+          channel.put(response.toJson)
+        case Failure(t) => logger.warn(t)
+      }
+    }
+
+    "handle" -> handle.value  
+    
   }
 
 }

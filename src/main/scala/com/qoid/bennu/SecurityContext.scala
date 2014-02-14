@@ -23,6 +23,12 @@ import com.google.inject.Singleton
 import com.qoid.bennu.security.ChannelMap
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.webservices.QueryService
+import com.qoid.bennu.squery.ast.Transformer
+import net.model3.transaction.TransactionManager
+import net.model3.transaction.Transaction
+import m3.Txn
 
 object SecurityContext {
 
@@ -31,6 +37,7 @@ object SecurityContext {
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Full(t)
       def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = query
       def readResolve[T <: HasInternalId](t: T) = Full(t)
+      def rootLabel = m3x.error("super user doesn't have a root label")
     }
   }
 
@@ -42,6 +49,9 @@ object SecurityContext {
 
   case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext {
     def createView = new AgentView {
+      implicit val jdbcConn = inject[JdbcConn]
+      lazy val agent = Agent.fetch(agentId.asIid)
+      lazy val rootAlias = Alias.fetch(agent.uberAliasIid)
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
         else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
@@ -51,6 +61,7 @@ object SecurityContext {
         if ( agentId == t.agentId ) Full(t)
         else Failure("agent cannot read another agents data")
       }
+      lazy val rootLabel = Label.fetch(rootAlias.rootLabelIid) 
     }
   }
 
@@ -79,6 +90,8 @@ object SecurityContext {
       }
 
       lazy val alias = Alias.fetch(aliasIid)
+      
+      lazy val rootLabel = Label.fetch(alias.rootLabelIid)
 
       lazy val reachableLabels = inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
@@ -132,6 +145,8 @@ object SecurityContext {
       implicit val jdbcConn = inject[JdbcConn] 
       
       lazy val connection = Connection.fetch(connectionIid)
+      lazy val alias = Alias.fetch(connection.aliasIid)
+      lazy val rootLabel = Label.fetch(alias.rootLabelIid)
   
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Failure("connections cannot do insert, update or delete actions on other agents")
 
@@ -191,6 +206,18 @@ object SecurityContext {
       provChannelId.get.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException("unable to find security context"))
     }
   }
+  
+  @Singleton
+  class ProviderAgentView @Inject() (
+      prov_sc: Provider[SecurityContext]
+  ) extends Provider[AgentView] {
+    def get: AgentView = {
+      Txn.findOrCreate[AgentView](
+        classOf[AgentView].getName, 
+        createFn = prov_sc.get.createView
+      )
+    }
+  }
 
   class BennuProviderChannelId @Inject() (
     provOptChannelId: Provider[Option[ChannelId]]
@@ -226,6 +253,21 @@ object SecurityContext {
     }
   }
   
+  def resolveLabelAncestry(parentLabelIid: InternalId)(implicit jdbcConn: JdbcConn): Iterator[InternalId] = {
+    jdbcConn.queryFor[InternalId](sql"""
+  with recursive reachable_labels as (
+     select iid as labelIid from label where iid = ${parentLabelIid}
+     union all 
+     -- the following is the recursion query
+     select lc.childIid as labelIid
+     from labelchild lc
+       join reachable_labels lt on lt.labelIid = lc.parentIid
+  )
+  select *
+  from reachable_labels
+    """)
+  }
+
 }
 
 
@@ -249,6 +291,34 @@ sealed trait AgentView {
   def readResolve[T <: HasInternalId](t: T): Box[T]
   
   def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query
+
+  def select[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Iterator[T] = {
+    val query = constrict(
+        mapper,
+        Query.parse(queryStr).and(QueryService.notDeleted.expr)
+    )
+    val querySql = Transformer.queryToSql(query).toString
+    mapper.
+      select(querySql)(inject[JdbcConn])
+  }
+
+  /**
+   * Takes a label path from the root to the label so for A->B->C this will return C's Label. 
+   */
+  def resolveLabel(path: List[String])(implicit jdbcConn: JdbcConn): Box[Label] = {
+
+    def recurse(parentLabel: Label, path: List[String]): Box[Label] = {
+      path match {
+        case Nil => Full(parentLabel)
+        case hd :: tl => parentLabel.findChild(hd).flatMap(ch=>recurse(ch, tl))
+      }
+    }
+
+    recurse(rootLabel, path) ?~ s"label not found -- ${path.mkString("/")}"
+
+  }
+
+  def rootLabel: Label
 
 }
 

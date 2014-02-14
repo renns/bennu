@@ -52,12 +52,11 @@ class QueryParser extends JavaTokenParsers {
   
   def stringLit = stringLiteral ^^ StringLit
   
-//  def numericLit = sign ~ unsignedDecimal ^^ { case s ~ num => NumericLit(s * num) }
-  def numericLit = unsignedDecimal ^^ { case num => NumericLit(num) }
+  def numericLit = sign ~ unsignedDecimal ^^ { case s ~ num => NumericLit(s * num) }
   
   def unsignedDecimal = decimalNumber ^^ (d=>BigDecimal(d))
   
-//  def sign = opt("-") ^^ { case s => if ( s.isDefined ) -1 else +1 }
+  def sign = opt(k("-")) ^^ { case s => if ( s.isDefined ) -1 else +1 }
 
   def multOp = (
     "*" ^^ (_=>operators.mult) 

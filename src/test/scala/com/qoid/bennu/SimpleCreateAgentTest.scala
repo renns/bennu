@@ -21,6 +21,7 @@ class SimpleCreateAgentTest extends ScalaUnitTest {
       
       val a0 = Agent(
         iid = iid,
+        uberAliasIid = InternalId.random,
         agentId = AgentId(iid.value),
         name = "Betty",
         data = JNothing

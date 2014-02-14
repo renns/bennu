@@ -33,6 +33,3 @@ CREATE FUNCTION json_int (json CLOB, path varchar(32767)) RETURNS LONGVARCHAR
 ;;;
 
 
-
-
-

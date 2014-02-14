@@ -21,6 +21,12 @@ trait ModelAssist {
     upsert(Label(agentId, name))
   }
 
+  def createChildLabel(parentLabelIid: InternalId, childLabelName: String): Label = {
+    val childLabel = createLabel(childLabelName)
+    createLabelChild(parentLabelIid, childLabel.iid)
+    childLabel
+  }
+
   def createLabelChild(parentIid: InternalId, childIid: InternalId): LabelChild = {
     upsert(LabelChild(agentId, parentIid, childIid))
   }

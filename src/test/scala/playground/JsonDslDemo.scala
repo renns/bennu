@@ -4,6 +4,7 @@ import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.JsonAssist._
 import jsondsl._
 import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.InternalId
 
 object JsonDslDemo {
 
@@ -11,6 +12,7 @@ object JsonDslDemo {
   
   val agent = Agent(
     agentId = agentId,
+    uberAliasIid = InternalId.random,
     name = "bob"
   )
   

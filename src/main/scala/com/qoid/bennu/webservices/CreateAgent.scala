@@ -40,24 +40,25 @@ case class CreateAgent @Inject() (
   }
   
   def doCreate: Agent = {
-    
-    val agent = Agent(
-      iid = id.asIid,
-      agentId = id,
-      name = id.value, 
-      data = JObject(Nil)
-    ).sqlInsert
-    
+
     val rootLabel = Label(
       agentId = id,
       name = "uber label",
       data = ("color" -> "white")
     ).sqlInsert
-
+    
     val rootAlias = Alias(
       agentId = id,
       profile = JObject(List(JField("name", "Uber Alias"), JField("imgSrc", ""))),
       rootLabelIid = rootLabel.iid
+    ).sqlInsert
+
+    val agent = Agent(
+      iid = id.asIid,
+      uberAliasIid = rootAlias.iid,
+      agentId = id,
+      name = id.value, 
+      data = JObject(Nil)
     ).sqlInsert
     
     val introLabel = Label(

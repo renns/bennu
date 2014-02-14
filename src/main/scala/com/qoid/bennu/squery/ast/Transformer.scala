@@ -6,16 +6,15 @@ import scala.language.implicitConversions
 
 object Transformer {
 
-
   def queryToSql(query: Query, transformer: PartialFunction[Node,Chord] = PartialFunction.empty): Chord = {
-    implicit def p(n: Node): Chord = {
-      transformer.applyOrElse(n, simpleNodeToSql)
+    def p(n: Node): Chord = {
+      transformer.applyOrElse(n, { n: Node => transformNodeToSql(n)(p) })
     }
     query.expr.map(p).getOrElse("")
   }
 
   def simpleNodeToSql(n: Node): Chord = transformNodeToSql(n)(simpleNodeToSql)
-  
+
   def transformNodeToSql(n: Node)(transformer: Node=>Chord): Chord = n match {
     case InClause(e, List()) => transformer(e) ~*~ "in" ~*~ "(null)"
     case InClause(e, v) => transformer(e) ~*~ "in" ~*~ "(" ~ v.map(transformer).mkChord(",") ~ ")"
@@ -29,5 +28,8 @@ object Transformer {
 
   def reify(n: Node): Chord = simpleNodeToSql(n)
 
+}
+
+trait Transformer {
   
 }

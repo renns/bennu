@@ -43,6 +43,8 @@ object JdbcAssist extends Logging {
     
     implicit def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
     
+    implicit def implicitMapper = this
+    
   }
 
   trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>

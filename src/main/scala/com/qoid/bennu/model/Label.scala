@@ -3,9 +3,11 @@ package com.qoid.bennu.model
 import com.qoid.bennu.JdbcAssist._
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
+import java.sql.{ Connection => JdbcConn }
+import m3.predef._
+import m3.jdbc._
 
-object Label extends BennuMapperCompanion[Label] {
-}
+object Label extends BennuMapperCompanion[Label]
 
 case class Label(
   agentId: AgentId,
@@ -27,4 +29,9 @@ case class Label(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
+  
+  def findChild(childLabelName: String)(implicit conn: JdbcConn) = {
+    Label.selectBox(sql"""name = ${childLabelName} and iid in (select childiid from labelchild where parentiid = ${iid})""")
+  }
+  
 }

@@ -12,6 +12,7 @@ object Agent extends BennuMapperCompanion[Agent] {
 case class Agent(
   @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId,
+  uberAliasIid: InternalId,
   name: String,
   data: JValue = JNothing,
   deleted: Boolean = false

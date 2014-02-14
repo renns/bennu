@@ -46,6 +46,7 @@ import com.qoid.bennu.SecurityContext.BennuProviderChannelId
 import net.model3.guice.LifeCycleManager
 import net.model3.guice.LifeCycleListeners
 import com.qoid.bennu.util.HsqldbServerStarterUpper
+import com.qoid.bennu.SecurityContext.ProviderAgentView
 
 object GuiceModule {
   
@@ -111,6 +112,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
 
     bind[SecurityContext].toProvider[ProviderSecurityContext]
     bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
+    bind[AgentView].toProvider[ProviderAgentView]
     
     bind[ChannelManager].to[JettyChannelManager]
 

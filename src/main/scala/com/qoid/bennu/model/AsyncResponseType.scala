@@ -7,10 +7,12 @@ sealed trait AsyncResponseType
 object AsyncResponseType extends Enum[AsyncResponseType] {
   case object SQuery extends AsyncResponseType
   case object Profile extends AsyncResponseType
+  case object Query extends AsyncResponseType
 
   override val values: Set[AsyncResponseType] = Set(
     SQuery,
-    Profile
+    Profile,
+    Query
   )
 
   override def valueToString(value: AsyncResponseType): String = String.valueOf(value).toLowerCase
