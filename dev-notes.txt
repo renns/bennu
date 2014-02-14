@@ -12,6 +12,10 @@ General Tasks
     - It should make sure that if both parties accept, only one pair of connections will be made
     - A possible solution is to use database locking, preferably on the one introduction row
 
+* hiding InternalId's from other connections (for any kind of query)
+
+* rewriting the author on a query from a connection to be the connection instead of the alias
+
 
 
 Internet Of Things
@@ -27,22 +31,20 @@ Internet Of Things
 
 
 
+== Things we don't handle and won't for demo but should for production ==
 
-Raph Test Client Things
+* changing an ACL or the label tree structures updates any existing standing queries
 
-* improved default values on model objects
-* added copy2 method
-* soft delete no longer does a fetch (uses copy2 and sqlUpdate)
-* added iplicit conversion
 
-* can replace 
-      def post(path: String, parms: Map[String, JValue]): Future[ChannelResponse]
-   with
-      def post(path: String, body: JValue): Future[ChannelResponse]
-* ModelAssist create methods can be replaced with
-    def upsert[T <: HasInternalId](t: T)(implicit ec: ExecutionContext): Future[T]
-    
+
+
+
+
    
+
+
+
+
 
 
 
