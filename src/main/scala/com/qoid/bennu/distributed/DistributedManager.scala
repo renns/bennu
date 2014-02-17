@@ -29,6 +29,8 @@ class DistributedManager {
         implicit val jdbcConn = inject[JdbcConn]
 
         val connection = Connection.fetch(connectionIid)
+        
+        // TODO "maybe" move processing code out of here and setup and wrap said processing within a Connection SecurityContext 
 
         val request = DistributedRequest(
           connection.localPeerId,
