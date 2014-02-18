@@ -45,15 +45,5 @@
 
 * changing an ACL or the label tree structures updates any existing standing queries
 
-
-
-
-
-
-
-
-
-
-
-
+* what happens when we delete certain things like an alias? (e.g. are remote connections removed? content?)
 
