@@ -19,7 +19,7 @@ case class HttpChannelClient(
   channelId: ChannelId
 )(
   implicit config: HttpClientConfig
-) extends ChannelClient with HttpAssist {
+) extends ChannelClient with HttpAssist with Logging {
 
   private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
 
@@ -77,9 +77,9 @@ case class HttpChannelClient(
   }
 
   private def longPoll(): Unit = {
-    val response = httpGet(s"${config.server}${ServicePath.pollChannel}/${channelId.value}/${config.pollTimeout.inMilliseconds().toString}")
+    val responseBody = httpGet(s"${config.server}${ServicePath.pollChannel}/${channelId.value}/${config.pollTimeout.inMilliseconds().toString}")
 
-    parseJson(response) match {
+    parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
           message \ "success" match {
@@ -113,7 +113,7 @@ case class HttpChannelClient(
               waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
           }
         }
-      case _ => () //TODO: log a warning with responseBody
+      case _ => logger.warn(s"channel poll response invalid -- $responseBody")
     }
   }
 }
