@@ -30,14 +30,13 @@ trait ModelAssist {
     upsert(LabelChild(agentId, parentIid, childIid))
   }
 
-  def getUberLabel(): Label = {
-    //TODO: Query agent to get uber alias id
-    //TODO: Query alias to get label id
-    query[Label](sql"""name = 'uber label'""").head
+  def getRootLabel(): Label = {
+    val alias = getUberAlias()
+    query[Label](sql"iid = ${alias.rootLabelIid}").head
   }
 
   def getUberAlias(): Alias = {
-    //TODO: Query agent to get uber alias id
-    query[Alias](sql"""json_str(profile, 'name') = 'Uber Alias'""").head
+    val agent = query[Agent](sql"iid = $agentId").head
+    query[Alias](sql"iid = ${agent.uberAliasIid}").head
   }
 }
