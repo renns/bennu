@@ -1,6 +1,5 @@
 package com.qoid.bennu.testclient.client
 
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import m3.jdbc._
@@ -9,7 +8,7 @@ trait ModelAssist {
   this: ChannelClient with ServiceAssist =>
 
   def createAlias(rootLabelIid: InternalId, name: String): Alias = {
-    val profile = JObject(List(JField("name", name), JField("imgSrc", "")))
+    val profile = ("name" -> name) ~ ("imgSrc" -> "")
     upsert(Alias(agentId, rootLabelIid, profile))
   }
 

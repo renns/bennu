@@ -29,11 +29,11 @@ case class GetProfilesService @Inject() (
     for (connectionIid <- connectionIids) {
       distributedMgr.sendRequest(connectionIid, DistributedRequestKind.GetProfile, JNothing).onComplete {
         case Success(data) =>
-          val responseData = JObject(List(JField("connectionIid", connectionIid.value), JField("profile", data)))
+          val responseData = ("connectionIid" -> connectionIid) ~ ("profile" -> data)
           val response = AsyncResponse(AsyncResponseType.Profile, handle, responseData)
           val channel = channelMgr.channel(channelId)
           channel.put(response.toJson)
-        case Failure(t) => logger.warn(t)
+        case Failure(t) => logger.warn(s"distributed get profile: FAIL -- $t")
       }
     }
 

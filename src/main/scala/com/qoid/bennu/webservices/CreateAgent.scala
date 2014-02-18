@@ -28,28 +28,28 @@ case class CreateAgent @Inject() (
 ) {
 
   def service: JValue = {
-    if ( overWrite ) doDelete
-    doCreate
-    ("agentId" -> id.value)
+    if ( overWrite ) doDelete()
+    doCreate()
+    "agentId" -> id.value
   }
 
-  def doDelete = {
+  def doDelete(): Unit = {
     JdbcAssist.allMappers.foreach { mapper =>
       conn.update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${id.value}")
     }
   }
   
-  def doCreate: Agent = {
+  def doCreate(): Agent = {
 
     val rootLabel = Label(
       agentId = id,
       name = "uber label",
-      data = ("color" -> "white")
+      data = "color" -> "white"
     ).sqlInsert
     
     val rootAlias = Alias(
       agentId = id,
-      profile = JObject(List(JField("name", "Uber Alias"), JField("imgSrc", ""))),
+      profile = ("name" -> "Uber Alias") ~ ("imgSrc", ""),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
 
@@ -64,12 +64,12 @@ case class CreateAgent @Inject() (
     val introLabel = Label(
       agentId = id,
       name = "intro label",
-      data = ("color" -> "white")
+      data = "color" -> "white"
     ).sqlInsert
 
     val introAlias = Alias(
       agentId = id,
-      profile = JObject(List(JField("name", "Intro Alias"), JField("imgSrc", ""))),
+      profile = ("name" -> "Intro Alias") ~ ("imgSrc", ""),
       rootLabelIid = rootLabel.iid
     ).sqlInsert
     
@@ -92,7 +92,7 @@ case class CreateAgent @Inject() (
         remotePeerId = PeerId.random
       ).sqlInsert
       
-      val right = Connection(
+      Connection(
         agentId = id,
         aliasIid = introAlias.iid,
         localPeerId = left.remotePeerId,
@@ -102,8 +102,5 @@ case class CreateAgent @Inject() (
     }
 
     agent
-
   }
-
 }
-
