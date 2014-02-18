@@ -1,6 +1,7 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import com.qoid.bennu.squery.StandingQueryAction
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
 
@@ -28,5 +29,43 @@ case class Alias(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
-  
+
+  // TODO: This whole method can be removed once we have proper distributed standing queries
+  // This method is used as a hack to send profile squery events
+  override def notifyStandingQueries(action: StandingQueryAction): Alias = {
+    import com.qoid.bennu.JsonAssist.jsondsl._
+    import com.qoid.bennu.security.ChannelMap
+    import com.qoid.bennu.squery._
+    import java.sql.{ Connection => JdbcConn }
+    import m3.jdbc._
+    import m3.predef._
+    import m3.servlet.longpoll.ChannelManager
+
+    val sQueryMgr = inject[StandingQueryManager]
+    val channelMgr = inject[ChannelManager]
+    implicit val jdbcConn = inject[JdbcConn]
+
+    sQueryMgr.notify(mapper, this, action)
+
+    val connections = Connection.select(sql"aliasIid = $iid")
+
+    for (connection <- connections) {
+      val remoteConnection = Connection.selectOne(sql"localPeerId = ${connection.remotePeerId} and remotePeerId = ${connection.localPeerId}")
+
+      val sQueries = sQueryMgr.get(remoteConnection.agentId, "profile")
+
+      for {
+        sQuery <- sQueries
+        sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
+      } {
+        val data = ("connectionIid" -> remoteConnection.iid) ~ ("profile" -> profile)
+        val event = StandingQueryEvent(action, "profile", data)
+        val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, event.toJson)
+        val channel = channelMgr.channel(sQuery.channelId)
+        channel.put(response.toJson)
+      }
+    }
+
+    this
+  }
 }
