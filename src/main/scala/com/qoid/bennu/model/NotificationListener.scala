@@ -27,7 +27,7 @@ class NotificationListener extends Logging {
 
       val introResponse = IntroductionResponse.fromJson(n.data)
 
-      //TODO: We need to prevent a race condition if A and B respond at the same time
+      // TODO: We need to prevent a race condition if A and B respond at the same time
       val intro = Introduction.fetch(introResponse.introductionIid)
 
       val updatedIntro = n.fromConnectionIid match {
@@ -45,12 +45,13 @@ class NotificationListener extends Logging {
       }
 
       if (updatedIntro.aState == IntroductionState.Accepted && updatedIntro.bState == IntroductionState.Accepted) {
+        // TODO: Connections should not be created here. Instead the details should be sent to A and B and they should create their connection
         createConnections(updatedIntro)
       }
 
       n.copy(consumed = true).sqlUpdate.notifyStandingQueries(StandingQueryAction.Update)
     } catch {
-      case e: Exception => logger.warn(e.toString)
+      case e: Exception => logger.warn(s"listenForIntroductionResuponse: FAIL -- $e")
     }
 
     def calculateState(accepted: Boolean): IntroductionState = {

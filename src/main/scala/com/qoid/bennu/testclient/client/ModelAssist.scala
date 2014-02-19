@@ -1,6 +1,5 @@
 package com.qoid.bennu.testclient.client
 
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import m3.jdbc._
@@ -9,7 +8,7 @@ trait ModelAssist {
   this: ChannelClient with ServiceAssist =>
 
   def createAlias(rootLabelIid: InternalId, name: String): Alias = {
-    val profile = JObject(List(JField("name", name), JField("imgSrc", "")))
+    val profile = ("name" -> name) ~ ("imgSrc" -> "")
     upsert(Alias(agentId, rootLabelIid, profile))
   }
 
@@ -31,14 +30,13 @@ trait ModelAssist {
     upsert(LabelChild(agentId, parentIid, childIid))
   }
 
-  def getUberLabel(): Label = {
-    //TODO: Query agent to get uber alias id
-    //TODO: Query alias to get label id
-    query[Label](sql"""name = 'uber label'""").head
+  def getRootLabel(): Label = {
+    val alias = getUberAlias()
+    query[Label](sql"iid = ${alias.rootLabelIid}").head
   }
 
   def getUberAlias(): Alias = {
-    //TODO: Query agent to get uber alias id
-    query[Alias](sql"""json_str(profile, 'name') = 'Uber Alias'""").head
+    val agent = query[Agent](sql"iid = $agentId").head
+    query[Alias](sql"iid = ${agent.uberAliasIid}").head
   }
 }
