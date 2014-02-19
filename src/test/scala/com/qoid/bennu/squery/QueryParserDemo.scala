@@ -16,6 +16,14 @@ object QuerryParserDemo extends App {
     original = """xyz() + 35 / 56 * 12 + asdf / 1234 - 1234 + 1234 = sfasfd and qewrqwr > adsfsaf""",
     expected = """xyz() + 35 / 56 * 12 + asdf / 1234 - 1234 + 1234 = sfasfd and qewrqwr > adsfsaf"""
   )
+  
+  parse(
+    original = """(
+    hasLabelPath('RzqX8wdPeq7VnlRxFW2I2eP46emVhOyr','PzsnIXBMtsjMMq5D0evKoezOoBEDwqTQ')
+    OR hasLabelPath('RzqX8wdPeq7VnlRxFW2I2eP46emVhOyr','e4Z792gI2sC9WZEaEpR6GxJRX46j7jPj')
+)""",
+    expected = """(hasLabelPath("RzqX8wdPeq7VnlRxFW2I2eP46emVhOyr","PzsnIXBMtsjMMq5D0evKoezOoBEDwqTQ") or hasLabelPath("RzqX8wdPeq7VnlRxFW2I2eP46emVhOyr","e4Z792gI2sC9WZEaEpR6GxJRX46j7jPj"))"""
+  )
 
   parse(
     original = """xyz() + 35 / 56 * 12 + (asdf / 1234) - 1234 + 1234 = sfasfd and qewrqwr > adsfsaf"""

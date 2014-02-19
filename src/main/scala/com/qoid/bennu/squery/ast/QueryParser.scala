@@ -69,8 +69,8 @@ class QueryParser extends JavaTokenParsers {
   )
 
   def logicOp = (
-    "and" ^^ (_=>operators.and) 
-    | "or" ^^ (_=>operators.or)
+    k("and") ^^ (_=>operators.and) 
+    | k("or") ^^ (_=>operators.or)
   )
 
   def boolOp = (
