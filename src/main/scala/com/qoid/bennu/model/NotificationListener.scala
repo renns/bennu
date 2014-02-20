@@ -67,11 +67,20 @@ class NotificationListener extends Logging {
       val connFromA = Connection.selectBox(sql"localPeerId = ${connToA.remotePeerId}").open_$
       val connFromB = Connection.selectBox(sql"localPeerId = ${connToB.remotePeerId}").open_$
 
-      Connection(connFromA.agentId, connFromA.aliasIid, peerId1, peerId2)
+      val connLabelA = Label(
+        agentId = connToA.agentId,
+        name = "connection"
+      )
+      val connLabelB = Label(
+        agentId = connToB.agentId,
+        name = "connection"
+      )
+      
+      Connection(connFromA.agentId, connFromA.aliasIid, connLabelA.iid, peerId1, peerId2)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
 
-      Connection(connFromB.agentId, connFromB.aliasIid, peerId2, peerId1)
+      Connection(connFromB.agentId, connFromB.aliasIid, connLabelB.iid, peerId2, peerId1)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
     }

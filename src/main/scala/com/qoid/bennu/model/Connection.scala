@@ -10,6 +10,7 @@ object Connection extends BennuMapperCompanion[Connection] {
 case class Connection(
   agentId: AgentId,
   aliasIid: InternalId,
+  metaLabelIid: InternalId,
   localPeerId: PeerId,
   remotePeerId: PeerId,
   @PrimaryKey iid: InternalId = InternalId.random,

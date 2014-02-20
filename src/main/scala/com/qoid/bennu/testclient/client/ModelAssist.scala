@@ -13,7 +13,8 @@ trait ModelAssist {
   }
 
   def createConnection(aliasId: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {
-    upsert(Connection(agentId, aliasId, localPeerId, remotePeerId))
+    val label = upsert(Label(agentId, "connection"))
+    upsert(Connection(agentId, aliasId, label.iid, localPeerId, remotePeerId))
   }
 
   def createLabel(name: String): Label = {

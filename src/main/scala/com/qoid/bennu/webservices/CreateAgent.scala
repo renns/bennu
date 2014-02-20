@@ -85,16 +85,28 @@ case class CreateAgent @Inject() (
       
       val introducerAlias = Alias.selectOne(sql"""agentId = 'introducer' and json_str(profile, 'name') = 'Intro Alias'""")
 
+      val leftMetaLabel = Label(
+        agentId = introducer.agentId,
+        name = "connection"
+      ).sqlInsert
+      
       val left = Connection(
         agentId = introducer.agentId,
         aliasIid = introducerAlias.iid,
+        metaLabelIid = leftMetaLabel.iid,
         localPeerId = PeerId.random,
         remotePeerId = PeerId.random
+      ).sqlInsert
+
+      val rightMetaLabel = Label(
+        agentId = id,
+        name = "connection"
       ).sqlInsert
       
       Connection(
         agentId = id,
         aliasIid = introAlias.iid,
+        metaLabelIid = rightMetaLabel.iid,
         localPeerId = left.remotePeerId,
         remotePeerId = left.localPeerId
       ).sqlInsert
