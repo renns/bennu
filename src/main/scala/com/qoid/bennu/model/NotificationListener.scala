@@ -59,6 +59,7 @@ class NotificationListener extends Logging {
     }
 
     def createConnections(intro: Introduction)(implicit jdbcConn: JdbcConn): Unit = {
+      
       val peerId1 = PeerId.random
       val peerId2 = PeerId.random
 
@@ -75,7 +76,7 @@ class NotificationListener extends Logging {
         agentId = connToB.agentId,
         name = "connection"
       )
-      
+
       Connection(connFromA.agentId, connFromA.aliasIid, connLabelA.iid, peerId1, peerId2)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
@@ -83,6 +84,7 @@ class NotificationListener extends Logging {
       Connection(connFromB.agentId, connFromB.aliasIid, connLabelB.iid, peerId2, peerId1)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
+
     }
   }
 }
