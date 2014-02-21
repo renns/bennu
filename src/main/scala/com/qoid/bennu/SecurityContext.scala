@@ -173,7 +173,10 @@ object SecurityContext {
           mapper.typeName.toLowerCase match {
             case "labelacl" => query.and(Query.parse(sql"""iid in (${reachableLabelAcls})"""))
             case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
-            case "content" => query.and(Query.parse(sql"""iid in (select contentIid from labeledcontent where labelIid in (${reachableLabels}))"""))
+            case "content" =>
+              // TODO this needs to be optimized
+              val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabels})""").toList
+              query.and(Query.parse(sql"""iid in (${content})"""))
             case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
             case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
           }
