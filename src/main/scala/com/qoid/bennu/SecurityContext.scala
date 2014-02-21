@@ -200,10 +200,15 @@ object SecurityContext {
   
   @Singleton
   class ProviderSecurityContext @Inject() (
-      provChannelId: Provider[Option[ChannelId]]
+      provChannelId: Provider[Option[ChannelId]],
+      provTxn: Provider[Transaction]
   ) extends Provider[SecurityContext] {
+    val attrName = classOf[SecurityContext].getName
     def get: SecurityContext = {
-      provChannelId.get.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException("unable to find security context"))
+      provTxn.get.getAttribute[SecurityContext](attrName, true) match {
+        case null => provChannelId.get.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException("unable to find security context"))
+        case sc => sc
+      }
     }
   }
   
