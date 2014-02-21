@@ -54,11 +54,13 @@ case class DistributedQueryService @Inject()(
           AsyncResponse(AsyncResponseType.Query, handle, true, data.toJson).send(channelId)
         case Failure(t: TimeoutException) =>
           val data = DistributedQueryService.ResponseData(connectionIid, _type)
-          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(ErrorCode.Timeout), Some(t.getMessage)).send(channelId)
+          val error = AsyncResponseError(ErrorCode.Timeout, t.getMessage)
+          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(error)).send(channelId)
           logger.debug(s"distributed query: timed out after $timeout milliseconds")
         case Failure(t) =>
           val data = DistributedQueryService.ResponseData(connectionIid, _type)
-          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(ErrorCode.Generic), Some(t.getMessage), Some(t.getStackTraceString)).send(channelId)
+          val error = AsyncResponseError(ErrorCode.Generic, t.getMessage, Some(t.getStackTraceString))
+          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(error)).send(channelId)
           logger.warn("distributed query: FAIL", t)
       }
     }

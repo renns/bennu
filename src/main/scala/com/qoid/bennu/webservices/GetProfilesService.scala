@@ -42,11 +42,13 @@ case class GetProfilesService @Inject() (
           AsyncResponse(AsyncResponseType.Profile, handle, true, data.toJson).send(channelId)
         case Failure(t: TimeoutException) =>
           val data = GetProfilesService.ResponseData(connectionIid)
-          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(ErrorCode.Timeout), Some(t.getMessage)).send(channelId)
+          val error = AsyncResponseError(ErrorCode.Timeout, t.getMessage)
+          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(error)).send(channelId)
           logger.debug(s"get profiles: timed out after $timeout milliseconds")
         case Failure(t) =>
           val data = GetProfilesService.ResponseData(connectionIid)
-          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(ErrorCode.Generic), Some(t.getMessage), Some(t.getStackTraceString)).send(channelId)
+          val error = AsyncResponseError(ErrorCode.Generic, t.getMessage, Some(t.getStackTraceString))
+          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(error)).send(channelId)
           logger.warn("get profiles: FAIL", t)
       }
     }
