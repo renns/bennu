@@ -9,8 +9,6 @@
 
 == General Tasks ==
 
-* profile updates in realtime
-
 * refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
 
 * move SecurityContext into security package 
@@ -25,6 +23,9 @@
 * hiding InternalId's from other connections (for any kind of query)
 
 * rewriting the author on a query from a connection to be the connection instead of the alias
+
+* what happens when we delete certain things like an alias? (e.g. are remote connections removed? content?)
+
 
 
 
@@ -44,6 +45,4 @@
 == Things we don't handle and won't for demo but should for production ==
 
 * changing an ACL or the label tree structures updates any existing standing queries
-
-* what happens when we delete certain things like an alias? (e.g. are remote connections removed? content?)
 
