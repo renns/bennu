@@ -82,7 +82,7 @@ case class HttpChannelClient(
     parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
-          message \ "success" match {
+          message \ "context" match {
             case JNothing =>
               // This is an async response
               val response = JsonAssist.serializer.fromJson[AsyncResponse](message)
@@ -90,20 +90,24 @@ case class HttpChannelClient(
               response.responseType match {
                 case AsyncResponseType.SQuery =>
                   // This is an squery response
-                  val event = JsonAssist.serializer.fromJson[StandingQueryEvent](response.data)
-                  val mapper = JdbcAssist.findMapperByTypeName(event.`type`).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
-                  val instance = mapper.fromJson(event.instance)
+                  if (response.success) {
+                    val event = JsonAssist.serializer.fromJson[StandingQueryEvent](response.data)
+                    val mapper = JdbcAssist.findMapperByTypeName(event.tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
+                    val instance = mapper.fromJson(event.instance)
 
-                  for (callback <- squeryCallbacks.get(response.handle)) {
-                    spawn(s"squery-${response.handle}") {
-                      callback(event.action, response.handle, instance)
+                    for (callback <- squeryCallbacks.get(response.handle)) {
+                      spawn(s"squery-${response.handle}") {
+                        callback(event.action, response.handle, instance)
+                      }
                     }
+                  } else {
+                    logger.warn(s"failed AsyncResponse -- $response")
                   }
                 case _ =>
                   // This is any async response other than squery
                   for (callback <- asyncCallbacks.get(response.handle)) {
                     spawn(s"async-${response.handle}") {
-                      callback(response.responseType, response.handle, response.data)
+                      callback(response)
                     }
                   }
               }

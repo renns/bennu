@@ -60,7 +60,7 @@ case class Alias(
       } {
         val data = ("connectionIid" -> remoteConnection.iid) ~ ("profile" -> profile)
         val event = StandingQueryEvent(action, "profile", data)
-        val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, event.toJson)
+        val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, true, event.toJson)
         val channel = channelMgr.channel(sQuery.channelId)
         channel.put(response.toJson)
       }

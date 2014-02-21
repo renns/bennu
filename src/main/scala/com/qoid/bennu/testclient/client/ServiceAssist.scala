@@ -2,6 +2,7 @@ package com.qoid.bennu.testclient.client
 
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryAction
@@ -10,7 +11,7 @@ trait ServiceAssist {
   this: ChannelClient =>
 
   def upsert[T <: HasInternalId](instance: T): T = {
-    val parms = Map("type" -> JString(instance.mapper.typeName), "instance" -> instance.toJson)
+    val parms = Map[String, JValue]("type" -> instance.mapper.typeName, "instance" -> instance.toJson)
 
     val response = post(ServicePath.upsert, parms)
 
@@ -23,7 +24,7 @@ trait ServiceAssist {
   }
 
   def delete[T <: HasInternalId](instance: T): T = {
-    val parms = Map("type" -> JString(instance.mapper.typeName), "primaryKey" -> JString(instance.iid.value))
+    val parms = Map[String, JValue]("type" -> instance.mapper.typeName, "primaryKey" -> instance.iid)
 
     val response = post(ServicePath.delete, parms)
 
@@ -38,7 +39,7 @@ trait ServiceAssist {
   def query[T <: HasInternalId : Manifest](query: String): List[T] = {
     val typeName = manifest[T].runtimeClass.getSimpleName
 
-    val parms = Map("type" -> JString(typeName), "q" -> JString(query))
+    val parms = Map[String, JValue]("type" -> typeName, "q" -> query)
 
     val response = post(ServicePath.query, parms)
 
@@ -51,13 +52,41 @@ trait ServiceAssist {
     }
   }
 
+  def distributedQuery[T <: HasInternalId : Manifest](
+    query: String,
+    connections: List[Connection],
+    timeout: Int = 5000
+  )(
+    callback: AsyncResponse => Unit
+  ): InternalId = {
+
+    val typeName = manifest[T].runtimeClass.getSimpleName
+
+    val parms = Map[String, JValue](
+      "type" -> typeName,
+      "q" -> query,
+      "connectionIids" -> connections.map(c => c.iid),
+      "leaveStanding" -> false,
+      "timeout" -> timeout
+    )
+
+    val response = post(ServicePath.distributedQuery, parms)
+
+    response.result match {
+      case JObject(JField("handle", JString(handle)) :: Nil) =>
+        asyncCallbacks += InternalId(handle) -> callback
+        InternalId(handle)
+      case r => throw new Exception(s"Distributed query result invalid -- $r")
+    }
+  }
+
   def registerStandingQuery(
     types: List[String]
   )(
     callback: (StandingQueryAction, InternalId, HasInternalId) => Unit
   ): InternalId = {
 
-    val parms = Map("types" -> JArray(types.map(JString)))
+    val parms = Map[String, JValue]("types" -> types)
 
     val response = post(ServicePath.registerStandingQuery, parms)
 
@@ -71,15 +100,15 @@ trait ServiceAssist {
 
   def deRegisterStandingQuery(handle: InternalId): Boolean = {
     squeryCallbacks -= handle
-    val parms = Map("handle" -> JString(handle.value))
+    val parms = Map[String, JValue]("handle" -> handle)
     val response = post(ServicePath.deRegisterStandingQuery, parms)
     response.success
   }
 
   def sendNotification(connectionIid: InternalId, kind: NotificationKind, data: JValue): Boolean = {
-    val parms = Map(
-      "connectionIid" -> JString(connectionIid.value),
-      "kind" -> JString(kind.toString),
+    val parms = Map[String, JValue](
+      "connectionIid" -> connectionIid,
+      "kind" -> kind.toString,
       "data" -> data
     )
 
@@ -89,11 +118,11 @@ trait ServiceAssist {
   }
 
   def initiateIntroduction(aConnection: Connection, aMessage: String, bConnection: Connection, bMessage: String): Boolean = {
-    val parms = Map(
-      "aConnectionIid" -> JString(aConnection.iid.value),
-      "aMessage" -> JString(aMessage),
-      "bConnectionIid" -> JString(bConnection.iid.value),
-      "bMessage" -> JString(bMessage)
+    val parms = Map[String, JValue](
+      "aConnectionIid" -> aConnection.iid,
+      "aMessage" -> aMessage,
+      "bConnectionIid" -> bConnection.iid,
+      "bMessage" -> bMessage
     )
 
     val response = post(ServicePath.initiateIntroduction, parms)
@@ -102,9 +131,9 @@ trait ServiceAssist {
   }
 
   def respondToIntroduction(notification: Notification, accepted: Boolean): Boolean = {
-    val parms = Map(
-      "notificationIid" -> JString(notification.iid.value),
-      "accepted" -> JBool(accepted)
+    val parms = Map[String, JValue](
+      "notificationIid" -> notification.iid,
+      "accepted" -> accepted
     )
 
     val response = post(ServicePath.respondToIntroduction, parms)
@@ -113,12 +142,16 @@ trait ServiceAssist {
   }
 
   def getProfiles(
-    connections: List[Connection]
+    connections: List[Connection],
+    timeout: Int = 5000
   )(
-    callback: (AsyncResponseType, InternalId, JValue) => Unit
+    callback: AsyncResponse => Unit
   ): InternalId = {
 
-    val parms = Map("connectionIids" -> JArray(connections.map(c => JString(c.iid.value))))
+    val parms = Map[String, JValue](
+      "connectionIids" -> connections.map(c => c.iid),
+      "timeout" -> timeout
+    )
 
     val response = post(ServicePath.getProfiles, parms)
 

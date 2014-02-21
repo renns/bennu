@@ -50,6 +50,7 @@ class WebServicesModule extends M3ServletModule {
     serveBean[UpsertService](ServicePath.upsert)
     serveBean[DeleteService](ServicePath.delete)
     serveBean[QueryService](ServicePath.query)
+    serveBean[DistributedQueryService](ServicePath.distributedQuery)
 
     serveBean[SendNotification](ServicePath.sendNotification)
 

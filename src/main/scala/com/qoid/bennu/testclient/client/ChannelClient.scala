@@ -16,7 +16,7 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
   def agentId: AgentId
 
   protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
-  protected val asyncCallbacks = new LockFreeMap[InternalId, (AsyncResponseType, InternalId, JValue) => Unit]
+  protected val asyncCallbacks = new LockFreeMap[InternalId, AsyncResponse => Unit]
 
   def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse]
   def post(path: String, parms: Map[String, JValue]): ChannelResponse

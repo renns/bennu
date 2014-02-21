@@ -1,34 +1,31 @@
 package com.qoid.bennu
 
-import com.qoid.bennu.model.AgentId
-import com.qoid.bennu.model.InternalId
-import com.google.inject.Provider
 import com.google.inject.Inject
+import com.google.inject.Provider
+import com.google.inject.Singleton
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
+import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.AgentId
+import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.security.ChannelMap
+import com.qoid.bennu.squery.ast.ContentQuery
+import com.qoid.bennu.squery.ast.Query
+import com.qoid.bennu.squery.ast.Transformer
+import com.qoid.bennu.webservices.QueryService
+import java.sql.{ Connection => JdbcConn }
+import m3.Txn
+import m3.jdbc._
+import m3.predef._
+import m3.predef.box._
+import m3.servlet.ForbiddenException
 import m3.servlet.beans.Wrappers
 import m3.servlet.longpoll.ChannelId
-import m3.servlet.longpoll.ChannelManager
-import com.qoid.bennu.model.Agent
-import m3.servlet.ForbiddenException
-import m3.servlet.NotFoundException
-import m3.predef._
-import box._
-import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.squery.ast.Query
-import m3.jdbc._
-import com.qoid.bennu.model.HasInternalId
-import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.model.Connection
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
-import com.google.inject.Singleton
-import com.qoid.bennu.security.ChannelMap
-import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
-import com.qoid.bennu.model.Alias
-import com.qoid.bennu.model.Label
-import com.qoid.bennu.webservices.QueryService
-import com.qoid.bennu.squery.ast.Transformer
-import net.model3.transaction.TransactionManager
 import net.model3.transaction.Transaction
-import m3.Txn
 
 object SecurityContext {
 
@@ -67,6 +64,7 @@ object SecurityContext {
 
   object ConnectionSecurityContext {
     import com.qoid.bennu.model._
+    
     val readableTypes: Set[Mapper[_ <: HasInternalId, InternalId]] = Set(
       Content,
       Label,
@@ -302,7 +300,7 @@ sealed trait AgentView {
         mapper,
         Query.parse(queryStr).and(QueryService.notDeleted.expr)
     )
-    val querySql = Transformer.queryToSql(query).toString
+    val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString
     mapper.
       select(querySql)(inject[JdbcConn])
   }

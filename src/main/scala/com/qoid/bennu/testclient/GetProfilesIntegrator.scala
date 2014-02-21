@@ -26,7 +26,7 @@ object GetProfilesIntegrator extends GuiceApp {
       val (conn12, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
       val connections = client1.query[Connection]("")
       val expected = ("connectionIid" -> conn12.iid) ~ ("profile" -> ("name" -> "Test") ~ ("imgSrc" -> ""))
-      client1.getProfiles(connections)(handleAsyncResponse(_, _, _, expected, p))
+      client1.getProfiles(connections)(handleAsyncResponse(_, expected, p))
 
       Await.result(p.future, Duration("30 seconds"))
 
@@ -36,16 +36,14 @@ object GetProfilesIntegrator extends GuiceApp {
     }
 
     def handleAsyncResponse(
-      responseType: AsyncResponseType,
-      handle: InternalId,
-      data: JValue,
+      response: AsyncResponse,
       expected: JValue,
       p: Promise[Unit]
     ): Unit = {
-      responseType match {
+      response.responseType match {
         case AsyncResponseType.Profile =>
-          logger.debug(s"Async Response Data -- $data")
-          if (data == expected) {
+          logger.debug(s"Async Response Data -- ${response.data}")
+          if (response.data == expected) {
             p.success()
           }
         case _ =>

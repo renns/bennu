@@ -1,23 +1,26 @@
 package com.qoid.bennu.distributed
 
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.SecurityContext.ConnectionSecurityContext
 import com.qoid.bennu.model._
+import com.qoid.bennu.util.Implicits.futureExtensions
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
+import net.model3.lang.TimeDuration
 import scala.Some
 import scala.concurrent._
 
 @com.google.inject.Singleton
 class DistributedManager {
 
-  //TODO: Request should have a timeout
-
   def sendRequest(
     connectionIid: InternalId,
     kind: DistributedRequestKind,
-    data: JValue
+    data: JValue,
+    timeout: TimeDuration = new TimeDuration(0)
   )(
     implicit
     ec: ExecutionContext
@@ -45,6 +48,9 @@ class DistributedManager {
         toConnectionOpt match {
           case Some(toConnection) =>
             // The to-connection exists locally
+            val sc = ConnectionSecurityContext(toConnection.iid)
+            Txn.setViaTypename[SecurityContext](sc)
+
             DistributedRequestHandler.getHandler(kind) match {
               case Some(handler) =>
                 val response = handler.handle(request, toConnection)
@@ -62,7 +68,7 @@ class DistributedManager {
       p.failure(t)
     }
 
-    p.future
+    p.future.withTimeout(timeout)
   }
 
   def sendNotification(
