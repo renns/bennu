@@ -6,7 +6,8 @@ import m3.guice.GuiceApp
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 import com.qoid.bennu.JsonAssist._
-import jsondsl._
+import com.qoid.bennu.JsonAssist.jsondsl._
+import com.qoid.bennu.webservices.DistributedQueryService
 
 object DistQueryIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -25,11 +26,13 @@ object DistQueryIntegrator extends GuiceApp {
       val alias2 = client2.getUberAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      val labels2 = createSampleContent(client2, alias2, conn2)
-      val label2_c = labels2.last
-      
-      client1.distributedQuery[Content](s"hasLabelPath('A','B')", List(conn1))(handleAsyncResponse(_, JNothing, p1))
-      client1.distributedQuery[Content](s"hasLabel('${label2_c.iid.value}')", List(conn1))(handleAsyncResponse(_, JNothing, p2))
+      val (contents, labels) = createSampleContent(client2, alias2, conn2)
+      val content_c = contents(2)
+      val label_c = labels.last
+
+      val expected = DistributedQueryService.ResponseData(conn1.iid, "Content", Some(List(content_c.toJson))).toJson
+      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", List(conn1))(handleAsyncResponse(_, expected, p1))
+      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", List(conn1))(handleAsyncResponse(_, expected, p2))
       
       Await.result(p1.future, Duration("30 seconds"))
       Await.result(p2.future, Duration("30 seconds"))
@@ -48,19 +51,22 @@ object DistQueryIntegrator extends GuiceApp {
     response.responseType match {
       case AsyncResponseType.Query =>
         logger.debug(s"Async Response Data -- ${response}")
-        //if (response.data == expected) {
+        if (response.data == expected) {
           p.success()
-        //}
+        } else {
+          p.failure(new Exception(s"Response data not as expected\nReceived:\n${response.data.toJsonStr}\nExpected:\n${expected.toJsonStr}"))
+        }
       case _ =>
     }
   }
   
-  def createSampleContent(client: ChannelClient, alias: Alias, connection: Connection): List[Label] = {
+  def createSampleContent(client: ChannelClient, alias: Alias, connection: Connection): (List[Content], List[Label]) = {
     val l_a = client.createChildLabel(alias.rootLabelIid, "A")
     val l_b = client.createChildLabel(l_a.iid, "B")
     val l_c = client.createChildLabel(l_b.iid, "C")
     
     val labels = List(l_a, l_b, l_c)
+    var contents = List.empty[Content]
     
     labels.foreach { l =>
       val content = client.upsert(Content(
@@ -75,6 +81,8 @@ object DistQueryIntegrator extends GuiceApp {
         contentIid = content.iid,
         labelIid = l.iid
       ))
+
+      contents = content :: contents
     }
 
     client.upsert(LabelAcl(
@@ -83,6 +91,6 @@ object DistQueryIntegrator extends GuiceApp {
       labelIid = l_a.iid
     ))
     
-    labels
+    (contents.reverse, labels)
   }
 }
