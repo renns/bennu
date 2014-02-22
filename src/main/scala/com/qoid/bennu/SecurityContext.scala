@@ -61,18 +61,6 @@ object SecurityContext {
       lazy val rootLabel = Label.fetch(rootAlias.rootLabelIid) 
     }
   }
-
-  object ConnectionSecurityContext {
-    import com.qoid.bennu.model._
-    
-    val readableTypes: Set[Mapper[_ <: HasInternalId, InternalId]] = Set(
-      Content,
-      Label,
-      LabelAcl,
-      LabelChild,
-      LabeledContent
-    )
-  }
   
   case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext {
    
@@ -126,14 +114,24 @@ object SecurityContext {
         import ConnectionSecurityContext._
         if ( agentId != t.agentId ) Failure("agent cannot read another agents data")
         else if ( readableTypes.contains(t.mapper.asInstanceOf[Mapper[_ <: HasInternalId, InternalId]]) ) Full(t)
-        else {
-          Empty
-        }
+        else Empty
       }
     }
     
   }
   
+  object ConnectionSecurityContext {
+    import com.qoid.bennu.model._
+    
+    val readableTypes: Set[Mapper[_ <: HasInternalId, InternalId]] = Set(
+      Content,
+      Label,
+      LabelAcl,
+      LabelChild,
+      LabeledContent
+    )
+  }
+
   case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext {
     
     lazy val agentId = Connection.fetch(connectionIid)(inject[JdbcConn]).agentId
@@ -148,7 +146,7 @@ object SecurityContext {
   
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Failure("connections cannot do insert, update or delete actions on other agents")
 
-      lazy val reachableLabels = inject[JdbcConn].queryFor[InternalId](sql"""
+      lazy val reachableLabels = connection.metaLabelIid :: inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select labelIid
      from labelacl

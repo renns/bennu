@@ -4,8 +4,13 @@ package com.qoid.bennu.squery.ast
 import m3.predef._
 import m3.StringConverters
 import m3.TypeInfo
+import com.qoid.bennu.AgentView
+import java.sql.{ Connection => JdbcConn }
+import box._
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.InternalId
 
-object Evaluator {
+object Evaluator extends Logging {
 
   val stringConverters = inject[StringConverters]
   
@@ -25,6 +30,27 @@ object Evaluator {
   val VFalse = VBool(false)
   val VTrue = VBool(true)
   
+  def invokeFunction(fc: FunctionCall, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter) = {
+    implicit val jdbcConn = inject[JdbcConn]
+    implicit val agentView = inject[AgentView]    
+    fc.name match {
+      case "hasLabelPath" => {
+        val path = ContentQuery.stringLiterals(fc.parms)
+        agentView.resolveLabel(path) match {
+          case Full(l) => impl.hasLabel(row, l.iid)
+          case _ => VFalse
+        }
+      }
+      case "hasLabel" => impl.hasLabel(row, InternalId(ContentQuery.stringLiteral(fc.parms)))
+    }
+  }
+  
+  object impl {
+    def hasLabel(row: Any, labelIid: InternalId)(implicit av: AgentView, jdbcConn: JdbcConn): VBool = {
+      logger.warn("implement me - Evaluator.impl.hasLabel()")
+      VTrue
+    }
+  }
   
   def evaluateQuery(query: Query, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter): Value = 
     query.expr.map(e=>evaluateNode(e, row)).getOrElse(VTrue)
