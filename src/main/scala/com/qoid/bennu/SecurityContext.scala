@@ -41,14 +41,15 @@ object SecurityContext {
   sealed trait AgentCapableSecurityContext extends SecurityContext {
     override def optAgentId: Option[AgentId] = Some(agentId)
     def agentId: AgentId
+    def aliasIid: InternalId
     lazy val agentWhereClause: Query = Query.parse(sql"agentId = ${agentId}")
   }
 
   case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext {
+    lazy val agent = Agent.fetch(agentId.asIid)(inject[JdbcConn])
+    def aliasIid = agent.uberAliasIid
     def createView = new AgentView {
       implicit val jdbcConn = inject[JdbcConn]
-      lazy val agent = Agent.fetch(agentId.asIid)
-      lazy val rootAlias = Alias.fetch(agent.uberAliasIid)
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
         else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
@@ -58,6 +59,7 @@ object SecurityContext {
         if ( agentId == t.agentId ) Full(t)
         else Failure("agent cannot read another agents data")
       }
+      lazy val rootAlias = Alias.fetch(agent.uberAliasIid)(inject[JdbcConn])
       lazy val rootLabel = Label.fetch(rootAlias.rootLabelIid) 
     }
   }
@@ -135,6 +137,7 @@ object SecurityContext {
   case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext {
     
     lazy val agentId = Connection.fetch(connectionIid)(inject[JdbcConn]).agentId
+    lazy val aliasIid = Connection.fetch(connectionIid)(inject[JdbcConn]).aliasIid
     
     def createView = new AgentView {
   
@@ -146,7 +149,7 @@ object SecurityContext {
   
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Failure("connections cannot do insert, update or delete actions on other agents")
 
-      lazy val reachableLabels = connection.metaLabelIid :: inject[JdbcConn].queryFor[InternalId](sql"""
+      lazy val reachableLabels: List[InternalId] = connection.metaLabelIid :: inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select labelIid
      from labelacl

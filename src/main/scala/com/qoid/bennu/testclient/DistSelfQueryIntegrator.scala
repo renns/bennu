@@ -9,7 +9,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.webservices.DistributedQueryService
 
-object DistQueryIntegrator extends GuiceApp {
+object DistSelfQueryIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
 
   run()
@@ -26,18 +26,16 @@ object DistQueryIntegrator extends GuiceApp {
       val alias2 = client2.getUberAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      createSampleContent(client1, alias1, Some(conn1))
-      val (contents, labels) = createSampleContent(client2, alias2, Some(conn2))
+      val (contents, labels) = createSampleContent(client1, alias1, Some(conn1))
+      createSampleContent(client2, alias2, Some(conn2))
       val content_c = contents(2)
       val label_c = labels.last
 
       val context = JString("zee_queeray")
-
-      val expectedHlp = DistributedQueryService.ResponseData(None, Some(conn1.iid), "Content", Some(List(content_c.toJson)), context).toJson
-      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, List(conn1), context=context)(handleAsyncResponse(_, expectedHlp, p1))
-
-      val expectedHl = DistributedQueryService.ResponseData(None, Some(conn1.iid), "Content", Some(List(content_c.toJson)), context).toJson
-      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", Nil, List(conn1), context=context)(handleAsyncResponse(_, expectedHl, p2))
+      
+      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "Content", Some(List(content_c.toJson)), context).toJson
+      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", List(alias1), Nil, context=context)(handleAsyncResponse(_, expected, p1))
+//      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", List(alias1), List(conn1))(handleAsyncResponse(_, expected, p2))
       
       Await.result(p1.future, Duration("30 seconds"))
       Await.result(p2.future, Duration("30 seconds"))

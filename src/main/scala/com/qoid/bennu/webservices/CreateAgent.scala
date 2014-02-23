@@ -14,6 +14,7 @@ import java.sql.{ Connection => JdbcConn }
 import jsondsl._
 import m3.jdbc._
 import m3.servlet.beans.Parm
+import com.qoid.bennu.model.InternalId
 
 object CreateAgent {
   val introducerAgentId = AgentId("introducer")
@@ -41,6 +42,8 @@ case class CreateAgent @Inject() (
   
   def doCreate(): Agent = {
 
+    val aliasIid = InternalId.random
+    
     val rootLabel = Label(
       agentId = id,
       name = "uber label",
@@ -48,6 +51,7 @@ case class CreateAgent @Inject() (
     ).sqlInsert
     
     val rootAlias = Alias(
+      iid = aliasIid,
       agentId = id,
       profile = ("name" -> "Uber Alias") ~ ("imgSrc", ""),
       rootLabelIid = rootLabel.iid

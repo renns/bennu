@@ -54,8 +54,10 @@ trait ServiceAssist {
 
   def distributedQuery[T <: HasInternalId : Manifest](
     query: String,
+    aliases: List[Alias],
     connections: List[Connection],
-    timeout: Int = 5000
+    timeout: String = "5 seconds",
+    context: JValue = JNothing
   )(
     callback: AsyncResponse => Unit
   ): InternalId = {
@@ -65,9 +67,11 @@ trait ServiceAssist {
     val parms = Map[String, JValue](
       "type" -> typeName,
       "q" -> query,
+      "aliasIids" -> aliases.map(_.iid),
       "connectionIids" -> connections.map(c => c.iid),
       "leaveStanding" -> false,
-      "timeout" -> timeout
+      "timeout" -> timeout,
+      "context" -> context
     )
 
     val response = post(ServicePath.distributedQuery, parms)

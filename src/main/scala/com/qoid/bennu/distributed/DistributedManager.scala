@@ -3,6 +3,7 @@ package com.qoid.bennu.distributed
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.SecurityContext.ConnectionSecurityContext
+import com.qoid.bennu.SecurityContext.AliasSecurityContext
 import com.qoid.bennu.model._
 import com.qoid.bennu.util.Implicits.futureExtensions
 import java.sql.{ Connection => JdbcConn }
@@ -16,6 +17,9 @@ import scala.concurrent._
 @com.google.inject.Singleton
 class DistributedManager {
 
+  /**
+   * send a distributed request to a connection 
+   */
   def sendRequest(
     connectionIid: InternalId,
     kind: DistributedRequestKind,
@@ -32,9 +36,6 @@ class DistributedManager {
         implicit val jdbcConn = inject[JdbcConn]
 
         val connection = Connection.fetch(connectionIid)
-        
-        // TODO "maybe" move processing code out of here and setup and wrap said processing within a Connection SecurityContext 
-
         val request = DistributedRequest(
           connection.localPeerId,
           connection.remotePeerId,
@@ -47,6 +48,7 @@ class DistributedManager {
 
         toConnectionOpt match {
           case Some(toConnection) =>
+                    
             // The to-connection exists locally
             val sc = ConnectionSecurityContext(toConnection.iid)
             Txn.setViaTypename[SecurityContext](sc)
@@ -57,7 +59,7 @@ class DistributedManager {
                 p.success(response.data)
               case None => p.failure(new Exception(s"No handler found for distributed request kind -- $kind"))
             }
-          case None =>
+          case _ =>
             // The to-connection doesn't exist locally
             // TODO: Send request on distributed network
             // TODO: Remove failure below once we're distributed
@@ -70,6 +72,45 @@ class DistributedManager {
 
     p.future.withTimeout(timeout)
   }
+
+//  /**
+//   * A hack to do a distributed request using the local alias context.
+//   * This is in lieue of self connections.
+//   */
+//  def localAliasRequest(
+//    aliasIid: InternalId,
+//    kind: DistributedRequestKind,
+//    data: JValue,
+//    timeout: TimeDuration = new TimeDuration(0)
+//  )(
+//    implicit
+//    ec: ExecutionContext
+//  ): Future[JValue] = {
+//    val p = Promise[JValue]()
+//
+//    future {
+//      Txn {
+//        implicit val jdbcConn = inject[JdbcConn]
+//
+//        val alias = Alias.fetch(aliasIid)
+//                    
+//        // The to-connection exists locally
+//        val sc = AliasSecurityContext(alias.iid)
+//        Txn.setViaTypename[SecurityContext](sc)
+//
+//        DistributedRequestHandler.getHandler(kind) match {
+//          case Some(handler) =>
+//            val response = handler.handle(request, toConnection)
+//            p.success(response.data)
+//          case None => p.failure(new Exception(s"No handler found for distributed request kind -- $kind"))
+//        }
+//      }
+//    }.onFailure { case t =>
+//      p.failure(t)
+//    }
+//
+//    p.future.withTimeout(timeout)
+//  }
 
   def sendNotification(
     connectionIid: InternalId,

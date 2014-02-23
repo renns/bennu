@@ -47,6 +47,9 @@ import net.model3.guice.LifeCycleManager
 import net.model3.guice.LifeCycleListeners
 import com.qoid.bennu.util.HsqldbServerStarterUpper
 import com.qoid.bennu.SecurityContext.ProviderAgentView
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import m3.guice.ScalaInjectorProvider
+import m3.servlet.M3ServletGuiceModule
 
 object GuiceModule {
   
@@ -89,7 +92,8 @@ class GuiceModule extends ScalaModule with Provider[Module] {
 
   def get = 
     Modules.`override`(
-      new M3GuiceModule()
+      new M3GuiceModule(),
+      new M3ServletGuiceModule()
     ).`with`(
       this, 
       new WebServicesModule()
@@ -103,6 +107,8 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     // we can get a more clever config directory later
     bind[ConfigurationDirectory].toInstance(new ConfigurationDirectory(new Directory(".")))
+    
+    bind[ScalaInjector].toProvider[ScalaInjectorProvider]
     
     bind[DataSource].toProvider[M3ProviderDataSource]
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
