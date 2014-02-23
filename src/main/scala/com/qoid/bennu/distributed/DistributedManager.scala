@@ -73,44 +73,6 @@ class DistributedManager {
     p.future.withTimeout(timeout)
   }
 
-//  /**
-//   * A hack to do a distributed request using the local alias context.
-//   * This is in lieue of self connections.
-//   */
-//  def localAliasRequest(
-//    aliasIid: InternalId,
-//    kind: DistributedRequestKind,
-//    data: JValue,
-//    timeout: TimeDuration = new TimeDuration(0)
-//  )(
-//    implicit
-//    ec: ExecutionContext
-//  ): Future[JValue] = {
-//    val p = Promise[JValue]()
-//
-//    future {
-//      Txn {
-//        implicit val jdbcConn = inject[JdbcConn]
-//
-//        val alias = Alias.fetch(aliasIid)
-//                    
-//        // The to-connection exists locally
-//        val sc = AliasSecurityContext(alias.iid)
-//        Txn.setViaTypename[SecurityContext](sc)
-//
-//        DistributedRequestHandler.getHandler(kind) match {
-//          case Some(handler) =>
-//            val response = handler.handle(request, toConnection)
-//            p.success(response.data)
-//          case None => p.failure(new Exception(s"No handler found for distributed request kind -- $kind"))
-//        }
-//      }
-//    }.onFailure { case t =>
-//      p.failure(t)
-//    }
-//
-//    p.future.withTimeout(timeout)
-//  }
 
   def sendNotification(
     connectionIid: InternalId,
