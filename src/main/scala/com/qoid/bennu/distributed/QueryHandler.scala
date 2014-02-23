@@ -13,8 +13,11 @@ import m3.predef._
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.webservices.DistributedQueryService.RequestData
+import com.qoid.bennu.squery.StandingQueryManager
+import com.qoid.bennu.squery.StandingQuery
+import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 
-object QueryHandler {
+object QueryHandler extends Logging {
   
   def process(request: RequestData, injector: ScalaInjector): JValue = {
 
@@ -22,11 +25,26 @@ object QueryHandler {
     val agentView = injector.instance[AgentView]
     
     val mapper = findMapperByTypeName(request.tpe)
-    val results = agentView.select(request.query)(mapper).toList
 
-    //TODO: kick off standing query if leaveStanding is true
+    if ( request.leaveStanding ) {
+      val sQueryMgr = injector.instance[StandingQueryManager]
+      sQueryMgr.add(
+        StandingQuery(
+          agentId = agentView.securityContext.agentId,
+          channelId = request.channelId,
+          handle = request.handle,
+          context = request.context,
+          securityContext = agentView.securityContext,
+          typeQueries = List(StandingQuery.TypeQuery(request.tpe, Some(request.query)))
+        )
+      )
+    }
 
-    JArray(results.map(_.toJson))
+    if ( request.historical ) 
+      JArray(agentView.select(request.query)(mapper).map(_.toJson).toList)
+    else 
+      JNothing
+      
   }
 
   

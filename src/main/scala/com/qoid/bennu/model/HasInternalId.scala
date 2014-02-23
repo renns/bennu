@@ -5,6 +5,8 @@ import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.squery._
 import m3.predef._
 import net.liftweb.json.JValue
+import m3.Txn
+import net.model3.transaction.Transaction
 
 trait HasInternalId extends ToJsonCapable { self =>
   
@@ -33,7 +35,11 @@ trait HasInternalId extends ToJsonCapable { self =>
   ): TInstance
 
   def notifyStandingQueries(action: StandingQueryAction): TInstance = {
-    inject[StandingQueryManager].notify(mapper, safeCast, action)
+    inject[Transaction].events.addListener(new Transaction.Adapter {
+        override def commit(txn: Transaction) = {
+          SqueryEvalThread.enqueue(action, self)
+        }
+    })
     safeCast
   }
 }

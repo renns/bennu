@@ -29,14 +29,15 @@ import net.model3.transaction.Transaction
 
 object SecurityContext {
 
-  case object SuperUserSecurityContext extends SecurityContext {
-    def createView = new AgentView {
-      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Full(t)
-      def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = query
-      def readResolve[T <: HasInternalId](t: T) = Full(t)
-      def rootLabel = m3x.error("super user doesn't have a root label")
-    }
-  }
+//  case object SuperUserSecurityContext extends SecurityContext { sc =>
+//    def createView = new AgentView {
+//      def securityContext = sc
+//      override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = Full(t)
+//      def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = query
+//      def readResolve[T <: HasInternalId](t: T) = Full(t)
+//      def rootLabel = m3x.error("super user doesn't have a root label")
+//    }
+//  }
 
   sealed trait AgentCapableSecurityContext extends SecurityContext {
     override def optAgentId: Option[AgentId] = Some(agentId)
@@ -45,10 +46,11 @@ object SecurityContext {
     lazy val agentWhereClause: Query = Query.parse(sql"agentId = ${agentId}")
   }
 
-  case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext {
+  case class AgentSecurityContext(agentId: AgentId) extends AgentCapableSecurityContext { sc =>
     lazy val agent = Agent.fetch(agentId.asIid)(inject[JdbcConn])
     def aliasIid = agent.uberAliasIid
     def createView = new AgentView {
+      def securityContext = sc
       implicit val jdbcConn = inject[JdbcConn]
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
@@ -64,13 +66,15 @@ object SecurityContext {
     }
   }
   
-  case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext {
+  case class AliasSecurityContext(aliasIid: InternalId) extends AgentCapableSecurityContext { sc =>
    
     lazy val agentId = Alias.fetch(aliasIid)(inject[JdbcConn]).agentId
     
-    def createView = new AgentView {
+    def createView = new AgentView { 
   
       implicit val jdbcConn = inject[JdbcConn] 
+
+      def securityContext = sc
 
       override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T) = {
         if ( agentId == t.agentId ) Full(t)
@@ -134,12 +138,14 @@ object SecurityContext {
     )
   }
 
-  case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext {
+  case class ConnectionSecurityContext(connectionIid: InternalId) extends AgentCapableSecurityContext { sc =>
     
     lazy val agentId = Connection.fetch(connectionIid)(inject[JdbcConn]).agentId
     lazy val aliasIid = Connection.fetch(connectionIid)(inject[JdbcConn]).aliasIid
     
     def createView = new AgentView {
+
+      def securityContext = sc
   
       implicit val jdbcConn = inject[JdbcConn] 
       
@@ -283,6 +289,8 @@ sealed trait AgentView {
   def validateInsert[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
   def validateUpdate[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
   def validateDelete[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
+  
+  def securityContext: SecurityContext.AgentCapableSecurityContext
   
   /**
    * Ensure that t is can be inserted, updated and deleted from this view

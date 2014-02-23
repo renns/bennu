@@ -13,13 +13,16 @@ import jsondsl._
 import m3.servlet.beans.MultiRequestHandler.MethodInvocationContext
 
 
-case class RegisterStandingQueryService @Inject()(
+case class RegisterStandingQueryService2 @Inject()(
   sQueryMgr: StandingQueryManager,
   securityContext: AgentCapableSecurityContext,
   channelId: ChannelId,
-  context: Option[MethodInvocationContext],
-  @Parm types: List[String]
+  methodContext: Option[MethodInvocationContext],
+  @Parm typeQueries: List[StandingQuery.TypeQuery],
+  @Parm context: Option[JValue] = None 
 ) extends Logging {
+  
+  val resolvedContext = context.orElse(methodContext.map(_.value)).getOrElse(JNothing)
   
   def service: JObject = {
     val handle = InternalId.random
@@ -28,9 +31,9 @@ case class RegisterStandingQueryService @Inject()(
         agentId = securityContext.agentId,
         channelId = channelId,
         handle = handle,
-        context = context.map(_.value).getOrElse(JNothing),
         securityContext = securityContext,
-        typeQueries = types.map( t => StandingQuery.TypeQuery(t.toLowerCase) )
+        context = resolvedContext,
+        typeQueries = typeQueries
       )
     )
     ("handle" -> handle.value)

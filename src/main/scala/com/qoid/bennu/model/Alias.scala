@@ -4,6 +4,7 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.squery.StandingQueryAction
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
+import com.qoid.bennu.squery.SqueryEvalThread
 
 object Alias extends BennuMapperCompanion[Alias] {
 }
@@ -45,23 +46,22 @@ case class Alias(
     val channelMgr = inject[ChannelManager]
     implicit val jdbcConn = inject[JdbcConn]
 
-    sQueryMgr.notify(mapper, this, action)
+    SqueryEvalThread.enqueue(action, this)
 
     val connections = Connection.select(sql"aliasIid = $iid")
 
     for (connection <- connections) {
       val remoteConnection = Connection.selectOne(sql"localPeerId = ${connection.remotePeerId} and remotePeerId = ${connection.localPeerId}")
 
-      val sQueries = sQueryMgr.get(remoteConnection.agentId, "profile")
+      val queries = sQueryMgr.get(remoteConnection.agentId, "profile")
 
       for {
-        sQuery <- sQueries
-        sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
+        query <- queries
       } {
         val data = ("connectionIid" -> remoteConnection.iid) ~ ("profile" -> profile)
         val event = StandingQueryEvent(action, "profile", data)
-        val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, true, event.toJson)
-        val channel = channelMgr.channel(sQuery.channelId)
+        val response = AsyncResponse(AsyncResponseType.SQuery, query._1.handle, true, event.toJson)
+        val channel = channelMgr.channel(query._1.channelId)
         channel.put(response.toJson)
       }
     }

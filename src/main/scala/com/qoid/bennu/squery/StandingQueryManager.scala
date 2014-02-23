@@ -17,7 +17,6 @@ class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
   def add(sQuery: StandingQuery): Unit = {
     val sQueryMap = map.getOrElseUpdate(sQuery.agentId, new LockFreeMap[InternalId, StandingQuery])
     sQueryMap += sQuery.handle -> sQuery
-    //TODO: What happens if there is a collision on handle?
   }
 
   def remove(agentId: AgentId, handle: InternalId): Unit = {
@@ -26,14 +25,14 @@ class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
     }
   }
 
-  def get(agentId: AgentId, tpe: String): List[StandingQuery] = {
+  def get(agentId: AgentId, tpe: String): List[(StandingQuery,StandingQuery.TypeQuery)] = {
     val typeLowerCase = tpe.toLowerCase
 
     for (
       sQueryMap <- map.get(agentId).toList;
-      sQuery <- sQueryMap.values
-      if sQuery.types.contains(typeLowerCase)
-    ) yield sQuery
+      sQuery <- sQueryMap.values;
+      tQuery <- sQuery.typeQueriesByType.get(typeLowerCase)
+    ) yield sQuery -> tQuery
   }
   
   def notify[T <: HasInternalId](
@@ -41,18 +40,17 @@ class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
     instance: T,
     action: StandingQueryAction
   ): Unit = {
-
-    val sQueries = get(instance.agentId, mapper.typeName)
-
+    val event = StandingQueryEvent(action, mapper.typeName, instance.toJson)
+    val queries = get(instance.agentId, mapper.typeName)
     for {
-      sQuery <- sQueries
-      sc <- ChannelMap.channelToSecurityContextMap.get(sQuery.channelId)
-      if Evaluator.evaluateQuery(sc.createView.constrict(mapper, Query.nil), instance) == Evaluator.VTrue
+      q <- queries
     } {
-      val event = StandingQueryEvent(action, mapper.typeName, instance.toJson)
-      val response = AsyncResponse(AsyncResponseType.SQuery, sQuery.handle, true, event.toJson)
-      val channel = channelMgr.channel(sQuery.channelId)
-      channel.put(response.toJson)
+      val av = q._1.securityContext.createView
+      if ( Evaluator.evaluateQuery(av.constrict(mapper, q._2.query), instance) == Evaluator.VTrue ) {
+        val response = AsyncResponse(AsyncResponseType.SQuery, q._1.handle, true, event.toJson)
+        val channel = channelMgr.channel(q._1.channelId)
+        channel.put(response.toJson)
+      }
     }
   }
 }

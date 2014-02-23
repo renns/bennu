@@ -46,6 +46,7 @@ case class DistributedQueryService @Inject()(
   @Parm("q") queryStr: String,
   @Parm aliasIids: List[InternalId] = Nil,
   @Parm connectionIids: List[InternalId] = Nil,
+  @Parm historical: Boolean = true,
   @Parm leaveStanding: Boolean = false,
   @Parm timeout: TimeDuration = new TimeDuration("5 seconds"),
   @Parm context: Option[JValue] = None
@@ -59,19 +60,17 @@ case class DistributedQueryService @Inject()(
   
   val resolvedContext = context.orElse(methodContext.map(_.value)).getOrElse(JNothing)
   val handle = InternalId.random
-  val requestData = RequestData(_type, queryStr, leaveStanding, handle, resolvedContext)
+  val requestData = RequestData(_type, queryStr, leaveStanding, historical, handle, resolvedContext, channelId)
   val requestDataJson = requestData.toJson
   
   def submitLocalAgentQuery(sc: AgentCapableSecurityContext) = {
     
-    def localAgentQuery(sc: AgentCapableSecurityContext) = Txn {
+    def localAgentQuery = Txn {
       Txn.setViaTypename[SecurityContext](sc)
-      val results = QueryHandler.process(requestData, injector)
-      val data = ResponseData(Some(sc.aliasIid), None, _type, Some(results), resolvedContext)
-      AsyncResponse(AsyncResponseType.Query, handle, true, data.toJson).send(channelId)
+      QueryHandler.process(requestData, injector)
     }
 
-    threadScheduler.submit(s"localAgentQuery-${sc}", () => localAgentQuery(sc))
+    threadScheduler.submit(s"localAgentQuery-${sc}", () => localAgentQuery)
     
     // register a standing query
     
@@ -129,8 +128,10 @@ object DistributedQueryService {
     @Json("type") tpe: String,
     query: String,
     leaveStanding: Boolean,
+    historical: Boolean,
     handle: InternalId,
-    context: JValue    
+    context: JValue,
+    channelId: ChannelId
   ) extends ToJsonCapable
 
   case class ResponseData(

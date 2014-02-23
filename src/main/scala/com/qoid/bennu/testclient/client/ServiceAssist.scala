@@ -52,11 +52,29 @@ trait ServiceAssist {
     }
   }
 
+  def standingQuery2[T <: HasInternalId : Manifest](query: String): List[T] = {
+    val typeName = manifest[T].runtimeClass.getSimpleName
+
+    val parms = Map[String, JValue]("type" -> typeName, "q" -> query)
+
+    val response = post(ServicePath.query, parms)
+
+    response.result match {
+      case JNothing => throw new Exception("Query didn't complete successfully")
+      case JArray(instances) =>
+        val mapper = JdbcAssist.findMapperByTypeName(typeName)
+        instances.map(mapper.fromJson(_).asInstanceOf[T])
+      case _ => throw new Exception("Query returned invalid results")
+    }
+  }
+
   def distributedQuery[T <: HasInternalId : Manifest](
     query: String,
     aliases: List[Alias],
     connections: List[Connection],
     timeout: String = "5 seconds",
+    leaveStanding: Boolean = false,
+    historical: Boolean = true,
     context: JValue = JNothing
   )(
     callback: AsyncResponse => Unit
@@ -65,11 +83,12 @@ trait ServiceAssist {
     val typeName = manifest[T].runtimeClass.getSimpleName
 
     val parms = Map[String, JValue](
-      "type" -> typeName,
+      "type" -> typeName.toLowerCase(),
       "q" -> query,
       "aliasIids" -> aliases.map(_.iid),
       "connectionIids" -> connections.map(c => c.iid),
-      "leaveStanding" -> false,
+      "leaveStanding" -> leaveStanding,
+      "historical" -> historical,
       "timeout" -> timeout,
       "context" -> context
     )

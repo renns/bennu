@@ -31,13 +31,15 @@ object ChannelMap {
 
   def authenticate(iid: InternalId)(implicit conn: JdbcConn): Box[ChannelId] = {
 
-    config.
-      superUserAuthTokens.
-      find(_.value =:= iid.value).
-      map(_=>SecurityContext.SuperUserSecurityContext).
+//    config.
+//      superUserAuthTokens.
+//      find(_.value =:= iid.value).
+//      map(_=>SecurityContext.SuperUserSecurityContext).
+//      orElse(
+//        Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId))
+//      ).
+      Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId)).
       orElse(
-        Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId))
-      ).orElse(
         Alias.fetchOpt(iid).map(a=>SecurityContext.AliasSecurityContext(iid))
       ).orElse (
         Connection.fetchOpt(iid).map(c=>SecurityContext.ConnectionSecurityContext(iid))
