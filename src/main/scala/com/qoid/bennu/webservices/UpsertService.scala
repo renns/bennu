@@ -23,7 +23,7 @@ case class UpsertService @Inject()(
 
   def service: JValue = {
     val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
-    val instance = mapper.fromJson(instanceJson)
+    val instance = mapper.fromJson(instanceJson).copy2(agentId=securityContext.agentId)
     val agentView = securityContext.createView
 
     val result = mapper.fetchOpt(instance.iid) match {
