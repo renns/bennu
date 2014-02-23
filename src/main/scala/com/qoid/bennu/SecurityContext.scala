@@ -329,7 +329,7 @@ sealed trait AgentView {
       }
     }
 
-    recurse(rootLabel, path) ?~ s"label not found -- ${path.mkString("/")}"
+    recurse(rootLabel, path.tail) ?~ s"label not found -- ${path.mkString("/")}"
 
   }
 
