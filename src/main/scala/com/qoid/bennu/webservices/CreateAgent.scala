@@ -74,7 +74,7 @@ case class CreateAgent @Inject() (
     val introAlias = Alias(
       agentId = id,
       profile = ("name" -> "Intro Alias") ~ ("imgSrc", ""),
-      rootLabelIid = rootLabel.iid
+      rootLabelIid = introLabel.iid
     ).sqlInsert
     
     LabelChild(
