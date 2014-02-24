@@ -12,6 +12,7 @@ case class AsyncResponse(
   handle: InternalId,
   success: Boolean,
   data: JValue,
+  context: JValue,
   error: Option[AsyncResponseError] = None
 ) extends ToJsonCapable {
 

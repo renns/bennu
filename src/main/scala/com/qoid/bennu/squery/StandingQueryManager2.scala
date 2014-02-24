@@ -37,7 +37,7 @@ class StandingQueryManager2 @Inject() (channelMgr: ChannelManager) {
   ): Unit = {
     map.get(StandingQueryManager2.MapKey(agentId, handle, connectionIid)).foreach { v =>
       val responseData = StandingQueryManager2.ResponseData(connectionIid, action, v.tpe, data)
-      val response = AsyncResponse(AsyncResponseType.SQuery2, handle, true, responseData.toJson)
+      val response = AsyncResponse(AsyncResponseType.SQuery2, handle, true, responseData.toJson, JNothing)
       val channel = channelMgr.channel(v.channelId)
       channel.put(response.toJson)
     }

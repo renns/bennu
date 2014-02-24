@@ -29,7 +29,7 @@ object DistAgentQueryIntegrator extends GuiceApp {
 
       val context = JString("zee_queeray")
       
-      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "Content", Some(List(content_c.toJson)), context).toJson
+      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "Content", Some(List(content_c.toJson))).toJson
       client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, Nil, context=context)(handleAsyncResponse(_, expected, p1))
 //      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", List(alias1), List(conn1))(handleAsyncResponse(_, expected, p2))
       

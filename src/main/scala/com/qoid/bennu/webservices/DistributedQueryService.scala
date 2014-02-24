@@ -67,8 +67,9 @@ case class DistributedQueryService @Inject()(
     
     def localAgentQuery = Txn {
       Txn.setViaTypename[SecurityContext](sc)
-      val responseData = QueryHandler.process(requestData, injector)
-      AsyncResponse(AsyncResponseType.Query, handle, true, responseData).send(channelId)
+      val resultSet = QueryHandler.process(requestData, injector)
+      val responseData = ResponseData(Some(sc.aliasIid), None, _type, Some(resultSet))
+      AsyncResponse(AsyncResponseType.Query, handle, true, responseData.toJson, context = resolvedContext).send(channelId)
     }
 
     threadScheduler.submit(s"localAgentQuery-${sc}", () => localAgentQuery)
@@ -102,17 +103,17 @@ case class DistributedQueryService @Inject()(
         timeout
       ).onComplete {
         case Success(results) =>
-          val data = ResponseData(None, Some(connectionIid), _type, Some(results), resolvedContext)
-          AsyncResponse(AsyncResponseType.Query, handle, true, data.toJson).send(channelId)
+          val data = ResponseData(None, Some(connectionIid), _type, Some(results))
+          AsyncResponse(AsyncResponseType.Query, handle, true, data.toJson, resolvedContext).send(channelId)
         case Failure(t: TimeoutException) =>
-          val data = ResponseData(None, Some(connectionIid), _type, None, resolvedContext)
+          val data = ResponseData(None, Some(connectionIid), _type, None)
           val error = AsyncResponseError(ErrorCode.Timeout, t.getMessage)
-          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(error)).send(channelId)
+          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, resolvedContext, Some(error)).send(channelId)
           logger.debug(s"distributed query: timed out after $timeout milliseconds")
         case Failure(t) =>
-          val data = ResponseData(None, Some(connectionIid), _type, None, resolvedContext)
+          val data = ResponseData(None, Some(connectionIid), _type, None)
           val error = AsyncResponseError(ErrorCode.Generic, t.getMessage, Some(t.getStackTraceString))
-          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, Some(error)).send(channelId)
+          AsyncResponse(AsyncResponseType.Query, handle, false, data.toJson, resolvedContext, Some(error)).send(channelId)
           logger.warn("distributed query: FAIL", t)
       }
     }
@@ -139,8 +140,7 @@ object DistributedQueryService {
     aliasIid: Option[InternalId],
     connectionIid: Option[InternalId],
     @Json("type") tpe: String,
-    results: Option[JValue] = None,
-    context: JValue    
+    results: JValue = JNothing
   ) extends ToJsonCapable
   
 }

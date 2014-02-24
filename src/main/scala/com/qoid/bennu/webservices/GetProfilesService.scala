@@ -17,16 +17,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.TimeoutException
 import scala.util.Failure
 import scala.util.Success
+import m3.servlet.beans.MultiRequestHandler.MethodInvocationContext
 
 case class GetProfilesService @Inject() (
   implicit
   jdbcConn: JdbcConn,
   distributedMgr: DistributedManager,
   channelId: ChannelId,
+  miContext: Option[MethodInvocationContext],
   @Parm connectionIids: List[InternalId],
   @Parm timeout: Int = 5000
 ) extends Logging {
 
+  val resolvedContext = miContext.map(_.value).getOrElse(JNothing)
+  
   def service: JValue = {
     val handle = InternalId.random
 
@@ -39,16 +43,16 @@ case class GetProfilesService @Inject() (
       ).onComplete {
         case Success(profile) =>
           val data = GetProfilesService.ResponseData(connectionIid, Some(profile))
-          AsyncResponse(AsyncResponseType.Profile, handle, true, data.toJson).send(channelId)
+          AsyncResponse(AsyncResponseType.Profile, handle, true, data.toJson, context = resolvedContext).send(channelId)
         case Failure(t: TimeoutException) =>
           val data = GetProfilesService.ResponseData(connectionIid)
           val error = AsyncResponseError(ErrorCode.Timeout, t.getMessage)
-          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(error)).send(channelId)
+          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, context = resolvedContext, Some(error)).send(channelId)
           logger.debug(s"get profiles: timed out after $timeout milliseconds")
         case Failure(t) =>
           val data = GetProfilesService.ResponseData(connectionIid)
           val error = AsyncResponseError(ErrorCode.Generic, t.getMessage, Some(t.getStackTraceString))
-          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, Some(error)).send(channelId)
+          AsyncResponse(AsyncResponseType.Profile, handle, false, data.toJson, context = resolvedContext, Some(error)).send(channelId)
           logger.warn("get profiles: FAIL", t)
       }
     }
