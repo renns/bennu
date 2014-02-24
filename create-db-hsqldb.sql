@@ -2,6 +2,7 @@
 create cached table agent (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,
+	uberAliasIid varchar(32) not NULL,
 	name varchar(50) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
@@ -21,6 +22,7 @@ create cached table alias (
 create cached table connection (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,
+	metaLabelIid varchar(32) not NULL,
 	aliasIid varchar(32) not NULL,
 	localPeerId varchar(32) not NULL,
 	remotePeerId varchar(32) not NULL,
