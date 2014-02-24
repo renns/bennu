@@ -34,7 +34,7 @@ object DistQueryIntegrator extends GuiceApp {
       val context = JString("zee_queeray")
 
       val expectedHlp = DistributedQueryService.ResponseData(None, Some(conn1.iid), "content", Some(List(content_c.toJson))).toJson
-      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, List(conn1), context=context)(handleAsyncResponse(_, expectedHlp, p1))
+      client1.distributedQuery[Content](s"hasLabelPath('uber label','A','B','C')", Nil, List(conn1), context=context)(handleAsyncResponse(_, expectedHlp, p1))
 
       val expectedHl = DistributedQueryService.ResponseData(None, Some(conn1.iid), "content", Some(List(content_c.toJson))).toJson
       client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", Nil, List(conn1), context=context)(handleAsyncResponse(_, expectedHl, p2))
