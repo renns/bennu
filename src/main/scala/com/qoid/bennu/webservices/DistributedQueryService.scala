@@ -67,7 +67,8 @@ case class DistributedQueryService @Inject()(
     
     def localAgentQuery = Txn {
       Txn.setViaTypename[SecurityContext](sc)
-      QueryHandler.process(requestData, injector)
+      val responseData = QueryHandler.process(requestData, injector)
+      AsyncResponse(AsyncResponseType.Query, handle, true, responseData).send(channelId)
     }
 
     threadScheduler.submit(s"localAgentQuery-${sc}", () => localAgentQuery)
