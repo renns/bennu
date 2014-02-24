@@ -82,8 +82,12 @@ case class HttpChannelClient(
     parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
-          message \ "context" match {
+          message \ "handle" match {
             case JNothing =>
+              // This is a channel response
+              val channelResponse = JsonAssist.serializer.fromJson[ChannelResponse](message)
+              waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
+            case _ =>
               // This is an async response
               val response = JsonAssist.serializer.fromJson[AsyncResponse](message)
 
@@ -111,10 +115,6 @@ case class HttpChannelClient(
                     }
                   }
               }
-            case _ =>
-              // This is a channel response
-              val channelResponse = JsonAssist.serializer.fromJson[ChannelResponse](message)
-              waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
           }
         }
       case _ => logger.warn(s"channel poll response invalid -- $responseBody")

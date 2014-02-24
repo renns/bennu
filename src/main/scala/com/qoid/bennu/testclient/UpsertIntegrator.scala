@@ -9,8 +9,6 @@ object UpsertIntegrator extends GuiceApp {
 
   insertLabel()
   updateLabel()
-  insertLabelWithWrongAgent()
-  updateLabelWithWrongAgent()
   System.exit(0)
 
   def insertLabel(): Unit = {
@@ -36,32 +34,6 @@ object UpsertIntegrator extends GuiceApp {
       logger.debug("updateLabel: PASS")
     } catch {
       case e: Exception => logger.warn("updateLabel: FAIL -- " + e)
-    }
-  }
-
-  def insertLabelWithWrongAgent(): Unit = {
-    try {
-      val client = HttpAssist.createAgent(AgentId("Agent1"))
-      val label = Label(AgentId("Agent2"), "Insert Label")
-      client.upsert(label)
-
-      logger.warn("insertLabelWithWrongAgent: FAIL -- Validation didn't work")
-    } catch {
-      case e: Exception => logger.debug("insertLabelWithWrongAgent: PASS")
-    }
-  }
-
-  def updateLabelWithWrongAgent(): Unit = {
-    try {
-      val client = HttpAssist.createAgent(AgentId("Agent1"))
-      val insertLabel = Label(client.agentId, "Insert Label")
-      val newLabel = client.upsert(insertLabel)
-      val updateLabel = newLabel.copy(agentId = AgentId("Agent2"), name = "Update Label")
-      client.upsert(updateLabel)
-
-      logger.warn("updateLabelWithWrongAgent: FAIL -- Validation didn't work")
-    } catch {
-      case e: Exception => logger.debug("updateLabelWithWrongAgent: PASS")
     }
   }
 }
