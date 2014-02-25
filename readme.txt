@@ -19,7 +19,7 @@ The first thing the bootstrapping does is configure a temporary logger and loggi
 
 The two guice modules.  The main bootstrap module com.ahsrcm.entdb.GuiceModule and the servlet config module com.ahsrcm.entdb.webservices.WebServicesModule.  WebServicesModule is effectively the web.xml of a guice servlet app.
 
-Because this is built on top of the model3 project(s) there is quite a long list of things sort of confgiured through convention via guice. 
+Because this is built on top of the model3 project(s) there is quite a long list of things configured through convention via guice. 
 
  * logging
  * transaction manager
