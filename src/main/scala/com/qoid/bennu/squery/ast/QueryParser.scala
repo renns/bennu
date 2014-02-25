@@ -48,7 +48,9 @@ class QueryParser extends JavaTokenParsers {
   
   def identifier = ident ~ rep("." ~> ident) ^^ { case l ~ r => Identifier(l::r) }
   
-  def literal = stringLit | numericLit
+  def literal = nullLit | stringLit | numericLit
+  
+  def nullLit = k("null") ^^ (_=>NullLit)
   
   def stringLit = stringLiteral ^^ StringLit
   

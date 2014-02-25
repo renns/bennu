@@ -21,16 +21,19 @@ case class HttpChannelClient(
   implicit config: HttpClientConfig
 ) extends ChannelClient with HttpAssist with Logging {
 
-  private val waiters = new LockFreeMap[String, Promise[ChannelResponse]]
+  private val waiters = new LockFreeMap[JValue, Promise[ChannelResponse]]
 
   spawnLongPoller()
 
-  override def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse] = {
+  override def postAsync(path: String, parms: Map[String, JValue], context0: JValue = JNothing)(implicit ec: ExecutionContext): Future[ChannelResponse] = {
     val promise = Promise[ChannelResponse]()
 
     future {
       try {
-        val context = UUID.randomUUID().toString.replaceAll("-", "")
+        val context = context0 match {
+          case JNothing => JString(UUID.randomUUID().toString.replaceAll("-", ""))
+          case jv => jv
+        }
         val request = createRequest(path, context, parms)
 
         waiters += context -> promise
@@ -48,12 +51,12 @@ case class HttpChannelClient(
     promise.future
   }
 
-  override def post(path: String, parms: Map[String, JValue]): ChannelResponse = {
+  override def post(path: String, parms: Map[String, JValue], context: JValue = JNothing): ChannelResponse = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    Await.result(postAsync(path, parms), Duration(s"${config.requestTimeout.inSeconds()} seconds"))
+    Await.result(postAsync(path, parms, context), Duration(s"${config.requestTimeout.inSeconds()} seconds"))
   }
 
-  private def createRequest(path: String, context: String, parms: Map[String, JValue]): ChannelRequest = {
+  private def createRequest(path: String, context: JValue, parms: Map[String, JValue]): ChannelRequest = {
     val parmsJValue = JObject(parms.map{
       case (k, v) => JField(k, v)
     }.toList)
@@ -82,6 +85,10 @@ case class HttpChannelClient(
     parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
+          message match {
+            case JArray(Nil) =>
+            case _ => logger.debug(s"received \n  <--- \n${message.toJsonStr.indent("        ")}")
+          }
           message \ "context" match {
             case JNothing =>
               // This is an async response

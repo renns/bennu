@@ -41,16 +41,22 @@ object SqueryEvalThread extends Logging {
 
   private implicit def jdbcConn = inject[JdbcConn]
   
-  private def process(e: QueueEntry) = Txn {
-    
-    standingQueryManager.notify(e.instance.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], e.instance, e.action)
-    
-    cascadeToRelations(e.instance).foreach {
-      case None =>
-      case Some(i) =>
-        standingQueryManager.notify(i.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], i, StandingQueryAction.Update)
+  private def process(e: QueueEntry) = {
+    try {
+      Txn {
+      
+        standingQueryManager.notify(e.instance.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], e.instance, e.action)
+        
+        cascadeToRelations(e.instance).foreach {
+          case None =>
+          case Some(i) =>
+            standingQueryManager.notify(i.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], i, StandingQueryAction.Update)
+        }
+      
+      }
+    } catch {
+      case th: Throwable => logger.error(s"error processing ${e}", th)
     }
-    
   }
   
   def cascadeToRelations(i: HasInternalId): List[Option[HasInternalId]] = {

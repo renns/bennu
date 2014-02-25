@@ -28,13 +28,15 @@ object HttpAssist extends HttpAssist with Logging {
   }
 }
 
-trait HttpAssist {
+trait HttpAssist { self: Logging =>
   protected def httpGet(path: String): String = {
     executeHttpRequest(new HttpGet(path))
   }
 
   protected def httpPost(path: String, body: JValue, cookie: Option[String]): String = {
     val httpPost = new HttpPost(path)
+
+    logger.debug(s"sending to ${path} \n  ---> \n${body.toJsonStr.indent("        ")}")
 
     cookie.foreach(httpPost.setHeader("Cookie", _))
     httpPost.setHeader("Content-Type", "application/json")

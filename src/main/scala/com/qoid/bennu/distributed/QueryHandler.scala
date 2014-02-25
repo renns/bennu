@@ -16,10 +16,21 @@ import com.qoid.bennu.webservices.DistributedQueryService.RequestData
 import com.qoid.bennu.squery.StandingQueryManager
 import com.qoid.bennu.squery.StandingQuery
 import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
+import com.qoid.bennu.squery.StandingQueryEvent
+import com.qoid.bennu.squery.StandingQueryEvent
+import com.qoid.bennu.model.HasInternalId
+import m3.servlet.longpoll.ChannelId
+import m3.servlet.longpoll.Channel
+import m3.servlet.longpoll.ChannelManager
+import com.qoid.bennu.model.AsyncResponse
+import com.qoid.bennu.webservices.DistributedQueryService.ResponseData
+import com.qoid.bennu.model.AsyncResponseType
 
 object QueryHandler extends Logging {
   
-  def process(request: RequestData, injector: ScalaInjector): JValue = {
+  val channelManager = inject[ChannelManager]
+  
+  def process(aliasIid: Option[InternalId], connectionIid: Option[InternalId], request: RequestData, injector: ScalaInjector): JValue = {
 
     implicit val jdbcConn = injector.instance[JdbcConn]
     val agentView = injector.instance[AgentView]
@@ -31,11 +42,11 @@ object QueryHandler extends Logging {
       sQueryMgr.add(
         StandingQuery(
           agentId = agentView.securityContext.agentId,
-          channelId = request.channelId,
           handle = request.handle,
           context = request.context,
           securityContext = agentView.securityContext,
-          typeQueries = List(StandingQuery.TypeQuery(request.tpe, Some(request.query)))
+          typeQueries = List(StandingQuery.TypeQuery(request.tpe, Some(request.query))),
+          listener = channelListener(aliasIid, connectionIid, channelManager.channel(request.channelId), request.handle, request.context)
         )
       )
     }
@@ -46,7 +57,20 @@ object QueryHandler extends Logging {
       JNothing
       
   }
-
+  
+  def channelListener(
+      aliasIid: Option[InternalId], 
+      connectionIid: Option[InternalId],
+      channel: Channel, 
+      handle: InternalId,
+      context: JValue
+  ): StandingQueryEvent => Unit = {
+    event: StandingQueryEvent => 
+      val data = ResponseData(aliasIid, connectionIid, event.tpe.toLowerCase(), Some(JArray(List(event.instance))))
+//      val response = AsyncResponse(AsyncResponseType.SQuery, handle, true, data.toJson, context = context)
+      val response = AsyncResponse(AsyncResponseType.Query, handle, true, data.toJson, context = context)
+      channel.put(response.toJson)
+  }
   
 }
 
@@ -54,7 +78,7 @@ class QueryHandler extends DistributedRequestHandler {
   def handle(dr: DistributedRequest, connection: Connection)(implicit jdbcConn: JdbcConn): DistributedResponse = {
     val agentView = inject[AgentView]
     val request = RequestData.fromJson(dr.data)
-    val results = QueryHandler.process(request, inject[ScalaInjector])
+    val results = QueryHandler.process(None, Some(connection.iid), request, inject[ScalaInjector])
     DistributedResponse(
       dr.iid,
       connection.localPeerId,

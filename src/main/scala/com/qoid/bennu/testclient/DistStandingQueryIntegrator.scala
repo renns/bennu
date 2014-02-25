@@ -23,9 +23,8 @@ object DistStandingQueryIntegrator extends GuiceApp {
       val client1 = HttpAssist.createAgent(AgentId("Agent1"))
       val alias1 = client1.getUberAlias()
 
-      val context = JString("zee_queeray")
-      
-      client1.distributedQuery[Content](s"1 = 1", Nil, Nil, context=context, leaveStanding=true)(handleAsyncResponse(_, JNothing, p1))
+      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, Nil, context=JString("zee_queeray_no_alias"), leaveStanding=true)(handleAsyncResponse(_, JNothing, p1))
+      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", List(alias1), Nil, context=JString("zee_queeray_alias"), leaveStanding=true)(handleAsyncResponse(_, JNothing, p1))
 
       new TimeDuration("5 seconds")
       
@@ -46,16 +45,7 @@ object DistStandingQueryIntegrator extends GuiceApp {
     expected: JValue,
     p: Promise[Unit]
   ): Unit = {
-    response.responseType match {
-      case AsyncResponseType.Query =>
-        logger.debug(s"Async Response Data -- ${response} \n${response.data.toJsonStr}")
-        if (response.data == expected) {
-          p.success()
-        } else {
-          p.failure(new Exception(s"Response data not as expected\nReceived:\n${response.data.toJsonStr}\nExpected:\n${expected.toJsonStr}"))
-        }
-      case _ =>
-    }
+    logger.debug(s"Async Response Data -- ${response} \n${response.data.toJsonStr}")
   }
   
   def createSampleContent(client: ChannelClient, alias: Alias, aclConnection: Option[Connection]): (List[Content], List[Label]) = {

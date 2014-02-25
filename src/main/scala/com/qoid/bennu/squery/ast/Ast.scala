@@ -13,6 +13,7 @@ object Node {
       case InClause(e, v) => p(e) ~*~ "in" ~*~ "(" ~ v.map(p).mkChord(",") ~ ")"
       case Identifier(p) => p.mkChord(".")
       case StringLit(s) => "\"" ~ s ~ "\""
+      case NullLit => "null"
       case NumericLit(n) => n.toString
       case Parens(e) => "(" ~ p(e) ~ ")"
       case op: Op => p(op.left) ~*~ op.op.symbol ~*~ p(op.right)
@@ -66,6 +67,9 @@ sealed trait Literal extends Node {
 
 case class StringLit(value: String) extends Literal
 case class NumericLit(value: BigDecimal) extends Literal
+case object NullLit extends Literal {
+  def value = null
+}
 
 case class Parens(expr: Node) extends Node
 

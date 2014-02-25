@@ -11,26 +11,28 @@ import scala.language.existentials
 import com.qoid.bennu.JsonAssist._
 import jsondsl._
 import m3.servlet.beans.MultiRequestHandler.MethodInvocationContext
+import m3.servlet.longpoll.Channel
 
 
 case class RegisterStandingQueryService @Inject()(
   sQueryMgr: StandingQueryManager,
   securityContext: AgentCapableSecurityContext,
-  channelId: ChannelId,
+  channel: Channel,
   context: Option[MethodInvocationContext],
   @Parm types: List[String]
 ) extends Logging {
   
   def service: JObject = {
     val handle = InternalId.random
+    val resolvedContext = context.map(_.value).getOrElse(JNothing)
     sQueryMgr.add(
       StandingQuery(
         agentId = securityContext.agentId,
-        channelId = channelId,
         handle = handle,
-        context = context.map(_.value).getOrElse(JNothing),
+        context = resolvedContext,
         securityContext = securityContext,
-        typeQueries = types.map( t => StandingQuery.TypeQuery(t.toLowerCase) )
+        typeQueries = types.map( t => StandingQuery.TypeQuery(t.toLowerCase) ),
+        listener = StandingQuery.defaultStandingQueryListener(channel, handle, resolvedContext)
       )
     )
     ("handle" -> handle.value)

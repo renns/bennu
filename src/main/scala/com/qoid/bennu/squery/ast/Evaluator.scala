@@ -42,6 +42,8 @@ object Evaluator extends Logging {
         }
       }
       case "hasLabel" => impl.hasLabel(row, InternalId(ContentQuery.stringLiteral(fc.parms)))
+      case _ => m3x.error("funtion call not supported -- " + reify(fc))
+
     }
   }
   
@@ -61,7 +63,7 @@ object Evaluator extends Logging {
       VBool(v.find(_.value == columnValue).isDefined)
     }
     case i: Identifier => propertyGetter(row, i.qname)
-    case fc: FunctionCall => m3x.error("we don't support any function calls yet.  Let alone the one you want -- " + reify(fc))
+    case fc: FunctionCall => invokeFunction(fc, row)
     case op: Op => {
       val l = evaluateNode(op.left, row)
       val r = evaluateNode(op.right, row)
@@ -70,6 +72,7 @@ object Evaluator extends Logging {
     case NumericLit(value) => VNum(value)
     case Parens(e) => evaluateNode(e, row)
     case StringLit(value) => VStr(value)
+    case NullLit => VNull
   }
 
 

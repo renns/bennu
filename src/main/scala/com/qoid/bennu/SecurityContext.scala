@@ -214,7 +214,10 @@ object SecurityContext {
     val attrName = classOf[SecurityContext].getName
     def get: SecurityContext = {
       provTxn.get.getAttribute[SecurityContext](attrName, true) match {
-        case null => provChannelId.get.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException("unable to find security context"))
+        case null => {
+          val channelId = provChannelId.get
+          channelId.flatMap(chId=>ChannelMap(chId)).getOrElse(throw new ForbiddenException(s"unable to find security context -- ${channelId}"))
+        }
         case sc => sc
       }
     }
@@ -328,8 +331,9 @@ sealed trait AgentView {
         case hd :: tl => parentLabel.findChild(hd).flatMap(ch=>recurse(ch, tl))
       }
     }
-
-    recurse(rootLabel, path.tail) ?~ s"label not found -- ${path.mkString("/")}"
+    
+    if ( rootLabel.name == path.head ) recurse(rootLabel, path.tail) ?~ s"label not found -- ${path.mkString("/")}"
+    else recurse(rootLabel, path) ?~ s"label not found -- ${path.mkString("/")}"
 
   }
 

@@ -89,11 +89,10 @@ trait ServiceAssist {
       "connectionIids" -> connections.map(c => c.iid),
       "leaveStanding" -> leaveStanding,
       "historical" -> historical,
-      "timeout" -> timeout,
-      "context" -> context
+      "timeout" -> timeout
     )
 
-    val response = post(ServicePath.distributedQuery, parms)
+    val response = post(ServicePath.distributedQuery, parms, Some(context))
 
     response.result match {
       case JObject(JField("handle", JString(handle)) :: Nil) =>

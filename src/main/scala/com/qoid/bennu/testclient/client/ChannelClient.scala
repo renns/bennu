@@ -18,11 +18,11 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
   protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
   protected val asyncCallbacks = new LockFreeMap[InternalId, AsyncResponse => Unit]
 
-  def postAsync(path: String, parms: Map[String, JValue])(implicit ec: ExecutionContext): Future[ChannelResponse]
-  def post(path: String, parms: Map[String, JValue]): ChannelResponse
+  def postAsync(path: String, parms: Map[String, JValue], context: JValue = JNothing)(implicit ec: ExecutionContext): Future[ChannelResponse]
+  def post(path: String, parms: Map[String, JValue], context: JValue = JNothing): ChannelResponse
 }
 
-object ChannelClientFactory extends HttpAssist {
+object ChannelClientFactory extends HttpAssist with Logging {
   def createHttpChannelClient(
     agentId: AgentId
   )(
@@ -47,13 +47,16 @@ case class ChannelRequest(
 
 case class ChannelRequestRequest(
   path: String,
-  context: String,
+  context: JValue,
   parms: JValue
 )
 
 case class ChannelResponse(
+  handle: Option[String],
+  data: JValue,
+  responseType: Option[String],
   success: Boolean,
-  context: String,
+  context: JValue,
   result: JValue,
   error: Option[ChannelResponseError]
 )

@@ -60,14 +60,15 @@ case class DistributedQueryService @Inject()(
   
   val resolvedContext = context.orElse(methodContext.map(_.value)).getOrElse(JNothing)
   val handle = InternalId.random
-  val requestData = RequestData(_type, queryStr, leaveStanding, historical, handle, resolvedContext, channelId)
+  val requestData = RequestData(_type, queryStr, true, historical, handle, resolvedContext, channelId)
+//  val requestData = RequestData(_type, queryStr, leaveStanding, historical, handle, resolvedContext, channelId)
   val requestDataJson = requestData.toJson
   
   def submitLocalAgentQuery(sc: AgentCapableSecurityContext) = {
     
     def localAgentQuery = Txn {
       Txn.setViaTypename[SecurityContext](sc)
-      val resultSet = QueryHandler.process(requestData, injector)
+      val resultSet = QueryHandler.process(Some(sc.aliasIid), None, requestData, injector)
       val responseData = ResponseData(Some(sc.aliasIid), None, _type, Some(resultSet))
       AsyncResponse(AsyncResponseType.Query, handle, true, responseData.toJson, context = resolvedContext).send(channelId)
     }

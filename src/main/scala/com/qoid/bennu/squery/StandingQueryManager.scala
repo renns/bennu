@@ -8,6 +8,10 @@ import com.qoid.bennu.squery.ast.Evaluator
 import com.qoid.bennu.squery.ast.Query
 import m3.servlet.longpoll.ChannelManager
 import com.google.inject.Inject
+import m3.Txn
+import com.qoid.bennu.SecurityContext
+import m3.predef._
+import com.qoid.bennu.AgentView
 
 @com.google.inject.Singleton
 class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
@@ -45,11 +49,13 @@ class StandingQueryManager @Inject() (channelMgr: ChannelManager) {
     for {
       q <- queries
     } {
-      val av = q._1.securityContext.createView
-      if ( Evaluator.evaluateQuery(av.constrict(mapper, q._2.query), instance) == Evaluator.VTrue ) {
-        val response = AsyncResponse(AsyncResponseType.SQuery, q._1.handle, true, event.toJson, q._1.context)
-        val channel = channelMgr.channel(q._1.channelId)
-        channel.put(response.toJson)
+      Txn {
+        Txn.setViaTypename[SecurityContext](q._1.securityContext)
+        val av = inject[AgentView]
+        if ( Evaluator.evaluateQuery(av.constrict(mapper, q._2.query), instance) == Evaluator.VTrue ) {
+          val response = AsyncResponse(AsyncResponseType.SQuery, q._1.handle, true, event.toJson, q._1.context)
+          q._1.listener(event)
+        }
       }
     }
   }

@@ -24,6 +24,7 @@ object Transformer {
     case NumericLit(value) => value.toString
     case Parens(e) => "(" ~ transformer(e) ~ ")" 
     case StringLit(value) => "'" ~ value ~ "'"
+    case NullLit => "null"
   }
 
   def reify(n: Node): Chord = simpleNodeToSql(n)
