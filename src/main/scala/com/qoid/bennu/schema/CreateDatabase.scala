@@ -13,6 +13,7 @@ import net.model3.newfile.Directory
 import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.webservices.CreateAgent
 import m3.fs._
+import com.qoid.bennu.model.Alias
 
 object CreateDatabase extends App {
 
@@ -42,6 +43,10 @@ object CreateDatabase extends App {
 
     CreateAgent()(conn, CreateAgent.introducerAgentId, true, false).doCreate
     
+    val introducerAlias = Alias.fetch(Agent.fetch(CreateAgent.introducerAgentId.asIid).uberAliasIid) 
+    // fix the name of the introducer's alias
+    introducerAlias.copy(profile = CreateAgent.createProfile("introducer")).sqlUpdate
+
     CreateAgent()(conn, AgentId("007"), true, true).doCreate
     CreateAgent()(conn, AgentId("008"), true, true).doCreate
 

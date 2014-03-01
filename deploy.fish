@@ -24,6 +24,7 @@ rsync \
  	--exclude=tmp \
  	--exclude=logs \
  	--exclude=.logs \
+ 	--exclude=db \
  	--delete \
  	--compress \
  	--copy-links \
