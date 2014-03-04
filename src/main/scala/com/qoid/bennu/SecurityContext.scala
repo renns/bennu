@@ -85,7 +85,7 @@ object SecurityContext {
       
       lazy val rootLabel = Label.fetch(alias.rootLabelIid)
 
-      lazy val reachableLabels = inject[JdbcConn].queryFor[InternalId](sql"""
+      lazy val reachableLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select rootLabelIid as labelIid from alias where iid = ${aliasIid}
      union all 
@@ -98,20 +98,36 @@ object SecurityContext {
   from reachable_labels
       """).toList
       
-      val reachableLabelAcls = List[InternalId]()
+      lazy val reachableAliasIids = inject[JdbcConn].queryFor[InternalId](sql"""
+          select 
+            iid
+          from 
+            alias
+          where
+            aliasIid in (
+              select
+                iid
+              from 
+                alias
+              where
+                rootLabelIid in ${reachableLabelIids}
+            )
+      """).toList
+   
       
       override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
         mapper.typeName.toLowerCase match {
+          case "connection" => query.and(Query.parse(sql"""aliasIid in (${reachableAliasIids})"""))
           case "agent" => query.and(Query.parse(sql"""agentId = ${agentId}"""))
-          case "alias" => query.and(Query.parse(sql"""iid = ${aliasIid}"""))
-          case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
+          case "alias" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
+          case "label" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
           case "content" => {
             // TODO this needs to be optimized
-            val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabels})""").toList
+            val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids})""").toList
             query.and(Query.parse(sql"""iid in (${content})"""))
           }
-          case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
-          case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
+          case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabelIids}) and childIid in (${reachableLabelIids})"""))
+          case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabelIids})"""))
           case _ => query.and(Query.parse(sql"""1 <> 1"""))
         }
       }
