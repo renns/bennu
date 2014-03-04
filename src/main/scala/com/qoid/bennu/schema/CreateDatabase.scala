@@ -41,7 +41,12 @@ object CreateDatabase extends App {
       conn.update(ddl)
     }
 
-    CreateAgent()(conn, CreateAgent.introducerAgentId, true, false).doCreate
+    CreateAgent()(
+        conn = conn, 
+        id = CreateAgent.introducerAgentId, 
+        overWrite = true, 
+        connectToIntroducer = false
+    ).doCreate()
     
     val introducerAlias = Alias.fetch(Agent.fetch(CreateAgent.introducerAgentId.asIid).uberAliasIid) 
     // fix the name of the introducer's alias
