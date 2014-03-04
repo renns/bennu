@@ -13,7 +13,7 @@ object AgentId extends AbstractIdCompanion[AgentId] with HasJsonHandler {
   override def jsonHandler: TypeHandler[AgentId] = {
     new SimpleTypeHandler[AgentId] {
       override def partialRead: PartialFunction[JValue, AgentId] = {
-        case JString(s) => AgentId(s)
+        case _ => AgentId("")
       }
 
       override def write(value: AgentId, writer: JsonWriter): JValue = JNothing

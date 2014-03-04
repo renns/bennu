@@ -89,8 +89,8 @@ object IntroductionIntegrator extends GuiceApp {
 
       clientC.initiateIntroduction(connCA, "Message to A", connCB, "Message to B")
 
-      val connAB = Await.result(pA.future, Duration("10 seconds"))
-      val connBA = Await.result(pB.future, Duration("10 seconds"))
+      val connAB = Await.result(pA.future, Duration("30 seconds"))
+      val connBA = Await.result(pB.future, Duration("30 seconds"))
 
       if (connAB.localPeerId == connBA.remotePeerId && connAB.remotePeerId == connBA.localPeerId) {
         logger.debug("IntroductionWithStandingQueries: PASS")

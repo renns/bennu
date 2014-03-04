@@ -73,14 +73,12 @@ object DistQueryIntegrator extends GuiceApp {
     
     labels.foreach { l =>
       val content = client.upsert(Content(
-        agentId = client.agentId,
         aliasIid = alias.iid,
         contentType = "text",
         data = ("text" ->  l.name) ~ ("booyaka" -> "wop")
       ))
 
       client.upsert(LabeledContent(
-        agentId = client.agentId,
         contentIid = content.iid,
         labelIid = l.iid
       ))
@@ -90,7 +88,6 @@ object DistQueryIntegrator extends GuiceApp {
 
     aclConnection.foreach { connection =>
       client.upsert(LabelAcl(
-        agentId = client.agentId,
         connectionIid = connection.iid,
         labelIid = l_a.iid
       ))
