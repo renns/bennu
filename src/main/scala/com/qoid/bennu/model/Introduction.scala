@@ -9,11 +9,11 @@ object Introduction extends BennuMapperCompanion[Introduction] {
 }
 
 case class Introduction(
-  agentId: AgentId,
   aConnectionIid: InternalId,
   aState: IntroductionState,
   bConnectionIid: InternalId,
   bState: IntroductionState,
+  agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false

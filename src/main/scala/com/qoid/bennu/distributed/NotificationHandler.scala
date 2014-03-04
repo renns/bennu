@@ -16,10 +16,10 @@ class NotificationHandler extends DistributedRequestHandler {
     val request = dr.data.deserialize[NotificationHandler.Request]
 
     val notification = Notification(
-      connection.agentId,
       false,
       connection.iid,
       request.kind,
+      connection.agentId,
       data = request.data
     )
 

@@ -9,16 +9,16 @@ trait ModelAssist {
 
   def createAlias(rootLabelIid: InternalId, name: String): Alias = {
     val profile = ("name" -> name) ~ ("imgSrc" -> "")
-    upsert(Alias(agentId, rootLabelIid, profile))
+    upsert(Alias(rootLabelIid, profile, agentId))
   }
 
   def createConnection(aliasId: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {
-    val label = upsert(Label(agentId, "connection"))
-    upsert(Connection(agentId, aliasId, label.iid, localPeerId, remotePeerId))
+    val label = upsert(Label("connection", agentId))
+    upsert(Connection(aliasId, label.iid, localPeerId, remotePeerId, agentId))
   }
 
   def createLabel(name: String): Label = {
-    upsert(Label(agentId, name))
+    upsert(Label(name, agentId))
   }
 
   def createChildLabel(parentLabelIid: InternalId, childLabelName: String): Label = {
@@ -28,7 +28,7 @@ trait ModelAssist {
   }
 
   def createLabelChild(parentIid: InternalId, childIid: InternalId): LabelChild = {
-    upsert(LabelChild(agentId, parentIid, childIid))
+    upsert(LabelChild(parentIid, childIid, agentId))
   }
 
   def getRootLabel(): Label = {

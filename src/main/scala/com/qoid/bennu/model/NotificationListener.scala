@@ -77,11 +77,11 @@ class NotificationListener extends Logging {
         name = "connection"
       )
 
-      Connection(connFromA.agentId, connFromA.aliasIid, connLabelA.iid, peerId1, peerId2)
+      Connection(connFromA.aliasIid, connLabelA.iid, peerId1, peerId2, connFromA.agentId)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
 
-      Connection(connFromB.agentId, connFromB.aliasIid, connLabelB.iid, peerId2, peerId1)
+      Connection(connFromB.aliasIid, connLabelB.iid, peerId2, peerId1, connFromB.agentId)
         .sqlInsert
         .notifyStandingQueries(StandingQueryAction.Insert)
 

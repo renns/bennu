@@ -29,7 +29,7 @@ case class InitiateIntroductionService @Inject()(
     val aConnection = Connection.fetch(aConnectionIid)
     val bConnection = Connection.fetch(bConnectionIid)
 
-    val introduction = Introduction(securityContext.agentId, aConnectionIid, IntroductionState.NotResponded, bConnectionIid, IntroductionState.NotResponded)
+    val introduction = Introduction(aConnectionIid, IntroductionState.NotResponded, bConnectionIid, IntroductionState.NotResponded, securityContext.agentId)
     introduction.sqlInsert.notifyStandingQueries(StandingQueryAction.Insert)
 
     for {

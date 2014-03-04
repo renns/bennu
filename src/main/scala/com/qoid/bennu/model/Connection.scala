@@ -8,11 +8,11 @@ object Connection extends BennuMapperCompanion[Connection] {
 }
 
 case class Connection(
-  agentId: AgentId,
   aliasIid: InternalId,
   metaLabelIid: InternalId,
   localPeerId: PeerId,
   remotePeerId: PeerId,
+  agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false

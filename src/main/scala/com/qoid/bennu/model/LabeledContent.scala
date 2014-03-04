@@ -9,9 +9,9 @@ object LabeledContent extends BennuMapperCompanion[LabeledContent] {
 
 case class LabeledContent(
   @PrimaryKey iid: InternalId = InternalId.random,
-  agentId: AgentId,
   contentIid: InternalId,
   labelIid: InternalId,
+  agentId: AgentId = AgentId(""),
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[LabeledContent] { self =>

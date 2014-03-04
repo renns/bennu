@@ -1,17 +1,15 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
-import m3.jdbc.PrimaryKey
-import net.liftweb.json._
 import java.sql.{ Connection => JdbcConn }
-import m3.predef._
 import m3.jdbc._
+import net.liftweb.json._
 
 object Label extends BennuMapperCompanion[Label]
 
 case class Label(
-  agentId: AgentId,
   name: String,
+  agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false

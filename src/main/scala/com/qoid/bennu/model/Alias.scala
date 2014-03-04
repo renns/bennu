@@ -4,15 +4,14 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.squery.StandingQueryAction
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
-import com.qoid.bennu.squery.SqueryEvalThread
 
 object Alias extends BennuMapperCompanion[Alias] {
 }
 
 case class Alias(
-  agentId: AgentId,
   rootLabelIid: InternalId,
   profile: JValue,
+  agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false
@@ -35,15 +34,12 @@ case class Alias(
   // This method is used as a hack to send profile squery events
   override def notifyStandingQueries(action: StandingQueryAction): Alias = {
     import com.qoid.bennu.JsonAssist.jsondsl._
-    import com.qoid.bennu.security.ChannelMap
     import com.qoid.bennu.squery._
     import java.sql.{ Connection => JdbcConn }
     import m3.jdbc._
     import m3.predef._
-    import m3.servlet.longpoll.ChannelManager
 
     val sQueryMgr = inject[StandingQueryManager]
-    val channelMgr = inject[ChannelManager]
     implicit val jdbcConn = inject[JdbcConn]
 
     SqueryEvalThread.enqueue(action, this)

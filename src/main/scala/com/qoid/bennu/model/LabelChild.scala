@@ -8,9 +8,9 @@ object LabelChild extends BennuMapperCompanion[LabelChild] {
 }
 
 case class LabelChild(
-  agentId: AgentId,
   parentIid: InternalId,
   childIid: InternalId,
+  agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false

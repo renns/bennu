@@ -1,15 +1,24 @@
 package com.qoid.bennu.model
 
-import m3.StringConverters.Converter
-import m3.StringConverters.HasStringConverter
-import m3.predef._
-import net.model3.util.UidGenerator
+import com.qoid.bennu.JsonAssist._
+import m3.json.Handlers.HasJsonHandler
+import m3.json.Handlers.SimpleTypeHandler
+import m3.json.Serialization.JsonWriter
+import m3.json.Serialization.TypeHandler
 import scala.language.implicitConversions
 
-object AgentId extends AbstractIdCompanion[AgentId] {
-
+object AgentId extends AbstractIdCompanion[AgentId] with HasJsonHandler {
   def fromString(value: String) = AgentId(value)
 
+  override def jsonHandler: TypeHandler[AgentId] = {
+    new SimpleTypeHandler[AgentId] {
+      override def partialRead: PartialFunction[JValue, AgentId] = {
+        case JString(s) => AgentId(s)
+      }
+
+      override def write(value: AgentId, writer: JsonWriter): JValue = JNothing
+    }
+  }
 }
 
 case class AgentId(value: String) extends AbstractId {
