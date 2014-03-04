@@ -8,7 +8,6 @@ import scala.concurrent.duration.Duration
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.webservices.DistributedQueryService
-import net.model3.lang.TimeDuration
 
 object DistStandingQueryIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -23,20 +22,19 @@ object DistStandingQueryIntegrator extends GuiceApp {
       val client1 = HttpAssist.createAgent(AgentId("Agent1"))
       val alias1 = client1.getUberAlias()
 
-      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, Nil, context=JString("zee_queeray_no_alias"), leaveStanding=true)(handleAsyncResponse(_, JNothing, p1))
-      client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", List(alias1), Nil, context=JString("zee_queeray_alias"), leaveStanding=true)(handleAsyncResponse(_, JNothing, p1))
+      val context = JString("zee_queeray")
 
-      new TimeDuration("5 seconds")
-      
-      val (contents, labels) = createSampleContent(client1, alias1, None)
-      val content_c = contents(2)
-      val label_c = labels.last
+      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "content", Some(List.empty[JValue])).toJson
+      client1.distributedQuery[Content](s"hasLabelPath('uber label','A','B','C')", Nil, Nil, context=context, leaveStanding=true)(handleAsyncResponse(_, expected, p1))
+
+      //TODO: This test isn't working yet. Local standing queries don't seem to be working.
+      createSampleContent(client1, alias1, None)
 
       Await.result(p1.future, Duration("30 seconds"))
 
-      logger.debug("DistQueryIntegrator: PASS")
+      logger.debug("DistStandingQueryIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("DistStandingQueryIntegrator: FAIL -- ", e)
     }
   }
 
@@ -45,32 +43,38 @@ object DistStandingQueryIntegrator extends GuiceApp {
     expected: JValue,
     p: Promise[Unit]
   ): Unit = {
-    logger.debug(s"Async Response Data -- ${response} \n${response.data.toJsonStr}")
+    logger.debug(s"Async Response Data -- ${response}")
+
+    response.responseType match {
+      case AsyncResponseType.SQuery2 =>
+        if (response.data == expected) {
+          p.success()
+        } else {
+          p.failure(new Exception(s"Response data not as expected\nReceived:\n${response.data.toJsonStr}\nExpected:\n${expected.toJsonStr}"))
+        }
+      case _ =>
+    }
   }
-  
+
   def createSampleContent(client: ChannelClient, alias: Alias, aclConnection: Option[Connection]): (List[Content], List[Label]) = {
     val l_a = client.createChildLabel(alias.rootLabelIid, "A")
     val l_b = client.createChildLabel(l_a.iid, "B")
     val l_c = client.createChildLabel(l_b.iid, "C")
-    
+
     val labels = List(l_a, l_b, l_c)
     var contents = List.empty[Content]
-    
-    labels.foreach { l =>
-      
-      val contentIid = InternalId.random
 
+    labels.foreach { l =>
       val content = client.upsert(Content(
-        iid = contentIid,
         agentId = client.agentId,
         aliasIid = alias.iid,
         contentType = "text",
         data = ("text" ->  l.name) ~ ("booyaka" -> "wop")
       ))
-      
+
       client.upsert(LabeledContent(
         agentId = client.agentId,
-        contentIid = contentIid,
+        contentIid = content.iid,
         labelIid = l.iid
       ))
 
@@ -84,7 +88,7 @@ object DistStandingQueryIntegrator extends GuiceApp {
         labelIid = l_a.iid
       ))
     }
-    
+
     (contents.reverse, labels)
   }
 }

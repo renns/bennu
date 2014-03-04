@@ -29,16 +29,16 @@ object DistAgentQueryIntegrator extends GuiceApp {
 
       val context = JString("zee_queeray")
       
-      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "Content", Some(List(content_c.toJson))).toJson
+      val expected = DistributedQueryService.ResponseData(Some(alias1.iid), None, "content", Some(List(content_c.toJson))).toJson
       client1.distributedQuery[Content](s"hasLabelPath('A','B','C')", Nil, Nil, context=context)(handleAsyncResponse(_, expected, p1))
-//      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", List(alias1), List(conn1))(handleAsyncResponse(_, expected, p2))
+      client1.distributedQuery[Content](s"hasLabel('${label_c.iid.value}')", Nil, Nil, context=context)(handleAsyncResponse(_, expected, p2))
       
       Await.result(p1.future, Duration("30 seconds"))
       Await.result(p2.future, Duration("30 seconds"))
 
-      logger.debug("DistQueryIntegrator: PASS")
+      logger.debug("DistAgentQueryIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("DistAgentQueryIntegrator: FAIL -- ", e)
     }
   }
 
