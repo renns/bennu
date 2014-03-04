@@ -1,58 +1,33 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.model.AgentId
-import m3.json.LiftJsonAssist._
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.testclient.client.HttpAssist
 import m3.guice.GuiceApp
-import net.model3.logging.LoggerHelper
-import com.qoid.bennu.model.InternalId
-import net.model3.lang.TimeDuration
 
 /**
- * 
  * Creates two agents then runs a label query to ensure we only see labels from the
  * agent we requested labels for
- * + 
  */
 object TwoAgentsAndAQuery extends GuiceApp {
-//
-//  LoggerHelper.getLogger()
-//
-//  implicit lazy val config = HttpAssist.HttpClientConfig()
-//
-//  implicit lazy val agentId = AgentId("007")
-//
-//  lazy val doubleZeroEight = AgentId("008")
-//  createAgent(doubleZeroEight)
-//
-//  createAgent(agentId)
-//
-//  implicit lazy val channel = createChannel(agentId, config)
-//
-//  spawnLongPoller
-//
-//  // query labels we should only see 007's labels
-//  httpPost(
-//    path = "/api/channel/submit",
-//    channel = Some(channel),
-//    jsonBody = parseJson(s"""
-//{
-//  "channel":"${channel.value}",
-//  "requests":[
-//    {
-//      "path": "/api/query",
-//      "context": "queray_007_labels_there_should_be_only_one",
-//      "parms": {
-//        "type": "label",
-//        "q": "1=1"
-//      }
-//    }
-//  ]
-//}
-//    """.trim)
-//  )
-//
-//  new TimeDuration("10 seconds").sleep
-//
-//  System.exit(0)
-//
+  implicit val config = HttpAssist.HttpClientConfig()
+
+  run()
+  System.exit(0)
+
+  def run(): Unit = {
+    try {
+      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
+      HttpAssist.createAgent(AgentId("Agent2"))
+      val results = client1.query[Label]("name = 'uber label'")
+
+      if (results.length == 1) {
+        logger.debug("TwoAgentsAndAQuery: PASS")
+      } else {
+        logger.warn("TwoAgentsAndAQuery: FAIL -- expected 1 result; was " + results.length)
+      }
+    } catch {
+      case e: Exception => logger.warn("TwoAgentsAndAQuery: FAIL -- " + e)
+    }
+  }
 }
