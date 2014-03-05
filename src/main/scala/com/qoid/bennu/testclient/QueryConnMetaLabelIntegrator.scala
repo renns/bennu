@@ -32,8 +32,11 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
       val content1 = client1.upsert(Content(
         agentId = client1.agentId,
         aliasIid = alias1.iid,
-        contentType = "text",
-        data = ("text" ->  "agent 2 should see this")
+        contentType = "TEXT",
+        data = 
+          ("text" ->  "agent 2 should see this") ~
+          ("created" -> "2014-03-05 11:03:36") ~
+          ("modified" -> "2014-03-05 11:03:36")
       ))
 
       client1.upsert(LabeledContent(
