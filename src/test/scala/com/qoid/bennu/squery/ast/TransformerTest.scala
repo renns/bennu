@@ -50,5 +50,20 @@ class TransformerTest extends ScalaUnitTest {
     }
   
   }
+ 
+  @Test def one_equals_one = {
+    
+    runTests[String,String](
+      List(
+        TestData(
+            "1 = 1", 
+            "1 = 1"
+        )
+      )
+    ) { input =>
+      doTransform(input)()
+    }
   
+  }
+ 
 }
