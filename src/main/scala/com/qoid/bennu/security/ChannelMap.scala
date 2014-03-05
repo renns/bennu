@@ -1,54 +1,58 @@
 package com.qoid.bennu.security
 
-
-import m3.LockFreeMap
-import m3.servlet.longpoll.ChannelId
-import com.qoid.bennu.SecurityContext
-import m3.predef._
-import box._
-import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.Config
-import java.sql.{ Connection => JdbcConn }
+import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.model.Agent
-import com.qoid.bennu.model.Connection
-import m3.servlet.longpoll.ChannelManager
 import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.InternalId
+import java.sql.{ Connection => JdbcConn }
+import m3.LockFreeMap
+import m3.jdbc._
+import m3.predef._
+import m3.predef.box._
+import m3.servlet.longpoll.ChannelId
+import m3.servlet.longpoll.ChannelManager
 
 object ChannelMap {
+
+  val namePattern = "[^.]+"
 
   val channelToSecurityContextMap = LockFreeMap[ChannelId,SecurityContext]()
   
   val config = inject[Config]
   val channelMgr = inject[ChannelManager]
-  
-  /**
-   * Stupid implementation to convert a channelId into a SecurityContext.  Right now it assumes
-   * all channels are agents.
-   */
+
   def apply(channelId: ChannelId): Box[SecurityContext] = {
-    channelToSecurityContextMap.get(channelId) ?~ s"no agent id found for ${channelId}"
+    channelToSecurityContextMap.get(channelId) ?~ s"no security context found for ${channelId}"
   }
 
-  def authenticate(iid: InternalId)(implicit conn: JdbcConn): Box[ChannelId] = {
+  def authenticate(authenticationId: String)(implicit conn: JdbcConn): Box[(ChannelId, InternalId)] = {
+    val pattern1 = s"($namePattern)".r
+    val pattern2 = s"($namePattern)\\.($namePattern)".r
 
-//    config.
-//      superUserAuthTokens.
-//      find(_.value =:= iid.value).
-//      map(_=>SecurityContext.SuperUserSecurityContext).
-//      orElse(
-//        Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId))
-//      ).
-      Agent.fetchOpt(iid).map(a=>SecurityContext.AgentSecurityContext(a.agentId)).
-      orElse(
-        Alias.fetchOpt(iid).map(a=>SecurityContext.AliasSecurityContext(iid))
-      ).orElse (
-        Connection.fetchOpt(iid).map(c=>SecurityContext.ConnectionSecurityContext(iid))
-      ).map { sc =>
-        val channel = channelMgr.createChannel()
-        channelToSecurityContextMap += channel.id -> sc
-        channel.id
-      } ?~ s"failed to authenticate ${iid.value}"
-
+    authenticationId match {
+      case pattern1(agentName) =>
+        (
+          for {
+            agent <- Agent.selectOpt(sql"name = $agentName")
+            alias <- Alias.fetchOpt(agent.uberAliasIid)
+          } yield (createChannel(alias), alias.iid)
+        ) ?~ s"failed to authenticate $authenticationId"
+      case pattern2(agentName, aliasName) =>
+        (
+          for {
+            agent <- Agent.selectOpt(sql"name = $agentName")
+            alias <- Alias.selectOpt(sql"name = $aliasName and agentId = ${agent.agentId}")
+          } yield (createChannel(alias), alias.iid)
+        ) ?~ s"failed to authenticate $authenticationId"
+      case _ => Failure(s"failed to authenticate $authenticationId")
+    }
   }
 
+  private def createChannel(alias: Alias): ChannelId = {
+    val sc = SecurityContext.AliasSecurityContext(alias.iid)
+    val channel = channelMgr.createChannel()
+    channelToSecurityContextMap += channel.id -> sc
+    channel.id
+  }
 }

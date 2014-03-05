@@ -15,8 +15,8 @@ import scala.concurrent._
 import scala.concurrent.duration.Duration
 
 case class HttpChannelClient(
-  agentId: AgentId,
-  channelId: ChannelId
+  channelId: ChannelId,
+  rootAliasIid: InternalId
 )(
   implicit config: HttpClientConfig
 ) extends ChannelClient with HttpAssist with Logging {

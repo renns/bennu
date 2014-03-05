@@ -12,22 +12,22 @@ object IntroductionIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
 
   run(true, true)
-  run(true, false)
-  run(false, true)
-  run(false, false)
-  runWithStandingQueries()
+//  run(true, false)
+//  run(false, true)
+//  run(false, false)
+//  runWithStandingQueries()
   System.exit(0)
 
   def run(aAccept: Boolean, bAccept: Boolean): Unit = {
     val testName = "Introduction (" + (if (aAccept) "accept" else "reject") + "/" + (if (bAccept) "accept" else "reject") + ")"
 
     try {
-      val clientA = HttpAssist.createAgent(AgentId("A"))
-      val clientB = HttpAssist.createAgent(AgentId("B"))
-      val clientC = HttpAssist.createAgent(AgentId("C"))
-      val aliasA = clientA.getUberAlias()
-      val aliasB = clientB.getUberAlias()
-      val aliasC = clientC.getUberAlias()
+      val clientA = HttpAssist.createAgent("A")
+      val clientB = HttpAssist.createAgent("B")
+      val clientC = HttpAssist.createAgent("C")
+      val aliasA = clientA.getRootAlias()
+      val aliasB = clientB.getRootAlias()
+      val aliasC = clientC.getRootAlias()
       val connAIntro = clientA.query[Connection]("").head
       val connBIntro = clientB.query[Connection]("").head
       val (connAC, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
@@ -66,7 +66,7 @@ object IntroductionIntegrator extends GuiceApp {
         }
       }
     } catch {
-      case e: Exception => logger.warn(s"$testName: FAIL -- $e")
+      case e: Exception => logger.warn(s"$testName: FAIL -- $e", e)
     }
   }
 
@@ -75,12 +75,12 @@ object IntroductionIntegrator extends GuiceApp {
       val pA = Promise[Connection]()
       val pB = Promise[Connection]()
 
-      val clientA = HttpAssist.createAgent(AgentId("A"))
-      val clientB = HttpAssist.createAgent(AgentId("B"))
-      val clientC = HttpAssist.createAgent(AgentId("C"))
-      val aliasA = clientA.getUberAlias()
-      val aliasB = clientB.getUberAlias()
-      val aliasC = clientC.getUberAlias()
+      val clientA = HttpAssist.createAgent("A")
+      val clientB = HttpAssist.createAgent("B")
+      val clientC = HttpAssist.createAgent("C")
+      val aliasA = clientA.getRootAlias()
+      val aliasB = clientB.getRootAlias()
+      val aliasC = clientC.getRootAlias()
       val (_, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
       val (_, connCB) = TestAssist.createConnection(clientB, aliasB, clientC, aliasC)
 
@@ -98,7 +98,7 @@ object IntroductionIntegrator extends GuiceApp {
         logger.warn("IntroductionWithStandingQueries: FAIL -- Created connections are not a pair")
       }
     } catch {
-      case e: Exception => logger.warn(s"IntroductionWithStandingQueries: FAIL -- $e")
+      case e: Exception => logger.warn(s"IntroductionWithStandingQueries: FAIL -- $e", e)
     }
 
     def handleStandingQueryResult(

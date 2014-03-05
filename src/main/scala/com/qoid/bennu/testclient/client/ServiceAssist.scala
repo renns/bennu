@@ -83,7 +83,7 @@ trait ServiceAssist {
     val typeName = manifest[T].runtimeClass.getSimpleName
 
     val parms = Map[String, JValue](
-      "type" -> typeName.toLowerCase(),
+      "type" -> typeName.toLowerCase,
       "q" -> query,
       "aliasIids" -> aliases.map(_.iid),
       "connectionIids" -> connections.map(c => c.iid),

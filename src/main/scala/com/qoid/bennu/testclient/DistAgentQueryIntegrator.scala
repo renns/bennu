@@ -20,8 +20,8 @@ object DistAgentQueryIntegrator extends GuiceApp {
       val p1 = Promise[Unit]()
       val p2 = Promise[Unit]()
 
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val alias1 = client1.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val alias1 = client1.getRootAlias()
 
       val (contents, labels) = createSampleContent(client1, alias1, None)
       val content_c = contents(2)

@@ -1,32 +1,24 @@
-
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.model.AgentId
-import m3.servlet.beans.Parm
-import m3.servlet.longpoll.ChannelManager
-import com.qoid.bennu.model.Agent
-import java.sql.Connection
 import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.SecurityContext
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.security.ChannelMap
-import com.qoid.bennu.model.InternalId
+import java.sql.Connection
+import m3.predef.box._
 import m3.servlet.ForbiddenException
-import m3.predef._
-import box._
+import m3.servlet.beans.Parm
 
 case class CreateChannel @Inject() (
   implicit 
   conn: Connection,
-  manager: ChannelManager,
-  @Parm authenticationId: InternalId
+  @Parm authenticationId: String
 ) {
-  
-  def service = {
+
+  def service: JValue = {
     ChannelMap.authenticate(authenticationId) match {
-      case Full(channelId) => jobj("id", JString(channelId.value))
+      case Full((channelId, aliasIid)) => ("channelId" -> channelId.value) ~ ("aliasIid" -> aliasIid)
       case _ => throw new ForbiddenException("authentication failed")
     }
   }
-  
 }

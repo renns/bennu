@@ -19,8 +19,8 @@ object DistStandingQueryIntegrator extends GuiceApp {
     try {
       val p1 = Promise[Unit]()
 
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val alias1 = client1.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val alias1 = client1.getRootAlias()
 
       val context = JString("zee_queeray")
 

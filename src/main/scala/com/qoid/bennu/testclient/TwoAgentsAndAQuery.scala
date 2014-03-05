@@ -1,6 +1,5 @@
 package com.qoid.bennu.testclient
 
-import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.testclient.client.HttpAssist
 import m3.guice.GuiceApp
@@ -17,8 +16,8 @@ object TwoAgentsAndAQuery extends GuiceApp {
 
   def run(): Unit = {
     try {
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      HttpAssist.createAgent(AgentId("Agent2"))
+      val client1 = HttpAssist.createAgent("Agent1")
+      HttpAssist.createAgent("Agent2")
       val results = client1.query[Label]("name = 'uber label'")
 
       if (results.length == 1) {

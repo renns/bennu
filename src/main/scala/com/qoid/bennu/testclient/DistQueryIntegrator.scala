@@ -20,10 +20,10 @@ object DistQueryIntegrator extends GuiceApp {
       val p1 = Promise[Unit]()
       val p2 = Promise[Unit]()
 
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val client2 = HttpAssist.createAgent(AgentId("Agent2"))
-      val alias1 = client1.getUberAlias()
-      val alias2 = client2.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias1 = client1.getRootAlias()
+      val alias2 = client2.getRootAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
       createSampleContent(client1, alias1, Some(conn1))

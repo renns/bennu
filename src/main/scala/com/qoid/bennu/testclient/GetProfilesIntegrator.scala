@@ -18,9 +18,9 @@ object GetProfilesIntegrator extends GuiceApp {
     try {
       val p = Promise[Unit]()
 
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val client2 = HttpAssist.createAgent(AgentId("Agent2"))
-      val alias1 = client1.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias1 = client1.getRootAlias()
       val label2 = client2.getRootLabel()
       val alias2 = client2.createAlias(label2.iid, "Test")
       val (conn12, _) = TestAssist.createConnection(client1, alias1, client2, alias2)

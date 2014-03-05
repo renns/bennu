@@ -8,10 +8,10 @@ object Agent extends BennuMapperCompanion[Agent] {
 }
 
 case class Agent(
-  @PrimaryKey iid: InternalId = InternalId.random,
   uberAliasIid: InternalId,
   name: String,
   agentId: AgentId = AgentId(""),
+  @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Agent] { self =>

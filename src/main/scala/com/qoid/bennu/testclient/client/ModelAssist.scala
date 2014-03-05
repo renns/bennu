@@ -32,12 +32,11 @@ trait ModelAssist {
   }
 
   def getRootLabel(): Label = {
-    val alias = getUberAlias()
+    val alias = getRootAlias()
     query[Label](sql"iid = ${alias.rootLabelIid}").head
   }
 
-  def getUberAlias(): Alias = {
-    val agent = query[Agent](sql"iid = $agentId").head
-    query[Alias](sql"iid = ${agent.uberAliasIid}").head
+  def getRootAlias(): Alias = {
+    query[Alias](sql"iid = $rootAliasIid").head
   }
 }

@@ -13,7 +13,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def insertLabel(): Unit = {
     try {
-      val client = HttpAssist.createAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent("Agent1")
       val label = Label("Insert Label")
       client.upsert(label)
 
@@ -25,7 +25,7 @@ object UpsertIntegrator extends GuiceApp {
 
   def updateLabel(): Unit = {
     try {
-      val client = HttpAssist.createAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent("Agent1")
       val insertLabel = Label("Insert Label")
       val newLabel = client.upsert(insertLabel)
       val updateLabel = newLabel.copy(name = "UpdateLabel")

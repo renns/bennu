@@ -13,7 +13,7 @@ import net.liftweb.json.JString
 import scala.concurrent._
 
 trait ChannelClient extends ServiceAssist with ModelAssist {
-  def agentId: AgentId
+  val rootAliasIid: InternalId
 
   protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
   protected val asyncCallbacks = new LockFreeMap[InternalId, AsyncResponse => Unit]
@@ -24,19 +24,24 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
 
 object ChannelClientFactory extends HttpAssist with Logging {
   def createHttpChannelClient(
-    agentId: AgentId
+    loginId: String
   )(
     implicit config: HttpClientConfig
   ): HttpChannelClient = {
 
-    val response = httpGet(s"${config.server}${ServicePath.createChannel}/${agentId.value}")
+    val response = httpGet(s"${config.server}${ServicePath.createChannel}/$loginId")
 
-    val channelId = parseJson(response) \ "id" match {
+    val channelId = parseJson(response) \ "channelId" match {
       case JString(id) => ChannelId(id)
       case _ => m3x.error(s"Invalid create channel response -- ${response}")
     }
 
-    new HttpChannelClient(agentId, channelId)
+    val aliasIid = parseJson(response) \ "aliasIid" match {
+      case JString(iid) => InternalId(iid)
+      case _ => m3x.error(s"Invalid create channel response -- ${response}")
+    }
+
+    new HttpChannelClient(channelId, aliasIid)
   }
 }
 

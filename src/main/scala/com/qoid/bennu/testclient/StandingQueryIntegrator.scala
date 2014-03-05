@@ -19,7 +19,7 @@ object StandingQueryIntegrator extends GuiceApp {
     try {
       val p = Promise[Unit]()
 
-      val client = HttpAssist.createAgent(AgentId("Agent1"))
+      val client = HttpAssist.createAgent("Agent1")
       client.registerStandingQuery(List("label", "labelchild"))(handleStandingQueryResult(_, _, _, client, p))
       val parentLabel = client.createLabel("parent")
       val childLabel = client.createLabel("child")
@@ -52,10 +52,10 @@ object StandingQueryIntegrator extends GuiceApp {
 
   def updateProfile(): Unit = {
     try {
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val client2 = HttpAssist.createAgent(AgentId("Agent2"))
-      val alias1 = client1.getUberAlias()
-      val alias2 = client2.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias1 = client1.getRootAlias()
+      val alias2 = client2.getRootAlias()
       TestAssist.createConnection(client1, alias1, client2, alias2)
 
       client2.registerStandingQuery(List("profile")){

@@ -1,7 +1,6 @@
 package com.qoid.bennu.testclient.client
 
 import com.qoid.bennu.ServicePath
-import com.qoid.bennu.model._
 import m3.json.LiftJsonAssist._
 import m3.predef._
 import net.model3.lang.TimeDuration
@@ -16,15 +15,15 @@ object HttpAssist extends HttpAssist with Logging {
     requestTimeout: TimeDuration = new TimeDuration("30 seconds")
   )
 
-  def createAgent(agentId: AgentId, overwrite: Boolean = true)(implicit config: HttpClientConfig): ChannelClient = {
-    val response = httpGet(s"${config.server}${ServicePath.createAgent}/${agentId.value}/${overwrite}")
+  def createAgent(agentName: String, overwrite: Boolean = true)(implicit config: HttpClientConfig): ChannelClient = {
+    val response = httpGet(s"${config.server}${ServicePath.createAgent}/$agentName/${overwrite}")
 
-    parseJson(response) \ "agentId" match {
-      case JString(agentId.value) => logger.debug(s"Created agent ${agentId.value}")
+    parseJson(response) \ "agentName" match {
+      case JString(n) => logger.debug(s"Created agent $n")
       case _ => m3x.error(s"Invalid create agent response -- ${response}")
     }
 
-    ChannelClientFactory.createHttpChannelClient(agentId)
+    ChannelClientFactory.createHttpChannelClient(agentName)
   }
 }
 
