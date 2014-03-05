@@ -31,7 +31,12 @@ object CreateDatabase extends App {
 
     file("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
 
-    CreateAgent()(conn, CreateAgent.introducerAgentName, true, false).doCreate()
+    CreateAgent()(
+        conn = conn, 
+        name = CreateAgent.introducerAgentName, 
+        overWrite = true, 
+        connectToIntroducer = false
+    ).doCreate()
     
     val introducerAlias = Alias.fetch(Agent.selectOne(sql"name = ${CreateAgent.introducerAgentName}").uberAliasIid)
 
