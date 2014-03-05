@@ -19,7 +19,6 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
   def run(): Unit = {
     try {
       val p1 = Promise[Unit]()
-      val p2 = Promise[Unit]()
 
       val client1 = HttpAssist.createAgent(AgentId("Agent1"))
       val alias1 = client1.getUberAlias()
@@ -46,11 +45,10 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
       ))
 
       val expected = DistributedQueryService.ResponseData(None, Some(conn2to1.iid), "content", Some(List(content1.toJson))).toJson
-      client2.distributedQuery[Content](s"1 = 1", Nil, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p2))
+      client2.distributedQuery[Content](s"1 = 1", Nil, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p1))
       
       
       Await.result(p1.future, Duration("30 seconds"))
-      Await.result(p2.future, Duration("30 seconds"))
 
       logger.debug("DistQueryIntegrator: PASS")
     } catch {
