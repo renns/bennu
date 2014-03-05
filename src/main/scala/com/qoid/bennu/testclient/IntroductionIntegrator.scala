@@ -12,10 +12,10 @@ object IntroductionIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
 
   run(true, true)
-//  run(true, false)
-//  run(false, true)
-//  run(false, false)
-//  runWithStandingQueries()
+  run(true, false)
+  run(false, true)
+  run(false, false)
+  runWithStandingQueries()
   System.exit(0)
 
   def run(aAccept: Boolean, bAccept: Boolean): Unit = {
@@ -66,7 +66,7 @@ object IntroductionIntegrator extends GuiceApp {
         }
       }
     } catch {
-      case e: Exception => logger.warn(s"$testName: FAIL -- $e", e)
+      case e: Exception => logger.warn(s"$testName: FAIL", e)
     }
   }
 
@@ -98,7 +98,7 @@ object IntroductionIntegrator extends GuiceApp {
         logger.warn("IntroductionWithStandingQueries: FAIL -- Created connections are not a pair")
       }
     } catch {
-      case e: Exception => logger.warn(s"IntroductionWithStandingQueries: FAIL -- $e", e)
+      case e: Exception => logger.warn("IntroductionWithStandingQueries: FAIL", e)
     }
 
     def handleStandingQueryResult(

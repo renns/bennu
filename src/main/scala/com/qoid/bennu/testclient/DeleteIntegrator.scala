@@ -24,7 +24,7 @@ object DeleteIntegrator extends GuiceApp {
         logger.warn("deleteLabel: FAIL -- Returned label not marked deleted")
       }
     } catch {
-      case e: Exception => logger.warn("deleteLabel: FAIL -- " + e)
+      case e: Exception => logger.warn("deleteLabel: FAIL", e)
     }
   }
 

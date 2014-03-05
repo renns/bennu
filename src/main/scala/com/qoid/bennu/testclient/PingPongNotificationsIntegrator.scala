@@ -32,7 +32,7 @@ object PingPongNotificationsIntegrator extends GuiceApp {
 
       logger.debug("PingPongNotificationsIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("PingPongNotificationsIntegrator: FAIL -- " + e)
+      case e: Exception => logger.warn("PingPongNotificationsIntegrator: FAIL", e)
     }
 
     def handleStandingQueryResult(

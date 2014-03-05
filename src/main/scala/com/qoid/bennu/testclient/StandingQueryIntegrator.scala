@@ -21,15 +21,15 @@ object StandingQueryIntegrator extends GuiceApp {
 
       val client = HttpAssist.createAgent("Agent1")
       client.registerStandingQuery(List("label", "labelchild"))(handleStandingQueryResult(_, _, _, client, p))
-      val parentLabel = client.createLabel("parent")
+      val rootLabel = client.getRootLabel()
       val childLabel = client.createLabel("child")
-      client.createLabelChild(parentLabel.iid, childLabel.iid)
+      client.createLabelChild(rootLabel.iid, childLabel.iid)
 
       Await.result(p.future, Duration("30 seconds"))
 
       logger.debug("insertParentChildLabels: PASS")
     } catch {
-      case e: Exception => logger.warn("insertParentChildLabels: FAIL -- " + e)
+      case e: Exception => logger.warn("insertParentChildLabels: FAIL", e)
     }
 
     def handleStandingQueryResult(
@@ -68,7 +68,7 @@ object StandingQueryIntegrator extends GuiceApp {
 
       logger.debug("updateProfile: PASS")
     } catch {
-      case e: Exception => logger.warn("updateProfile: FAIL -- " + e)
+      case e: Exception => logger.warn("updateProfile: FAIL", e)
     }
   }
 }

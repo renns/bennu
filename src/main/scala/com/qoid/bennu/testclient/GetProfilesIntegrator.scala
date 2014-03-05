@@ -32,7 +32,7 @@ object GetProfilesIntegrator extends GuiceApp {
 
       logger.debug("GetProfiles: PASS")
     } catch {
-      case e: Exception => logger.warn("GetProfiles: FAIL -- " + e)
+      case e: Exception => logger.warn("GetProfiles: FAIL", e)
     }
 
     def handleAsyncResponse(

@@ -26,7 +26,7 @@ object TwoAgentsAndAQuery extends GuiceApp {
         logger.warn("TwoAgentsAndAQuery: FAIL -- expected 1 result; was " + results.length)
       }
     } catch {
-      case e: Exception => logger.warn("TwoAgentsAndAQuery: FAIL -- " + e)
+      case e: Exception => logger.warn("TwoAgentsAndAQuery: FAIL", e)
     }
   }
 }

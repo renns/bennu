@@ -19,7 +19,7 @@ object UpsertIntegrator extends GuiceApp {
 
       logger.debug("insertLabel: PASS")
     } catch {
-      case e: Exception => logger.warn("insertLabel: FAIL -- " + e)
+      case e: Exception => logger.warn("insertLabel: FAIL", e)
     }
   }
 
@@ -33,7 +33,7 @@ object UpsertIntegrator extends GuiceApp {
 
       logger.debug("updateLabel: PASS")
     } catch {
-      case e: Exception => logger.warn("updateLabel: FAIL -- " + e)
+      case e: Exception => logger.warn("updateLabel: FAIL", e)
     }
   }
 }

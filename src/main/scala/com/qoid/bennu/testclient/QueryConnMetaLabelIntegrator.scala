@@ -19,18 +19,16 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
   def run(): Unit = {
     try {
       val p1 = Promise[Unit]()
-      val p2 = Promise[Unit]()
 
-      val client1 = HttpAssist.createAgent(AgentId("Agent1"))
-      val alias1 = client1.getUberAlias()
+      val client1 = HttpAssist.createAgent("Agent1")
+      val alias1 = client1.getRootAlias()
 
-      val client2 = HttpAssist.createAgent(AgentId("Agent2"))
-      val alias2 = client1.getUberAlias()
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias2 = client1.getRootAlias()
       
       val (conn1to2, conn2to1) = TestAssist.createConnection(client1, alias1, client2, alias2)
       
       val content1 = client1.upsert(Content(
-        agentId = client1.agentId,
         aliasIid = alias1.iid,
         contentType = "TEXT",
         data = 
@@ -40,21 +38,19 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
       ))
 
       client1.upsert(LabeledContent(
-        agentId = client1.agentId,
         contentIid = content1.iid,
         labelIid = conn1to2.metaLabelIid
       ))
 
       val expected = DistributedQueryService.ResponseData(None, Some(conn2to1.iid), "content", Some(List(content1.toJson))).toJson
-      client2.distributedQuery[Content](s"1 = 1", Nil, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p2))
+      client2.distributedQuery[Content](s"1 = 1", Nil, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p1))
       
       
       Await.result(p1.future, Duration("30 seconds"))
-      Await.result(p2.future, Duration("30 seconds"))
 
-      logger.debug("DistQueryIntegrator: PASS")
+      logger.debug("QueryConnMetaLabelIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("QueryConnMetaLabelIntegrator: FAIL", e)
     }
   }
 
@@ -85,14 +81,12 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
     
     labels.foreach { l =>
       val content = client.upsert(Content(
-        agentId = client.agentId,
         aliasIid = alias.iid,
         contentType = "text",
         data = ("text" ->  l.name) ~ ("booyaka" -> "wop")
       ))
 
       client.upsert(LabeledContent(
-        agentId = client.agentId,
         contentIid = content.iid,
         labelIid = l.iid
       ))
@@ -102,7 +96,6 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
 
     aclConnection.foreach { connection =>
       client.upsert(LabelAcl(
-        agentId = client.agentId,
         connectionIid = connection.iid,
         labelIid = l_a.iid
       ))

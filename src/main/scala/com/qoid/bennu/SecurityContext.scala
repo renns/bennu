@@ -97,7 +97,7 @@ object SecurityContext {
   select *
   from reachable_labels
       """).toList
-      
+
       lazy val connectionLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
           select
             metaLabelIid
@@ -115,6 +115,15 @@ object SecurityContext {
           where
             rootLabelIid in (${labelTreeLabelIids})
       """).toList
+
+      lazy val reachableConnectionIids = inject[JdbcConn].queryFor[InternalId](sql"""
+          select
+            iid
+          from
+            connection
+          where
+            aliasIid in (${reachableAliasIids})
+      """).toList
       
       lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
    
@@ -123,7 +132,7 @@ object SecurityContext {
         mapper.typeName.toLowerCase match {
           case "connection" => query.and(Query.parse(sql"""aliasIid in (${reachableAliasIids})"""))
           case "agent" => query.and(Query.parse(sql"""agentId = ${agentId}"""))
-          case "alias" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
+          case "alias" => query.and(Query.parse(sql"""iid in (${reachableAliasIids})"""))
           case "label" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
           case "content" => {
             // TODO this needs to be optimized
@@ -132,6 +141,7 @@ object SecurityContext {
           }
           case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabelIids}) and childIid in (${reachableLabelIids})"""))
           case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabelIids})"""))
+          case "notification" => query.and(Query.parse(sql"""fromConnectionIid in (${reachableConnectionIids})"""))
           case _ => query.and(Query.parse(sql"""1 <> 1"""))
         }
       }
@@ -206,6 +216,7 @@ object SecurityContext {
               query.and(Query.parse(sql"""iid in (${content})"""))
             case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
             case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
+            case "notification" => query.and(Query.parse(sql"""fromConnectionIid = ${connectionIid}"""))
           }
         } else {
           throw new ServiceException(s"connection is not allowed to access ${mapper.typeName}", ErrorCode.Forbidden)
@@ -274,7 +285,7 @@ object SecurityContext {
             orElse(req.cookieValue("channel")).
             map(ChannelId.apply)
         }.
-        orElse(provChannelId.get)
+        orElse(provChannelId.get())
     }
   }
 
@@ -335,7 +346,7 @@ sealed trait AgentView {
         mapper,
         Query.parse(queryStr).and(QueryService.notDeleted.expr)
     )
-    val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString
+    val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString()
     mapper.
       select(querySql)(inject[JdbcConn])
   }

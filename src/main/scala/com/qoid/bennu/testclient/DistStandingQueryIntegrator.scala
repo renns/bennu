@@ -34,7 +34,7 @@ object DistStandingQueryIntegrator extends GuiceApp {
 
       logger.debug("DistStandingQueryIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistStandingQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("DistStandingQueryIntegrator: FAIL", e)
     }
   }
 

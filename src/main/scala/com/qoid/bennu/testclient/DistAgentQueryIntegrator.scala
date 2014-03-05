@@ -38,7 +38,7 @@ object DistAgentQueryIntegrator extends GuiceApp {
 
       logger.debug("DistAgentQueryIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistAgentQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("DistAgentQueryIntegrator: FAIL", e)
     }
   }
 

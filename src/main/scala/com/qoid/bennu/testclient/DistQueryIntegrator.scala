@@ -42,7 +42,7 @@ object DistQueryIntegrator extends GuiceApp {
 
       logger.debug("DistQueryIntegrator: PASS")
     } catch {
-      case e: Exception => logger.warn("DistQueryIntegrator: FAIL -- ", e)
+      case e: Exception => logger.warn("DistQueryIntegrator: FAIL", e)
     }
   }
 
