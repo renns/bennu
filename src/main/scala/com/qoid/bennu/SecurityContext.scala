@@ -85,7 +85,7 @@ object SecurityContext {
       
       lazy val rootLabel = Label.fetch(alias.rootLabelIid)
 
-      lazy val reachableLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
+      lazy val labelTreeLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select rootLabelIid as labelIid from alias where iid = ${aliasIid}
      union all 
@@ -98,21 +98,25 @@ object SecurityContext {
   from reachable_labels
       """).toList
       
+      lazy val connectionLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
+          select
+            metaLabelIid
+          from 
+            connection
+          where
+            aliasIid in (${reachableAliasIids})
+      """).toList
+      
       lazy val reachableAliasIids = inject[JdbcConn].queryFor[InternalId](sql"""
           select 
             iid
           from 
             alias
           where
-            aliasIid in (
-              select
-                iid
-              from 
-                alias
-              where
-                rootLabelIid in ${reachableLabelIids}
-            )
+            rootLabelIid in (${labelTreeLabelIids})
       """).toList
+      
+      lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
    
       
       override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
