@@ -53,7 +53,7 @@ case class CreateAgent @Inject() (
     val rootLabel = Label(
       agentId = agentId,
       name = "uber label",
-      data = "color" -> "white"
+      data = "color" -> "#000000"
     ).sqlInsert
     
     val rootAlias = Alias(
@@ -76,7 +76,7 @@ case class CreateAgent @Inject() (
       val introLabel = Label(
         agentId = agentId,
         name = "Anonymous",
-        data = "color" -> "white"
+        data = "color" -> "#000000"
       ).sqlInsert
   
       val introAlias = Alias(
