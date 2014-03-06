@@ -34,15 +34,15 @@ object ChannelMap {
       case pattern1(agentName) =>
         (
           for {
-            agent <- Agent.selectOpt(sql"name = $agentName")
+            agent <- Agent.selectOpt(sql"LCASE(name) = ${agentName.toLowerCase}")
             alias <- Alias.fetchOpt(agent.uberAliasIid)
           } yield (createChannel(alias), alias.iid)
         ) ?~ s"failed to authenticate $authenticationId"
       case pattern2(agentName, aliasName) =>
         (
           for {
-            agent <- Agent.selectOpt(sql"name = $agentName")
-            alias <- Alias.selectOpt(sql"name = $aliasName and agentId = ${agent.agentId}")
+            agent <- Agent.selectOpt(sql"LCASE(name) = ${agentName.toLowerCase}")
+            alias <- Alias.selectOpt(sql"LCASE(json_str(profile, 'name')) = ${aliasName.toLowerCase} and agentId = ${agent.agentId}")
           } yield (createChannel(alias), alias.iid)
         ) ?~ s"failed to authenticate $authenticationId"
       case _ => Failure(s"failed to authenticate $authenticationId")
