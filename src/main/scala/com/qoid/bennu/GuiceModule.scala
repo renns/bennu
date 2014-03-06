@@ -126,7 +126,6 @@ class GuiceModule extends ScalaModule with Provider[Module] {
   
   @Provides
   def config = {
-    import JsonAssist._
     val possibleConfigFiles = List(
       new File(System.getProperty("config_file", "./config.json")),
       new File("config/config.json")
@@ -134,6 +133,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     val file = possibleConfigFiles.find(_.exists).getOrError(s"unable to find a config file -- ${possibleConfigFiles}")
     val json = file.readText
     logger.debug(s"using config file ${file.getCanonicalPath} \n${json.indent("\t\t")}")
+    import JsonAssist._
     ConfigAssist.parseHoconToJson(json).deserialize[Config]
   }
     
