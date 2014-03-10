@@ -23,7 +23,6 @@ class WebServicesModule extends M3ServletModule {
     
     filter("/api/*").through(classOf[CorsFilter])
     
-    // currently this breaks long polling so we have it commented out
     filter("/*").through(classOf[CompressionFilter])
     
     // support multipart content types
