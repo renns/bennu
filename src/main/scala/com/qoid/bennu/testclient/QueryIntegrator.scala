@@ -32,8 +32,7 @@ object QueryIntegrator extends GuiceApp {
       ("Query - Sub-Alias Standing", querySubAliasStanding),
       ("Query - Connection Historical", queryConnectionHistorical),
       ("Query - Connection Standing", queryConnectionStanding)
-      //Connection Historical Profiles
-      //Connection Standing Profiles
+      //("Query - Connection Meta-Label Historical", queryConnectionMetaLabelHistorical) -- This isn't working yet
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -170,6 +169,30 @@ object QueryIntegrator extends GuiceApp {
 
       client2.upsert(content)
       client2.upsert(LabeledContent(content.iid, label2.iid))
+
+      Await.result(p.future, Duration("10 seconds"))
+
+      None
+    } catch {
+      case e: Exception => Some(e)
+    }
+  }
+
+  def queryConnectionMetaLabelHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+    try {
+      val p = Promise[Unit]()
+
+      val client1 = HttpAssist.createAgent("Agent1")
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias1 = client1.getRootAlias()
+      val alias2 = client2.getRootAlias()
+      val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
+      val content = client2.upsert(Content(alias2.iid, "TEXT", data = "text" ->  "agent 2 should see this"))
+      client2.upsert(LabeledContent(content.iid, conn2.metaLabelIid))
+
+      val expected = QueryService.ResponseData(None, Some(conn1.iid), "content", None, Some(List(content.toJson))).toJson
+      //TODO: implement hasConnectionMetaLabel - it would only exist on ConnectionSecurityContext
+      client1.query[Content]("hasConnectionMetaLabel()", None, List(conn1))(TestAssist.handleAsyncResponse(_, expected, p))
 
       Await.result(p.future, Duration("10 seconds"))
 

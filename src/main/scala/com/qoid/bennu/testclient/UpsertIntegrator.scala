@@ -1,29 +1,49 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.model._
+import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
 
 object UpsertIntegrator extends GuiceApp {
-  implicit val config = HttpAssist.HttpClientConfig()
+  val results = run()
 
-  insertLabel()
-  updateLabel()
+  println("\nResults:")
+
+  results.foreach {
+    case (name, None) => println(s"  $name -- PASS")
+    case (name, Some(e)) => println(s"  $name -- FAIL\n${e.getMessage}\n${e.getStackTraceString}")
+  }
+
   System.exit(0)
 
-  def insertLabel(): Unit = {
+  def run(): List[(String, Option[Exception])] = {
+    implicit val config = HttpAssist.HttpClientConfig()
+
+    List[(String, () => Option[Exception])](
+      ("Upsert - Insert Label", insertLabel),
+      ("Upsert - Update Label", updateLabel)
+    ).map { t =>
+      logger.debug(s"Test started -- ${t._1}")
+      val result = t._2()
+      logger.debug(s"Test ended -- ${t._1} -- ${if (result.isEmpty) "PASS" else "FAIL"}")
+      (t._1, result)
+    }
+  }
+
+  def insertLabel()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val label = Label("Insert Label")
       client.upsert(label)
 
-      logger.debug("insertLabel: PASS")
+      None
     } catch {
-      case e: Exception => logger.warn("insertLabel: FAIL", e)
+      case e: Exception => Some(e)
     }
   }
 
-  def updateLabel(): Unit = {
+  def updateLabel()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val insertLabel = Label("Insert Label")
@@ -31,9 +51,9 @@ object UpsertIntegrator extends GuiceApp {
       val updateLabel = newLabel.copy(name = "UpdateLabel")
       client.upsert(updateLabel)
 
-      logger.debug("updateLabel: PASS")
+      None
     } catch {
-      case e: Exception => logger.warn("updateLabel: FAIL", e)
+      case e: Exception => Some(e)
     }
   }
 }

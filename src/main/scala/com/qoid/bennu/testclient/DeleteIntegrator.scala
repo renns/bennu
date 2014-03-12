@@ -1,17 +1,37 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.model._
+import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
 
 object DeleteIntegrator extends GuiceApp {
-  implicit val config = HttpAssist.HttpClientConfig()
+  val results = run()
 
-  deleteLabel()
-  deleteLabelWithWrongAgent()
+  println("\nResults:")
+
+  results.foreach {
+    case (name, None) => println(s"  $name -- PASS")
+    case (name, Some(e)) => println(s"  $name -- FAIL\n${e.getMessage}\n${e.getStackTraceString}")
+  }
+
   System.exit(0)
 
-  def deleteLabel(): Unit = {
+  def run(): List[(String, Option[Exception])] = {
+    implicit val config = HttpAssist.HttpClientConfig()
+
+    List[(String, () => Option[Exception])](
+      ("Delete - Delete Label", deleteLabel),
+      ("Delete - Delete Label With Wrong Agent", deleteLabelWithWrongAgent)
+    ).map { t =>
+      logger.debug(s"Test started -- ${t._1}")
+      val result = t._2()
+      logger.debug(s"Test ended -- ${t._1} -- ${if (result.isEmpty) "PASS" else "FAIL"}")
+      (t._1, result)
+    }
+  }
+
+  def deleteLabel()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val label = Label("Insert Label")
@@ -19,16 +39,16 @@ object DeleteIntegrator extends GuiceApp {
       val deletedLabel = client.delete(newLabel)
 
       if (deletedLabel.deleted) {
-        logger.debug("deleteLabel: PASS")
+        None
       } else {
-        logger.warn("deleteLabel: FAIL -- Returned label not marked deleted")
+        Some(new Exception("Returned label not marked deleted"))
       }
     } catch {
-      case e: Exception => logger.warn("deleteLabel: FAIL", e)
+      case e: Exception => Some(e)
     }
   }
 
-  def deleteLabelWithWrongAgent(): Unit = {
+  def deleteLabelWithWrongAgent()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client1 = HttpAssist.createAgent("Agent1")
       val client2 = HttpAssist.createAgent("Agent2")
@@ -36,9 +56,9 @@ object DeleteIntegrator extends GuiceApp {
       val newLabel = client1.upsert(label)
       client2.delete(newLabel)
 
-      logger.debug("deleteLabelWithWrongAgent: FAIL -- Validation didn't work")
+      Some(new Exception("Validation didn't work"))
     } catch {
-      case e: Exception => logger.debug("deleteLabelWithWrongAgent: PASS")
+      case e: Exception => None
     }
   }
 }
