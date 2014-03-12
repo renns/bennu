@@ -24,15 +24,15 @@ case class RespondToIntroductionService @Inject()(
 ) extends Logging {
 
   def service: JValue = {
-    val notification = Notification.fetch(notificationIid)
-    notification.copy(consumed = true).sqlUpdate.notifyStandingQueries(StandingQueryAction.Update)
-
-    val connection = Connection.fetch(notification.fromConnectionIid)
-
-    val introductionRequest = IntroductionRequest.fromJson(notification.data)
-    val introductionResponse = IntroductionResponse(introductionRequest.introductionIid, accepted)
-
-    distributedMgr.sendNotification(connection.iid, NotificationKind.IntroductionResponse, introductionResponse.toJson)
+//    val notification = Notification.fetch(notificationIid)
+//    notification.copy(consumed = true).sqlUpdate.notifyStandingQueries(StandingQueryAction.Update)
+//
+//    val connection = Connection.fetch(notification.fromConnectionIid)
+//
+//    val introductionRequest = IntroductionRequest.fromJson(notification.data)
+//    val introductionResponse = IntroductionResponse(introductionRequest.introductionIid, accepted)
+//
+//    distributedMgr.sendNotification(connection.iid, NotificationKind.IntroductionResponse, introductionResponse.toJson)
 
     JString("success")
   }

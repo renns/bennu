@@ -8,9 +8,9 @@ object Content extends BennuMapperCompanion[Content] {
 }
 
 case class Content(
-  @PrimaryKey iid: InternalId = InternalId.random,
   aliasIid: InternalId,
   contentType: String,
+  @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId = AgentId(""),
   data: JValue = JNothing,
   deleted: Boolean = false

@@ -111,18 +111,6 @@ trait ServiceAssist {
     response.success
   }
 
-  def sendNotification(connectionIid: InternalId, kind: NotificationKind, data: JValue): Boolean = {
-    val parms = Map[String, JValue](
-      "connectionIid" -> connectionIid,
-      "kind" -> kind.toString,
-      "data" -> data
-    )
-
-    val response = post(ServicePath.sendNotification, parms)
-
-    response.success
-  }
-
   def initiateIntroduction(aConnection: Connection, aMessage: String, bConnection: Connection, bMessage: String): Boolean = {
     val parms = Map[String, JValue](
       "aConnectionIid" -> aConnection.iid,

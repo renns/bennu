@@ -17,6 +17,3 @@ class SimpleMessageQueue {
     map.get((connection.localPeerId, connection.remotePeerId)).foreach(_(message))
   }
 }
-
-
-

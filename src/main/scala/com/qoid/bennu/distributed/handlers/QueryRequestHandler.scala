@@ -3,39 +3,71 @@ package com.qoid.bennu.distributed.handlers
 import com.qoid.bennu.AgentView
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
-import com.qoid.bennu.model.{Alias, Connection}
+import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model.Handle
+import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.squery.StandingQueryAction
+import com.qoid.bennu.squery.StandingQueryManager
 import m3.predef._
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 object QueryRequestHandler {
-  def handle(connection: Connection, message: DistributedMessage): Unit = {
-    message.version match {
-      case 1 => process(connection, message)
-      case _ => inject[DistributedManager].sendNotSupported(connection)
+  def handle(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
+    if (queryRequest.historical) {
+      processHistorical(connection, queryRequest, injector)
+    }
+
+    if (queryRequest.standing) {
+      processStanding(connection, queryRequest, injector)
     }
   }
 
-  private def process(connection: Connection, message: DistributedMessage): Unit = {
-    val agentView = inject[AgentView]
-    val distributedMgr = inject[DistributedManager]
-
-    val requestData = QueryRequest.fromJson(message.data)
-
-    // TODO: The following treats profile as a special case and it bypasses security.
-    //       Once profile is re-done to be just content, we can remove this special case.
-    val results = requestData.tpe match {
-      case p if p =:= "profile" =>
-        implicit val jdbcConn = inject[java.sql.Connection]
-        JArray(List(Alias.fetch(connection.aliasIid).profile))
-      case _ =>
-        val mapper = findMapperByTypeName(requestData.tpe)
-        JArray(agentView.select(requestData.query)(mapper).map(_.toJson).toList)
+  private def processHistorical(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
+    // TODO: Remove this section once profiles are re-done
+    if (queryRequest.tpe =:= "profile") {
+      implicit val jdbcConn = injector.instance[java.sql.Connection]
+      val results = JArray(List(Alias.fetch(connection.aliasIid).profile))
+      val responseData = QueryResponse(queryRequest.handle, results)
+      val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
+      injector.instance[DistributedManager].send(connection, responseMessage)
     }
 
-    val responseData = QueryResponse(requestData.handle, results)
+    val av = injector.instance[AgentView]
+    val mapper = findMapperByTypeName(queryRequest.tpe)
+    val results = JArray(av.select(queryRequest.query)(mapper).map(_.toJson).toList)
+    val responseData = QueryResponse(queryRequest.handle, results)
     val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
 
-    distributedMgr.send(connection, responseMessage)
+    injector.instance[DistributedManager].send(connection, responseMessage)
+  }
+
+  private def processStanding(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
+    val sQueryMgr = injector.instance[StandingQueryManager]
+
+    sQueryMgr.addRemote(
+      connection.agentId,
+      connection.iid,
+      queryRequest.handle,
+      queryRequest.tpe,
+      queryRequest.query,
+      sQueryResponseHandler(_, _, connection, queryRequest.handle, injector)
+    )
+  }
+
+  private def sQueryResponseHandler(
+    instance: HasInternalId,
+    action: StandingQueryAction,
+    connection: Connection,
+    handle: Handle,
+    injector: ScalaInjector
+  ): Unit = {
+    val responseData = QueryResponse(handle, List(instance.toJson), standing = true, action = Some(action))
+    val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
+
+    injector.instance[DistributedManager].send(connection, responseMessage)
   }
 }

@@ -1,7 +1,6 @@
 package com.qoid.bennu.distributed.messages
 
 import com.qoid.bennu.FromJsonCapable
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.Handle
 import m3.json.Json
@@ -13,6 +12,5 @@ case class QueryRequest(
   query: String,
   historical: Boolean,
   standing: Boolean,
-  handle: Handle,
-  context: JValue
+  handle: Handle
 ) extends ToJsonCapable
