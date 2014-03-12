@@ -1,6 +1,5 @@
 package com.qoid.bennu.testclient.client
 
-import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
@@ -63,31 +62,6 @@ object TestAssist extends Logging {
       p.success()
     } else {
       p.failure(new Exception(s"Response data not as expected\nReceived:\n${response.data.toJsonStr}\nExpected:\n${expected.toJsonStr}"))
-    }
-  }
-
-  object Profile extends BennuMapperCompanion[Profile]
-
-  case class Profile(
-    name: String,
-    imgSrc: String,
-    agentId: AgentId = AgentId(""),
-    iid: InternalId = InternalId(""),
-    data: JValue = JNothing,
-    deleted: Boolean = false
-  ) extends HasInternalId with BennuMappedInstance[Profile] { self =>
-
-    type TInstance = Profile
-
-    def mapper = Profile
-
-    override def copy2(
-      iid: InternalId = self.iid,
-      agentId: AgentId = self.agentId,
-      data: JValue = self.data,
-      deleted: Boolean = self.deleted
-    ): TInstance = {
-      copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
     }
   }
 }

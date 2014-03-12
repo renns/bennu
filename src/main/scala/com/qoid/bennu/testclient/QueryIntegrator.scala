@@ -2,16 +2,15 @@ package com.qoid.bennu.testclient
 
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
+import com.qoid.bennu.squery.StandingQueryAction
+import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
 import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
 import scala.concurrent._
 import scala.concurrent.duration.Duration
-import com.qoid.bennu.squery.StandingQueryAction
 
 object QueryIntegrator extends GuiceApp {
-  implicit val config = HttpAssist.HttpClientConfig()
-
   val results = run()
 
   println("\nResults:")
@@ -24,6 +23,8 @@ object QueryIntegrator extends GuiceApp {
   System.exit(0)
 
   def run(): List[(String, Option[Exception])] = {
+    implicit val config = HttpAssist.HttpClientConfig()
+
     List[(String, () => Option[Exception])](
       ("Query - Self Historical", querySelfHistorical),
       ("Query - Self Standing", querySelfStanding),
@@ -41,7 +42,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySelfHistorical(): Option[Exception] = {
+  def querySelfHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -60,7 +61,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySelfStanding(): Option[Exception] = {
+  def querySelfStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -83,7 +84,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySubAliasHistorical(): Option[Exception] = {
+  def querySubAliasHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -104,7 +105,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySubAliasStanding(): Option[Exception] = {
+  def querySubAliasStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -128,7 +129,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def queryConnectionHistorical(): Option[Exception] = {
+  def queryConnectionHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -151,7 +152,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def queryConnectionStanding(): Option[Exception] = {
+  def queryConnectionStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 

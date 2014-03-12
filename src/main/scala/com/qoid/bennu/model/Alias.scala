@@ -28,4 +28,16 @@ case class Alias(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
+
+  //TODO: Remove below after profiles are re-done
+  import com.qoid.bennu.squery.StandingQueryAction
+  override def notifyStandingQueries(action: StandingQueryAction): TInstance = {
+    super.notifyStandingQueries(action)
+
+    if (action == StandingQueryAction.Update) {
+      Profile.fromAlias(this).notifyStandingQueries(action)
+    }
+
+    this
+  }
 }
