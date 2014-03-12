@@ -10,9 +10,7 @@ trait DistributedRequestHandler {
 object DistributedRequestHandler {
   def getHandler(kind: DistributedRequestKind): Option[DistributedRequestHandler] = {
     kind match {
-      case DistributedRequestKind.GetProfile => Some(new GetProfileHandler)
       case DistributedRequestKind.Notification => Some(new NotificationHandler)
-      case DistributedRequestKind.Query => Some(new QueryHandler)
       case k => None
     }
   }

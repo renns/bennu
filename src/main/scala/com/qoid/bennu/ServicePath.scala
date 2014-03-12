@@ -8,11 +8,8 @@ object ServicePath {
   val upsert = "/api/upsert"
   val delete = "/api/delete"
   val query = "/api/query"
-  val distributedQuery = "/api/query/distributed"
   val sendNotification = "/api/notification/send"
-  val registerStandingQuery = "/api/squery/register"
-  val deRegisterStandingQuery = "/api/squery/deregister"
+  val deRegisterStandingQuery = "/api/query/deregister"
   val initiateIntroduction = "/api/introduction/initiate"
   val respondToIntroduction = "/api/introduction/respond"
-  val getProfiles = "/api/profile/get"
 }

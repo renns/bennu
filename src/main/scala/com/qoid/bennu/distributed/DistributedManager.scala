@@ -1,9 +1,11 @@
 package com.qoid.bennu.distributed
 
+import com.google.inject.Inject
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.SecurityContext.ConnectionSecurityContext
-import com.qoid.bennu.SecurityContext.AliasSecurityContext
+import com.qoid.bennu.distributed.handlers._
+import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
 import com.qoid.bennu.util.Implicits.futureExtensions
 import java.sql.{ Connection => JdbcConn }
@@ -11,11 +13,61 @@ import m3.Txn
 import m3.jdbc._
 import m3.predef._
 import net.model3.lang.TimeDuration
-import scala.Some
 import scala.concurrent._
 
 @com.google.inject.Singleton
-class DistributedManager {
+class DistributedManager @Inject() (messageQueue: SimpleMessageQueue) extends Logging {
+  def initialize(implicit jdbcConn: JdbcConn): Unit = {
+    listen(Connection.selectAll.toList)
+  }
+
+  def listen(connections: List[Connection]): Unit = {
+    logger.debug(
+      "listening on connections:\n"
+        + connections.map(c => s"\t${c.localPeerId.value} -> ${c.remotePeerId.value}").mkString("\n")
+    )
+
+    messageQueue.subscribe(connections, messageHandler)
+  }
+
+  def send(connection: Connection, message: DistributedMessage): Unit = {
+    import scala.concurrent.future
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    future {
+      logger.debug(
+        s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}}):"
+          + message.toJson.toJsonStr
+      )
+
+      messageQueue.enqueue(connection, message)
+    }
+  }
+
+  def messageHandler(connection: Connection)(message: DistributedMessage): Unit = {
+    logger.debug(
+      s"received message (${connection.localPeerId.value} <- ${connection.remotePeerId.value}}):"
+        + message.toJson.toJsonStr
+    )
+
+    Txn {
+      implicit val jdbcConn = inject[JdbcConn]
+
+      val sc = ConnectionSecurityContext(connection.iid)
+      Txn.setViaTypename[SecurityContext](sc)
+
+      message.kind match {
+        case DistributedMessageKind.QueryRequest => QueryRequestHandler.handle(connection, message)
+        case DistributedMessageKind.QueryResponse => QueryResponseHandler.handle(connection, message)
+        case _ => sendNotSupported(connection)
+      }
+    }
+  }
+
+  def sendNotSupported(connection: Connection): Unit = {
+    send(connection, DistributedMessage(DistributedMessageKind.NotSupported, 1, JNothing))
+  }
+
 
   /**
    * send a distributed request to a connection 

@@ -15,7 +15,6 @@ import com.qoid.bennu.security.ChannelMap
 import com.qoid.bennu.squery.ast.ContentQuery
 import com.qoid.bennu.squery.ast.Query
 import com.qoid.bennu.squery.ast.Transformer
-import com.qoid.bennu.webservices.QueryService
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
@@ -216,7 +215,6 @@ object SecurityContext {
               query.and(Query.parse(sql"""iid in (${content})"""))
             case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
             case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
-            case "notification" => query.and(Query.parse(sql"""fromConnectionIid = ${connectionIid}"""))
           }
         } else {
           throw new ServiceException(s"connection is not allowed to access ${mapper.typeName}", ErrorCode.Forbidden)
@@ -317,8 +315,13 @@ object SecurityContext {
 
 }
 
+object AgentView {
+  val notDeleted = Query.parse("deleted = false")
+}
 
 sealed trait AgentView {
+
+
   
   def validateInsert[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
   def validateUpdate[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
@@ -344,7 +347,7 @@ sealed trait AgentView {
   def select[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Iterator[T] = {
     val query = constrict(
         mapper,
-        Query.parse(queryStr).and(QueryService.notDeleted.expr)
+        Query.parse(queryStr).and(AgentView.notDeleted.expr)
     )
     val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString()
     mapper.

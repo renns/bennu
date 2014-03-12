@@ -1,12 +1,12 @@
 package com.qoid.bennu.testclient
 
 import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import com.qoid.bennu.testclient.client._
+import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
-import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Promise}
 
 object GetProfilesIntegrator extends GuiceApp {
   implicit val config = HttpAssist.HttpClientConfig()
@@ -24,9 +24,9 @@ object GetProfilesIntegrator extends GuiceApp {
       val label2 = client2.getRootLabel()
       val alias2 = client2.createAlias(label2.iid, "Test")
       val (conn12, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
-      val connections = client1.query[Connection]("")
-      val expected = ("connectionIid" -> conn12.iid) ~ ("profile" -> ("name" -> "Test") ~ ("imgSrc" -> ""))
-      client1.getProfiles(connections)(handleAsyncResponse(_, expected, p))
+
+      val expected = QueryService.ResponseData(None, Some(conn12.iid), "profile", None, JNothing).toJson
+      client1.query[TestAssist.Profile]("", None, List(conn12))(handleAsyncResponse(_, expected, p))
 
       Await.result(p.future, Duration("30 seconds"))
 
@@ -41,7 +41,7 @@ object GetProfilesIntegrator extends GuiceApp {
       p: Promise[Unit]
     ): Unit = {
       response.responseType match {
-        case AsyncResponseType.Profile =>
+        case AsyncResponseType.Query =>
           logger.debug(s"Async Response Data -- ${response.data}")
           if (response.data == expected) {
             p.success()

@@ -6,14 +6,10 @@ sealed trait AsyncResponseType
 
 object AsyncResponseType extends Enum[AsyncResponseType] {
   case object SQuery extends AsyncResponseType
-  case object SQuery2 extends AsyncResponseType
-  case object Profile extends AsyncResponseType
   case object Query extends AsyncResponseType
 
   override val values: Set[AsyncResponseType] = Set(
     SQuery,
-    SQuery2,
-    Profile,
     Query
   )
 

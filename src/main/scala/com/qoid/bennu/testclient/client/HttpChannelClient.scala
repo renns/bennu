@@ -1,10 +1,8 @@
 package com.qoid.bennu.testclient.client
 
-import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JsonAssist
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
-import com.qoid.bennu.squery.StandingQueryEvent
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import java.util.UUID
 import m3.LockFreeMap
@@ -95,29 +93,10 @@ case class HttpChannelClient(
               // This is an async response
               val response = JsonAssist.serializer.fromJson[AsyncResponse](message)
 
-              response.responseType match {
-                case AsyncResponseType.SQuery =>
-                  // This is an squery response
-                  if (response.success) {
-                    val event = JsonAssist.serializer.fromJson[StandingQueryEvent](response.data)
-                    val mapper = JdbcAssist.findMapperByTypeName(event.tpe).asInstanceOf[JdbcAssist.BennuMapperCompanion[HasInternalId]]
-                    val instance = mapper.fromJson(event.instance)
-
-                    for (callback <- squeryCallbacks.get(response.handle)) {
-                      spawn(s"squery-${response.handle}") {
-                        callback(event.action, response.handle, instance)
-                      }
-                    }
-                  } else {
-                    logger.warn(s"failed AsyncResponse -- $response")
-                  }
-                case _ =>
-                  // This is any async response other than squery
-                  for (callback <- asyncCallbacks.get(response.handle)) {
-                    spawn(s"async-${response.handle}") {
-                      callback(response)
-                    }
-                  }
+              for (callback <- asyncCallbacks.get(response.handle)) {
+                spawn(s"async-${response.handle}") {
+                  callback(response)
+                }
               }
           }
         }

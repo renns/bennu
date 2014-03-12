@@ -12,11 +12,11 @@ import scala.language.existentials
 case class DeRegisterStandingQueryService @Inject()(
   sQueryMgr: StandingQueryManager,
   securityContext: AgentCapableSecurityContext,
-  @Parm handle: InternalId
+  @Parm handle: Handle
 ) extends Logging {
 
   def service: JValue = {
-    sQueryMgr.remove(securityContext.agentId, handle)
+    sQueryMgr.remove(handle)
     JString("success")
   }
 }

@@ -9,7 +9,7 @@ import m3.servlet.longpoll.ChannelManager
 
 case class AsyncResponse(
   responseType: AsyncResponseType,
-  handle: InternalId,
+  handle: Handle,
   success: Boolean,
   data: JValue,
   context: JValue,

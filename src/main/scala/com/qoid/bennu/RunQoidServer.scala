@@ -1,17 +1,17 @@
 package com.qoid.bennu
 
-import net.model3.servlet.runner.JettyRunner
-import com.google.inject.spi.Dependency
-import net.model3.guice.DependencyInjector
+import com.qoid.bennu.distributed.DistributedManager
+import java.sql.Connection
+import m3.Txn
 import m3.predef._
-import net.model3.guice.LifeCycleManager
-import net.model3.guice.LifeCycleListeners
-import com.qoid.bennu.util.HsqldbServerStarterUpper
+import net.model3.servlet.runner.JettyRunner
 
 object RunQoidServer extends App {
 
   System.setProperty("longLivedApp", "true")
-  
+
+  Txn(inject[DistributedManager].initialize(inject[Connection]))
+
   JettyRunner.main(args)
 
 }

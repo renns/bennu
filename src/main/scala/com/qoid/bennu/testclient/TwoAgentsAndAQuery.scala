@@ -18,7 +18,7 @@ object TwoAgentsAndAQuery extends GuiceApp {
     try {
       val client1 = HttpAssist.createAgent("Agent1")
       HttpAssist.createAgent("Agent2")
-      val results = client1.query[Label]("name = 'uber label'")
+      val results = client1.queryLocal[Label]("name = 'uber label'")
 
       if (results.length == 1) {
         logger.debug("TwoAgentsAndAQuery: PASS")

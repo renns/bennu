@@ -50,17 +50,12 @@ class WebServicesModule extends M3ServletModule {
     serveBean[UpsertService](ServicePath.upsert)
     serveBean[DeleteService](ServicePath.delete)
     serveBean[QueryService](ServicePath.query)
-    serveBean[DistributedQueryService](ServicePath.distributedQuery)
+    serveBean[DeRegisterStandingQueryService](ServicePath.deRegisterStandingQuery)
 
     serveBean[SendNotification](ServicePath.sendNotification)
 
-    serveBean[RegisterStandingQueryService](ServicePath.registerStandingQuery)
-    serveBean[DeRegisterStandingQueryService](ServicePath.deRegisterStandingQuery)
-
     serveBean[InitiateIntroductionService](ServicePath.initiateIntroduction)
     serveBean[RespondToIntroductionService](ServicePath.respondToIntroduction)
-
-    serveBean[GetProfilesService](ServicePath.getProfiles)
 
     serveBean[AdditionService]("/api/example/add")
     serveBean[MultiplicationService]("/api/example/multiply")

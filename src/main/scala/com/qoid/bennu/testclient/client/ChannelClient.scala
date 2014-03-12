@@ -3,7 +3,6 @@ package com.qoid.bennu.testclient.client
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model._
-import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import m3.LockFreeMap
 import m3.json.LiftJsonAssist._
@@ -15,8 +14,7 @@ import scala.concurrent._
 trait ChannelClient extends ServiceAssist with ModelAssist {
   val rootAliasIid: InternalId
 
-  protected val squeryCallbacks = new LockFreeMap[InternalId, (StandingQueryAction, InternalId, HasInternalId) => Unit]
-  protected val asyncCallbacks = new LockFreeMap[InternalId, AsyncResponse => Unit]
+  protected val asyncCallbacks = new LockFreeMap[Handle, AsyncResponse => Unit]
 
   def postAsync(path: String, parms: Map[String, JValue], context: JValue = JNothing)(implicit ec: ExecutionContext): Future[ChannelResponse]
   def post(path: String, parms: Map[String, JValue], context: JValue = JNothing): ChannelResponse

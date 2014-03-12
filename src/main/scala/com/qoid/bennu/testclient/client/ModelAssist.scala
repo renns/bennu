@@ -33,10 +33,10 @@ trait ModelAssist {
 
   def getRootLabel(): Label = {
     val alias = getRootAlias()
-    query[Label](sql"iid = ${alias.rootLabelIid}").head
+    queryLocal[Label](sql"iid = ${alias.rootLabelIid}").head
   }
 
   def getRootAlias(): Alias = {
-    query[Alias](sql"iid = $rootAliasIid").head
+    queryLocal[Alias](sql"iid = $rootAliasIid").head
   }
 }

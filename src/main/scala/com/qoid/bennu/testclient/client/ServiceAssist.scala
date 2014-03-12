@@ -5,7 +5,6 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
-import com.qoid.bennu.squery.StandingQueryAction
 
 trait ServiceAssist {
   this: ChannelClient =>
@@ -36,45 +35,48 @@ trait ServiceAssist {
     }
   }
 
-  def query[T <: HasInternalId : Manifest](query: String): List[T] = {
-    val typeName = manifest[T].runtimeClass.getSimpleName
+  def queryLocal[T <: HasInternalId : Manifest](queryStr: String): List[T] = {
+    import scala.concurrent._
+    import scala.concurrent.duration.Duration
+    import com.qoid.bennu.webservices.QueryService
 
-    val parms = Map[String, JValue]("type" -> typeName, "q" -> query)
+    val p = Promise[List[T]]()
 
-    val response = post(ServicePath.query, parms)
+    try {
+      query[T](queryStr)(handleAsyncResponse(_, p))
 
-    response.result match {
-      case JNothing => throw new Exception("Query didn't complete successfully")
-      case JArray(instances) =>
-        val mapper = JdbcAssist.findMapperByTypeName(typeName)
-        instances.map(mapper.fromJson(_).asInstanceOf[T])
-      case _ => throw new Exception("Query returned invalid results")
+      def handleAsyncResponse(
+        response: AsyncResponse,
+        p: Promise[List[T]]
+      ): Unit = {
+        response.responseType match {
+          case AsyncResponseType.Query =>
+            val responseData = QueryService.ResponseData.fromJson(response.data)
+
+            responseData.results match {
+              case JArray(r) =>
+                val typeName = manifest[T].runtimeClass.getSimpleName
+                val mapper = JdbcAssist.findMapperByTypeName(typeName)
+                p.success(r.map(mapper.fromJson(_).asInstanceOf[T]))
+              case JNothing => p.success(Nil)
+              case _ => p.failure(new Exception("Query didn't complete successfully"))
+            }
+          case _ => p.failure(new Exception("Query didn't complete successfully"))
+        }
+      }
+    } catch {
+      case e: Exception => p.failure(e)
     }
+
+    Await.result(p.future, Duration("5 seconds"))
   }
 
-  def standingQuery2[T <: HasInternalId : Manifest](query: String): List[T] = {
-    val typeName = manifest[T].runtimeClass.getSimpleName
-
-    val parms = Map[String, JValue]("type" -> typeName, "q" -> query)
-
-    val response = post(ServicePath.query, parms)
-
-    response.result match {
-      case JNothing => throw new Exception("Query didn't complete successfully")
-      case JArray(instances) =>
-        val mapper = JdbcAssist.findMapperByTypeName(typeName)
-        instances.map(mapper.fromJson(_).asInstanceOf[T])
-      case _ => throw new Exception("Query returned invalid results")
-    }
-  }
-
-  def distributedQuery[T <: HasInternalId : Manifest](
+  def query[T <: HasInternalId : Manifest](
     query: String,
-    aliases: List[Alias],
-    connections: List[Connection],
-    timeout: String = "5 seconds",
-    leaveStanding: Boolean = false,
+    alias: Option[Alias] = None,
+    connections: List[Connection] = Nil,
     historical: Boolean = true,
+    standing: Boolean = false,
     context: JValue = JNothing
   )(
     callback: AsyncResponse => Unit
@@ -85,43 +87,25 @@ trait ServiceAssist {
     val parms = Map[String, JValue](
       "type" -> typeName.toLowerCase,
       "q" -> query,
-      "aliasIids" -> aliases.map(_.iid),
+      "aliasIid" -> alias.map(_.iid),
       "connectionIids" -> connections.map(c => c.iid),
-      "leaveStanding" -> leaveStanding,
       "historical" -> historical,
-      "timeout" -> timeout
+      "standing" -> standing,
+      "context" -> context
     )
 
-    val response = post(ServicePath.distributedQuery, parms, Some(context))
+    val response = post(ServicePath.query, parms, Some(context))
 
     response.result match {
       case JObject(JField("handle", JString(handle)) :: Nil) =>
-        asyncCallbacks += InternalId(handle) -> callback
+        asyncCallbacks += Handle(handle) -> callback
         InternalId(handle)
       case r => throw new Exception(s"Distributed query result invalid -- $r")
     }
   }
 
-  def registerStandingQuery(
-    types: List[String]
-  )(
-    callback: (StandingQueryAction, InternalId, HasInternalId) => Unit
-  ): InternalId = {
-
-    val parms = Map[String, JValue]("types" -> types)
-
-    val response = post(ServicePath.registerStandingQuery, parms)
-
-    response.result match {
-      case JObject(JField("handle", JString(handle)) :: Nil) =>
-        squeryCallbacks += InternalId(handle) -> callback
-        InternalId(handle)
-      case r => throw new Exception("Register standing query didn't complete successfully")
-    }
-  }
-
-  def deRegisterStandingQuery(handle: InternalId): Boolean = {
-    squeryCallbacks -= handle
+  def deRegisterStandingQuery(handle: Handle): Boolean = {
+    asyncCallbacks -= handle
     val parms = Map[String, JValue]("handle" -> handle)
     val response = post(ServicePath.deRegisterStandingQuery, parms)
     response.success
@@ -161,27 +145,5 @@ trait ServiceAssist {
     val response = post(ServicePath.respondToIntroduction, parms)
 
     response.success
-  }
-
-  def getProfiles(
-    connections: List[Connection],
-    timeout: Int = 5000
-  )(
-    callback: AsyncResponse => Unit
-  ): InternalId = {
-
-    val parms = Map[String, JValue](
-      "connectionIids" -> connections.map(c => c.iid),
-      "timeout" -> timeout
-    )
-
-    val response = post(ServicePath.getProfiles, parms)
-
-    response.result match {
-      case JObject(JField("handle", JString(handle)) :: Nil) =>
-        asyncCallbacks += InternalId(handle) -> callback
-        InternalId(handle)
-      case r => throw new Exception("Get profiles didn't complete successfully")
-    }
   }
 }

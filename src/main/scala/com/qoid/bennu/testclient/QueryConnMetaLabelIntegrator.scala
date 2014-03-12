@@ -7,7 +7,7 @@ import scala.concurrent._
 import scala.concurrent.duration.Duration
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.webservices.DistributedQueryService
+import com.qoid.bennu.webservices.QueryService
 
 object QueryConnMetaLabelIntegrator extends GuiceApp {
   
@@ -42,10 +42,9 @@ object QueryConnMetaLabelIntegrator extends GuiceApp {
         labelIid = conn1to2.metaLabelIid
       ))
 
-      val expected = DistributedQueryService.ResponseData(None, Some(conn2to1.iid), "content", Some(List(content1.toJson))).toJson
-      client2.distributedQuery[Content](s"1 = 1", Nil, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p1))
-      
-      
+      val expected = QueryService.ResponseData(None, Some(conn2to1.iid), "content", None, Some(List(content1.toJson))).toJson
+      client2.query[Content](s"1 = 1", None, List(conn2to1), context="zee_query")(handleAsyncResponse(_, expected, p1))
+
       Await.result(p1.future, Duration("30 seconds"))
 
       logger.debug("QueryConnMetaLabelIntegrator: PASS")

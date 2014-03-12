@@ -32,16 +32,16 @@ case class InitiateIntroductionService @Inject()(
     val introduction = Introduction(aConnectionIid, IntroductionState.NotResponded, bConnectionIid, IntroductionState.NotResponded, securityContext.agentId)
     introduction.sqlInsert.notifyStandingQueries(StandingQueryAction.Insert)
 
-    for {
-      profileA <- distributedMgr.sendRequest(aConnection.iid, DistributedRequestKind.GetProfile, JNothing)
-      profileB <- distributedMgr.sendRequest(bConnection.iid, DistributedRequestKind.GetProfile, JNothing)
-    } {
-      val aIntroductionRequest = IntroductionRequest(introduction.iid, aMessage, profileB)
-      val bIntroductionRequest = IntroductionRequest(introduction.iid, bMessage, profileA)
-
-      distributedMgr.sendNotification(aConnection.iid, NotificationKind.IntroductionRequest, aIntroductionRequest.toJson)
-      distributedMgr.sendNotification(bConnection.iid, NotificationKind.IntroductionRequest, bIntroductionRequest.toJson)
-    }
+//    for {
+//      profileA <- distributedMgr.sendRequest(aConnection.iid, DistributedRequestKind.GetProfile, JNothing)
+//      profileB <- distributedMgr.sendRequest(bConnection.iid, DistributedRequestKind.GetProfile, JNothing)
+//    } {
+//      val aIntroductionRequest = IntroductionRequest(introduction.iid, aMessage, profileB)
+//      val bIntroductionRequest = IntroductionRequest(introduction.iid, bMessage, profileA)
+//
+//      distributedMgr.sendNotification(aConnection.iid, NotificationKind.IntroductionRequest, aIntroductionRequest.toJson)
+//      distributedMgr.sendNotification(bConnection.iid, NotificationKind.IntroductionRequest, bIntroductionRequest.toJson)
+//    }
 
     JString("success")
   }
