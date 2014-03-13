@@ -133,6 +133,7 @@ object SecurityContext {
           case "connection" => query.and(Query.parse(sql"""aliasIid in (${reachableAliasIids})"""))
           case "agent" => query.and(Query.parse(sql"""agentId = ${agentId}"""))
           case "alias" => query.and(Query.parse(sql"""iid in (${reachableAliasIids})"""))
+          case "labelacl" => query.and(Query.parse(sql"""labelIid in (${reachableLabelIids})"""))
           case "label" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
           case "content" => {
             // TODO this needs to be optimized
