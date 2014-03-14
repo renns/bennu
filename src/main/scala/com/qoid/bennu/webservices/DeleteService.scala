@@ -1,9 +1,9 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu._
 import com.qoid.bennu.model._
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery._
 import java.sql.Connection
 import m3.predef._
@@ -13,7 +13,7 @@ import net.liftweb.json._
 
 case class DeleteService @Inject() (
   implicit conn: Connection,
-  securityContext: AgentCapableSecurityContext,
+  securityContext: SecurityContext,
   @Parm("type") tpe: String,
   @Parm("primaryKey") iid: InternalId
 ) extends Logging {

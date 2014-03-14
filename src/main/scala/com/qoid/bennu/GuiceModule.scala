@@ -1,55 +1,50 @@
 package com.qoid.bennu
 
-import net.codingwell.scalaguice.ScalaModule
-import com.google.inject.Provider
-import com.google.inject.Module
-import com.google.inject.util.Modules
-import net.model3.guice.M3GuiceModule
-import com.qoid.bennu.webservices.WebServicesModule
-import net.model3.guice.bootstrap.ApplicationName
-import net.model3.guice.bootstrap.ConfigurationDirectory
-import net.model3.newfile.Directory
-import com.google.inject.Provides
-import net.model3.newfile.File
-import javax.sql.DataSource
-import java.sql.Connection
-import net.model3.guice.ProviderJdbcConnectionViaTxn
-import java.sql.DriverManager
-import net.model3.guice.bootstrap.AbstractBootstrapper
 import com.google.inject.Inject
-import net.model3.logging.AutoLoggingConfigurator
+import com.google.inject.Module
+import com.google.inject.Provider
+import com.google.inject.Provides
+import com.google.inject.Singleton
+import com.google.inject.util.Modules
+import com.qoid.bennu.model.AgentId
+import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.SecurityContext
+import com.qoid.bennu.security.SecurityContext.BennuProviderChannelId
+import com.qoid.bennu.security.SecurityContext.BennuProviderOptionChannelId
+import com.qoid.bennu.security.SecurityContext.ProviderAgentView
+import com.qoid.bennu.security.SecurityContext.ProviderSecurityContext
+import com.qoid.bennu.util.HsqldbServerStarterUpper
+import com.qoid.bennu.webservices.WebServicesModule
+import java.sql.Connection
+import javax.sql.DataSource
 import m3.Logger
-import net.model3.lang.ClassX
-import net.model3.collections.PropertiesX
-import net.model3.util.Versioning
-import net.model3.logging.Level
+import m3.guice.ScalaInjectorProvider
 import m3.jdbc.Database
 import m3.jdbc.M3ProviderDataSource
-import m3.predef._
 import m3.json.ConfigAssist
-import m3.json.JsonSerializer
-import com.qoid.bennu.model.AgentId
-import com.google.inject.Singleton
-import net.model3.transaction.TransactionManager
-import com.qoid.bennu.SecurityContext.ProviderSecurityContext
+import m3.predef._
+import m3.servlet.M3ServletGuiceModule
 import m3.servlet.beans.Wrappers
 import m3.servlet.beans.guice.ProviderOptionalRequest
 import m3.servlet.longpoll.ChannelId
-import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
-import m3.servlet.longpoll.GuiceProviders.ProviderChannelId
-import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
-import com.qoid.bennu.SecurityContext.ProviderAgentCapableSecurityContext
-import m3.servlet.longpoll.JettyChannelManager
 import m3.servlet.longpoll.ChannelManager
-import com.qoid.bennu.SecurityContext.BennuProviderOptionChannelId
-import com.qoid.bennu.SecurityContext.BennuProviderChannelId
-import net.model3.guice.LifeCycleManager
-import net.model3.guice.LifeCycleListeners
-import com.qoid.bennu.util.HsqldbServerStarterUpper
-import com.qoid.bennu.SecurityContext.ProviderAgentView
+import m3.servlet.longpoll.JettyChannelManager
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
-import m3.guice.ScalaInjectorProvider
-import m3.servlet.M3ServletGuiceModule
+import net.codingwell.scalaguice.ScalaModule
+import net.model3.collections.PropertiesX
+import net.model3.guice.LifeCycleListeners
+import net.model3.guice.LifeCycleManager
+import net.model3.guice.M3GuiceModule
+import net.model3.guice.ProviderJdbcConnectionViaTxn
+import net.model3.guice.bootstrap.AbstractBootstrapper
+import net.model3.guice.bootstrap.ApplicationName
+import net.model3.guice.bootstrap.ConfigurationDirectory
+import net.model3.logging.AutoLoggingConfigurator
+import net.model3.logging.Level
+import net.model3.newfile.Directory
+import net.model3.newfile.File
+import net.model3.transaction.TransactionManager
+import net.model3.util.Versioning
 
 object GuiceModule {
   
@@ -60,31 +55,27 @@ object GuiceModule {
     
     lazy val logger = Logger.getLogger
     
-    override def bootstrap = {
+    override def bootstrap() = {
       autoLoggingConfigurator.apply()
 
       lifeCycle.config.add(new LifeCycleListeners.Config {
-        def configComplete = {
+        def configComplete() = {
           // tickle the hsqldb server
           inject[HsqldbServerStarterUpper]
-          PropertiesX.logProperties(System.getProperties(), Level.DEBUG );
-          Versioning.logAllVersioningFound(Thread.currentThread().getContextClassLoader());
+          PropertiesX.logProperties(System.getProperties, Level.DEBUG )
+          Versioning.logAllVersioningFound(Thread.currentThread().getContextClassLoader)
         }
       })
-
     }
-    
   }
   
   @Singleton
   class ProviderAgentId @Inject() (
     txnManager: TransactionManager
   ) extends Provider[AgentId] {
-    def get = Option(txnManager.getTransaction.getAttribute[AgentId](classOf[AgentId].getName())).getOrError("no agent id found")
+    def get = Option(txnManager.getTransaction.getAttribute[AgentId](classOf[AgentId].getName)).getOrError("no agent id found")
   }
-
 }
-
 
 class GuiceModule extends ScalaModule with Provider[Module] {
   
@@ -99,7 +90,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
       new WebServicesModule()
     )
 
-  def configure = {
+  def configure() = {
     
     bind[ApplicationName].toInstance(new ApplicationName("bennu"))
     
@@ -117,11 +108,9 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     bind[Option[ChannelId]].toProvider[BennuProviderOptionChannelId]
 
     bind[SecurityContext].toProvider[ProviderSecurityContext]
-    bind[AgentCapableSecurityContext].toProvider[ProviderAgentCapableSecurityContext]
     bind[AgentView].toProvider[ProviderAgentView]
     
     bind[ChannelManager].to[JettyChannelManager]
-
   }
   
   @Provides
@@ -142,6 +131,4 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
   @Provides 
   def jsonSerializer = JsonAssist.serializer
-
-  
 }

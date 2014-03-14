@@ -8,9 +8,9 @@ object Notification extends BennuMapperCompanion[Notification] {
 }
 
 case class Notification(
-  consumed: Boolean,
   fromConnectionIid: InternalId,
   kind: NotificationKind,
+  consumed: Boolean = false,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,

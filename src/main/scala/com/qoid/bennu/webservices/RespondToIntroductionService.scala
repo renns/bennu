@@ -1,22 +1,19 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.model._
-import com.qoid.bennu.model.notification.IntroductionRequest
-import com.qoid.bennu.model.notification.IntroductionResponse
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery._
 import java.sql.{ Connection => JdbcConn }
 import m3.predef._
 import m3.servlet.beans.Parm
 import net.liftweb.json._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.existentials
 
 case class RespondToIntroductionService @Inject()(
   implicit conn: JdbcConn,
-  securityContext: AgentCapableSecurityContext,
+  securityContext: SecurityContext,
   sQueryMgr: StandingQueryManager,
   distributedMgr: DistributedManager,
   @Parm notificationIid: InternalId,

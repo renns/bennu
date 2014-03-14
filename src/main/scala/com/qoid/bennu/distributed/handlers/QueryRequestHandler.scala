@@ -1,6 +1,5 @@
 package com.qoid.bennu.distributed.handlers
 
-import com.qoid.bennu.AgentView
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
@@ -10,6 +9,7 @@ import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.Handle
 import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
 import m3.predef._

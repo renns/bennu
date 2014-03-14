@@ -1,21 +1,20 @@
 package com.qoid.bennu.squery.ast
 
 
-import m3.predef._
+import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.security.AgentView
+import java.sql.{ Connection => JdbcConn }
 import m3.StringConverters
 import m3.TypeInfo
-import com.qoid.bennu.AgentView
-import java.sql.{ Connection => JdbcConn }
-import box._
-import com.qoid.bennu.model.Label
-import com.qoid.bennu.model.InternalId
+import m3.predef._
+import m3.predef.box._
 
 object Evaluator extends Logging {
 
   val stringConverters = inject[StringConverters]
-  
+
   import Transformer._
-  
+
   sealed trait Value {
     def value: Any
   }
@@ -42,7 +41,7 @@ object Evaluator extends Logging {
         }
       }
       case "hasLabel" => impl.hasLabel(row, InternalId(ContentQuery.stringLiteral(fc.parms)))
-      case _ => m3x.error("funtion call not supported -- " + reify(fc))
+      case _ => m3x.error("function call not supported -- " + reify(fc))
 
     }
   }
@@ -60,7 +59,7 @@ object Evaluator extends Logging {
   def evaluateNode(n: Node, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter): Value = n match {
     case InClause(i, v) => {
       val columnValue = propertyGetter(row, i.qname).value
-      VBool(v.find(_.value == columnValue).isDefined)
+      VBool(v.exists(_.value == columnValue))
     }
     case i: Identifier => propertyGetter(row, i.qname)
     case fc: FunctionCall => invokeFunction(fc, row)
@@ -84,16 +83,15 @@ object Evaluator extends Logging {
       def wrap(a: Any): Value = a match {
         case null => VNull
         case None => VNull
-        case Some(a) => wrap(a)
+        case Some(x) => wrap(x)
         case bd: BigDecimal => VNum(bd)
         case s: String => VStr(s)
-        case a: Any => {
+        case _: Any => {
           val converter = stringConverters.find(TypeInfo(a.getClass)).asInstanceOf[StringConverters.Converter[Any]]
           VStr(converter.toString(a))
         }
       }
       wrap(m.invoke(a))
-    }.getOrError(s"cannot find property ${propertyName} in ${a.getClass()} -- ${a}")
+    }.getOrError(s"cannot find property ${propertyName} in ${a.getClass} -- ${a}")
   }
-  
 }

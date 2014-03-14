@@ -1,7 +1,6 @@
 package com.qoid.bennu.security
 
 import com.qoid.bennu.Config
-import com.qoid.bennu.SecurityContext
 import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.InternalId
@@ -50,7 +49,7 @@ object ChannelMap {
   }
 
   private def createChannel(alias: Alias): ChannelId = {
-    val sc = SecurityContext.AliasSecurityContext(alias.iid)
+    val sc = AliasSecurityContext(inject[ScalaInjector], alias.iid)
     val channel = channelMgr.createChannel()
     channelToSecurityContextMap += channel.id -> sc
     channel.id

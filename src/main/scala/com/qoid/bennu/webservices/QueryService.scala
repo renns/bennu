@@ -1,18 +1,18 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.AgentView
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.SecurityContext
-import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
+import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.AliasSecurityContext
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
 import java.sql.{ Connection => JdbcConn }
@@ -30,7 +30,7 @@ case class QueryService @Inject()(
   injector: ScalaInjector,
   distributedMgr: DistributedManager,
   sQueryMgr: StandingQueryManager,
-  securityContext: AgentCapableSecurityContext,
+  securityContext: SecurityContext,
   channelId: ChannelId,
   @Parm("type") _type: String,
   @Parm("q") queryStr: String,
@@ -47,7 +47,7 @@ case class QueryService @Inject()(
   def service: JValue = {
 
     val sc = aliasIid match {
-      case Some(iid) => SecurityContext.AliasSecurityContext(iid)
+      case Some(iid) => AliasSecurityContext(injector, iid)
       case _ => securityContext
     }
 
@@ -59,7 +59,7 @@ case class QueryService @Inject()(
     "handle" -> handle
   }
 
-  def submitLocalQuery(sc: AgentCapableSecurityContext): Unit = {
+  def submitLocalQuery(sc: SecurityContext): Unit = {
     if (historical) {
       future {
         Txn {

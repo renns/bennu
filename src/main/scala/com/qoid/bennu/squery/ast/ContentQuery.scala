@@ -2,12 +2,11 @@ package com.qoid.bennu.squery.ast
 
 import m3.Chord
 import m3.predef._
-import com.qoid.bennu.AgentView
 import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.SecurityContext
 import Chord._
 import com.qoid.bennu.model.InternalId
 import box._
+import com.qoid.bennu.security.{AgentView, SecurityContext}
 
 object ContentQuery {
   

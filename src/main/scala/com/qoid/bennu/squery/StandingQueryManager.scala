@@ -1,18 +1,19 @@
 package com.qoid.bennu.squery
 
-import com.qoid.bennu.AgentView
+import com.google.inject.Inject
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.MemoryListCache
-import com.qoid.bennu.SecurityContext
-import com.qoid.bennu.model.{Alias, AgentId, Handle, HasInternalId, InternalId}
+import com.qoid.bennu.model._
+import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.AliasSecurityContext
+import com.qoid.bennu.security.ConnectionSecurityContext
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery.ast.Evaluator
 import com.qoid.bennu.squery.ast.Query
 import m3.Txn
 import m3.jdbc._
-import com.google.inject.Inject
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
-import com.qoid.bennu.SecurityContext.ConnectionSecurityContext
 
 @com.google.inject.Singleton
 class StandingQueryManager @Inject()(injector: ScalaInjector) {
@@ -96,8 +97,8 @@ class StandingQueryManager @Inject()(injector: ScalaInjector) {
 
       Txn {
         val securityContext = (v.remote, v.aliasIid, v.connectionIid) match {
-          case (false, Some(aliasIid), _) => Some(SecurityContext.AliasSecurityContext(aliasIid))
-          case (true, _, Some(connectionIid)) => Some(SecurityContext.ConnectionSecurityContext(connectionIid))
+          case (false, Some(aliasIid), _) => Some(AliasSecurityContext(injector, aliasIid))
+          case (true, _, Some(connectionIid)) => Some(ConnectionSecurityContext(injector, connectionIid))
           case _ => None
         }
 

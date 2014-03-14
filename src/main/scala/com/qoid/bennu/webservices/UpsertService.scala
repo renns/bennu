@@ -3,9 +3,9 @@ package com.qoid.bennu.webservices
 import com.google.inject.Inject
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.JdbcAssist
-import com.qoid.bennu.SecurityContext.AgentCapableSecurityContext
 import com.qoid.bennu.ServiceException
 import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery._
 import java.sql.Connection
 import m3.predef._
@@ -16,7 +16,7 @@ import scala.language.existentials
 
 case class UpsertService @Inject()(
   implicit conn: Connection,
-  securityContext: AgentCapableSecurityContext,
+  securityContext: SecurityContext,
   @Parm("type") tpe: String,
   @Parm("instance") instanceJson: JValue
 ) extends Logging {
