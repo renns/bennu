@@ -1,17 +1,17 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
-import com.qoid.bennu.squery._
+import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }
 import m3.predef._
 import m3.servlet.beans.Parm
+import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import net.liftweb.json._
 import scala.language.existentials
-import com.qoid.bennu.distributed.messages.{DistributedMessageKind, DistributedMessage, IntroductionRequest}
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 case class InitiateIntroductionService @Inject()(
   injector: ScalaInjector,
@@ -26,13 +26,13 @@ case class InitiateIntroductionService @Inject()(
   implicit def jdbcConn = injector.instance[JdbcConn]
 
   def service: JValue = {
-    //TODO: Use security context
+    val av = injector.instance[AgentView]
 
-    val aConnection = Connection.fetch(aConnectionIid)
-    val bConnection = Connection.fetch(bConnectionIid)
+    val aConnection = av.fetch[Connection](aConnectionIid)
+    val bConnection = av.fetch[Connection](bConnectionIid)
 
     val introduction = Introduction(aConnectionIid, IntroductionState.NotResponded, bConnectionIid, IntroductionState.NotResponded, securityContext.agentId)
-    introduction.sqlInsert.notifyStandingQueries(StandingQueryAction.Insert)
+    av.insert(introduction)
 
     //TODO: Get profiles
     val profileA = JNothing
