@@ -60,6 +60,8 @@ class DistributedManager @Inject()(
           QueryResponseHandler.handle(connection, QueryResponse.fromJson(message.data), injector)
         case (DistributedMessageKind.IntroductionRequest, 1) =>
           IntroductionRequestHandler.handle(connection, IntroductionRequest.fromJson(message.data), injector)
+        case (DistributedMessageKind.IntroductionResponse, 1) =>
+          IntroductionResponseHandler.handle(connection, IntroductionResponse.fromJson(message.data), injector)
         case _ =>
           logger.warn(s"unhandled distributed message -- ${message.kind},${message.version}")
       }

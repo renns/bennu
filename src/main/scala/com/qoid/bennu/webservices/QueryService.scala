@@ -30,6 +30,7 @@ case class QueryService @Inject()(
   injector: ScalaInjector,
   distributedMgr: DistributedManager,
   sQueryMgr: StandingQueryManager,
+  queryResponseMgr: QueryResponseManager,
   securityContext: SecurityContext,
   channelId: ChannelId,
   @Parm("type") _type: String,
@@ -59,7 +60,7 @@ case class QueryService @Inject()(
     "handle" -> handle
   }
 
-  def submitLocalQuery(sc: SecurityContext): Unit = {
+  private def submitLocalQuery(sc: SecurityContext): Unit = {
     if (historical) {
       future {
         Txn {
@@ -86,11 +87,11 @@ case class QueryService @Inject()(
     }
   }
 
-  def submitRemoteQuery(): Unit = {
+  private def submitRemoteQuery(): Unit = {
     val av = injector.instance[AgentView]
     val request = QueryRequest(_type, queryStr, historical, standing, handle)
 
-    injector.instance[QueryResponseManager].registerHandle(
+    queryResponseMgr.registerHandle(
       handle,
       QueryService.distributedResponseHandler(_, _, handle, _type, context, channelId)
     )

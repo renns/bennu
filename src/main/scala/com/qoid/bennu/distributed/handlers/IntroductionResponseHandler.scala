@@ -1,31 +1,24 @@
-//package com.qoid.bennu.model
-//
-//import com.google.inject.Singleton
-//import com.qoid.bennu.squery.StandingQueryAction
-//import java.sql.{Connection => JdbcConn}
-//import m3.jdbc._
-//import m3.predef._
-//
-//@Singleton
-//class NotificationListener extends Logging {
-//  case class Listener(kind: NotificationKind, fn: Notification => Unit)
-//
-//  private lazy val _listeners: List[Listener] = List(
-//    Listener(NotificationKind.IntroductionResponse, listenForIntroductionResponse)
-//  )
-//
-//  private lazy val _listenersByKind = _listeners.groupBy(_.kind)
-//
-//  def fireNotification(n: Notification) = {
-//    _listenersByKind.get(n.kind).getOrElse(Nil).foreach(_.fn(n))
-//  }
-//
-//  def listenForIntroductionResponse(n: Notification): Unit = {
-//    try {
-//      implicit val jdbcConn = inject[JdbcConn]
-//
-//      val introResponse = IntroductionResponse.fromJson(n.data)
-//
+package com.qoid.bennu.distributed.handlers
+
+import com.qoid.bennu.distributed.messages.IntroductionResponse
+import com.qoid.bennu.model.Connection
+import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.AliasSecurityContext
+import com.qoid.bennu.security.SecurityContext
+import m3.Txn
+import m3.predef._
+
+object IntroductionResponseHandler {
+  def handle(connection: Connection, introductionResponse: IntroductionResponse, injector: ScalaInjector): Unit = {
+    //TODO: This is a security vulnerability and can be removed when we only allow polling of messages
+    //Switch to Alias security context
+    Txn.setViaTypename[SecurityContext](AliasSecurityContext(injector, connection.aliasIid))
+    val av = injector.instance[AgentView]
+
+
+  }
+}
+
 //      // TODO: We need to prevent a race condition if A and B respond at the same time
 //      val intro = Introduction.fetch(introResponse.introductionIid)
 //
@@ -47,11 +40,6 @@
 //        // TODO: Connections should not be created here. Instead the details should be sent to A and B and they should create their connection
 //        createConnections(updatedIntro)
 //      }
-//
-//      n.copy(consumed = true).sqlUpdate.notifyStandingQueries(StandingQueryAction.Update)
-//    } catch {
-//      case e: Exception => logger.warn(s"listenForIntroductionResuponse: FAIL -- $e")
-//    }
 //
 //    def calculateState(accepted: Boolean): IntroductionState = {
 //      if (accepted) IntroductionState.Accepted else IntroductionState.Rejected
@@ -85,5 +73,3 @@
 //        .notifyStandingQueries(StandingQueryAction.Insert)
 //
 //    }
-//  }
-//}
