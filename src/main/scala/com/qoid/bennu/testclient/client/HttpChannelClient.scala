@@ -91,7 +91,7 @@ case class HttpChannelClient(
               waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
             case _ =>
               // This is an async response
-              val response = JsonAssist.serializer.fromJson[AsyncResponse](message)
+              val response = JsonAssist.serializer.fromJson[QueryResponse](message)
 
               for (callback <- asyncCallbacks.get(response.handle)) {
                 spawn(s"async-${response.handle}") {

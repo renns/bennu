@@ -38,30 +38,22 @@ trait ServiceAssist {
   def queryLocal[T <: HasInternalId : Manifest](queryStr: String): List[T] = {
     import scala.concurrent._
     import scala.concurrent.duration.Duration
-    import com.qoid.bennu.webservices.QueryService
 
     val p = Promise[List[T]]()
 
     try {
-      query[T](queryStr)(handleAsyncResponse(_, p))
-
-      def handleAsyncResponse(
-        response: AsyncResponse,
-        p: Promise[List[T]]
-      ): Unit = {
-        response.responseType match {
-          case AsyncResponseType.Query =>
-            val responseData = QueryService.ResponseData.fromJson(response.data)
-
-            responseData.results match {
-              case JArray(r) =>
-                val typeName = manifest[T].runtimeClass.getSimpleName
-                val mapper = JdbcAssist.findMapperByTypeName(typeName)
-                p.success(r.map(mapper.fromJson(_).asInstanceOf[T]))
-              case JNothing => p.success(Nil)
-              case _ => p.failure(new Exception("Query didn't complete successfully"))
-            }
-          case _ => p.failure(new Exception("Query didn't complete successfully"))
+      query[T](queryStr) { response =>
+        try {
+          (response.responseType, response.results) match {
+            case (QueryResponseType.Query, JArray(r)) =>
+              val typeName = manifest[T].runtimeClass.getSimpleName
+              val mapper = JdbcAssist.findMapperByTypeName(typeName)
+              p.success(r.map(mapper.fromJson(_).asInstanceOf[T]))
+            case (QueryResponseType.Query, JNothing) => p.success(Nil)
+            case _ => p.failure(new Exception("Query didn't complete successfully"))
+          }
+        } catch {
+          case e: Exception => p.failure(e)
         }
       }
     } catch {
@@ -74,12 +66,13 @@ trait ServiceAssist {
   def query[T <: HasInternalId : Manifest](
     query: String,
     alias: Option[Alias] = None,
+    local: Boolean = true,
     connections: List[Connection] = Nil,
     historical: Boolean = true,
     standing: Boolean = false,
     context: JValue = JNothing
   )(
-    callback: AsyncResponse => Unit
+    callback: QueryResponse => Unit
   ): InternalId = {
 
     val typeName = manifest[T].runtimeClass.getSimpleName
@@ -88,6 +81,7 @@ trait ServiceAssist {
       "type" -> typeName.toLowerCase,
       "q" -> query,
       "aliasIid" -> alias.map(_.iid),
+      "local" -> local,
       "connectionIids" -> connections.map(c => c.iid),
       "historical" -> historical,
       "standing" -> standing,

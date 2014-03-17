@@ -2,10 +2,8 @@ package com.qoid.bennu.testclient
 
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
-import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
-import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
 import scala.concurrent._
 import scala.concurrent.duration.Duration
@@ -26,13 +24,13 @@ object QueryIntegrator extends GuiceApp {
     implicit val config = HttpAssist.HttpClientConfig()
 
     List[(String, () => Option[Exception])](
-      ("Query - Self Historical", querySelfHistorical),
-      ("Query - Self Standing", querySelfStanding),
-      ("Query - Sub-Alias Historical", querySubAliasHistorical),
-      ("Query - Sub-Alias Standing", querySubAliasStanding),
-      ("Query - Connection Historical", queryConnectionHistorical),
-      ("Query - Connection Standing", queryConnectionStanding)
-      //("Query - Connection Meta-Label Historical", queryConnectionMetaLabelHistorical) -- This isn't working yet
+      ("Query - Local Historical", queryLocalHistorical),
+      ("Query - Local Standing", queryLocalStanding),
+      ("Query - Sub-Alias Local Historical", querySubAliasLocalHistorical),
+      ("Query - Sub-Alias Local Standing", querySubAliasLocalStanding),
+      ("Query - Remote Historical", queryRemoteHistorical),
+      ("Query - Remote Standing", queryRemoteStanding)
+      //TODO: ("Query - Remote Meta-Label Historical", queryRemoteMetaLabelHistorical) -- This isn't working yet
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -41,7 +39,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySelfHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryLocalHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -49,8 +47,8 @@ object QueryIntegrator extends GuiceApp {
       val alias = client.getRootAlias()
       val label = client.createChildLabel(alias.rootLabelIid, "A")
 
-      val expected = QueryService.ResponseData(Some(alias.iid), None, "label", None, List(label.toJson)).toJson
-      client.query[Label](s"name = 'A'")(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(label.toJson)
+      client.query[Label](s"name = 'A'")(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -60,17 +58,16 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySelfStanding()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryLocalStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
       val client = HttpAssist.createAgent("Agent1")
-      val alias = client.getRootAlias()
       val rootLabel = client.getRootLabel()
       val label = Label("A")
 
-      val expected = QueryService.ResponseData(Some(alias.iid), None, "label", Some(StandingQueryAction.Update), List(label.toJson)).toJson
-      client.query[Label](s"name = 'A'", historical = false, standing = true)(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(label.toJson)
+      client.query[Label](s"name = 'A'", historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client.upsert(label)
       client.upsert(LabelChild(rootLabel.iid, label.iid))
@@ -83,7 +80,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySubAliasHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def querySubAliasLocalHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -93,8 +90,8 @@ object QueryIntegrator extends GuiceApp {
       val subAlias = client.createAlias(subLabel.iid, "Sub-Alias")
       val label = client.createChildLabel(subLabel.iid, "A")
 
-      val expected = QueryService.ResponseData(Some(subAlias.iid), None, "label", None, List(label.toJson)).toJson
-      client.query[Label](s"name = 'A'", Some(subAlias))(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(label.toJson)
+      client.query[Label](s"name = 'A'", Some(subAlias))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -104,7 +101,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def querySubAliasStanding()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def querySubAliasLocalStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -114,8 +111,8 @@ object QueryIntegrator extends GuiceApp {
       val subAlias = client.createAlias(subLabel.iid, "Sub-Alias")
       val label = Label("A")
 
-      val expected = QueryService.ResponseData(Some(subAlias.iid), None, "label", Some(StandingQueryAction.Update), List(label.toJson)).toJson
-      client.query[Label](s"name = 'A'", Some(subAlias), historical = false, standing = true)(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(label.toJson)
+      client.query[Label](s"name = 'A'", Some(subAlias), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client.upsert(label)
       client.upsert(LabelChild(subLabel.iid, label.iid))
@@ -128,7 +125,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def queryConnectionHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryRemoteHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -140,8 +137,8 @@ object QueryIntegrator extends GuiceApp {
       val (contents, _) = TestAssist.createSampleContent(client2, alias2, Some(conn2))
       val contentC = contents(2)
 
-      val expected = QueryService.ResponseData(None, Some(conn1.iid), "content", None, Some(List(contentC.toJson))).toJson
-      client1.query[Content](s"hasLabelPath('uber label','A','B','C')", None, List(conn1))(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(contentC.toJson)
+      client1.query[Content](s"hasLabelPath('uber label','A','B','C')", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -151,7 +148,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def queryConnectionStanding()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryRemoteStanding()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -164,8 +161,8 @@ object QueryIntegrator extends GuiceApp {
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 
-      val expected = QueryService.ResponseData(None, Some(conn1.iid), "content", Some(StandingQueryAction.Update), Some(List(content.toJson))).toJson
-      client1.query[Content](s"hasLabelPath('uber label','A')", None, List(conn1), historical = false, standing = true)(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(content.toJson)
+      client1.query[Content](s"hasLabelPath('uber label','A')", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client2.upsert(content)
       client2.upsert(LabeledContent(content.iid, label2.iid))
@@ -178,7 +175,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  def queryConnectionMetaLabelHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryConnectionMetaLabelHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -190,9 +187,9 @@ object QueryIntegrator extends GuiceApp {
       val content = client2.upsert(Content(alias2.iid, "TEXT", data = "text" ->  "agent 2 should see this"))
       client2.upsert(LabeledContent(content.iid, conn2.metaLabelIid))
 
-      val expected = QueryService.ResponseData(None, Some(conn1.iid), "content", None, Some(List(content.toJson))).toJson
+      val expectedResults = List(content.toJson)
       //TODO: implement hasConnectionMetaLabel - it would only exist on ConnectionSecurityContext
-      client1.query[Content]("hasConnectionMetaLabel()", None, List(conn1))(TestAssist.handleAsyncResponse(_, expected, p))
+      client1.query[Content]("hasConnectionMetaLabel()", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 

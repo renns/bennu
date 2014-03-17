@@ -1,12 +1,9 @@
 package com.qoid.bennu.testclient
 
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.Profile
-import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
-import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
 import scala.concurrent.Await
 import scala.concurrent.Promise
@@ -49,8 +46,8 @@ object ProfilesIntegrator extends GuiceApp {
       val alias2 = client2.createAlias(label2.iid, "Test")
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      val expected = QueryService.ResponseData(None, Some(conn1.iid), "profile", None, JArray(List(("name" -> "Test") ~ ("imgSrc" -> "")))).toJson
-      client1.query[Profile]("", None, List(conn1))(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(("name" -> "Test") ~ ("imgSrc" -> ""))
+      client1.query[Profile]("", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -71,8 +68,8 @@ object ProfilesIntegrator extends GuiceApp {
       val alias2 = client2.createAlias(label2.iid, "Test")
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      val expected = QueryService.ResponseData(None, Some(conn1.iid), "profile", Some(StandingQueryAction.Update), JArray(List(("name" -> "Test2") ~ ("imgSrc" -> "")))).toJson
-      client1.query[Profile]("", None, List(conn1), historical = false, standing = true)(TestAssist.handleAsyncResponse(_, expected, p))
+      val expectedResults = List(("name" -> "Test2") ~ ("imgSrc" -> ""))
+      client1.query[Profile]("", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client2.upsert(alias2.copy(profile = ("name" -> "Test2") ~ ("imgSrc" -> "")))
 

@@ -53,15 +53,15 @@ object TestAssist extends Logging {
     (contents.reverse, labels)
   }
 
-  def handleAsyncResponse(
-    response: AsyncResponse,
-    expected: JValue,
+  def handleQueryResponse(
+    response: QueryResponse,
+    expectedResults: JValue,
     p: Promise[Unit]
   ): Unit = {
-    if (response.data == expected) {
+    if (response.results == expectedResults) {
       p.success()
     } else {
-      p.failure(new Exception(s"Response data not as expected\nReceived:\n${response.data.toJsonStr}\nExpected:\n${expected.toJsonStr}"))
+      p.failure(new Exception(s"Response results not as expected\nReceived:\n${response.results.toJsonStr}\nExpected:\n${expectedResults.toJsonStr}"))
     }
   }
 }

@@ -6,12 +6,11 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
-import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
 import m3.predef._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 import scala.concurrent._
+import scala.concurrent.duration.Duration
 import scala.util.Failure
 import scala.util.Success
 
@@ -100,12 +99,12 @@ object IntroductionIntegrator extends GuiceApp {
       client.query[T]("", historical = false, standing = true) { response =>
         val typeName = manifest[T].runtimeClass.getSimpleName
 
-        QueryService.ResponseData.fromJson(response.data) match {
-          case QueryService.ResponseData(_, _, tpe, Some(StandingQueryAction.Insert), JArray(i :: Nil)) if tpe =:= typeName =>
-            client.deRegisterStandingQuery(response.handle)
-            val mapper = JdbcAssist.findMapperByTypeName(typeName)
+        response match {
+          case QueryResponse(QueryResponseType.SQuery, handle, tpe, _, JArray(i :: Nil), _, _, Some(StandingQueryAction.Insert)) if tpe =:= typeName =>
+            client.deRegisterStandingQuery(handle)
+            val mapper = JdbcAssist.findMapperByTypeName(tpe)
             p.success(mapper.fromJson(i).asInstanceOf[T])
-          case r => p.failure(new Exception(s"Unexpected response data -- $r"))
+          case r => p.failure(new Exception(s"Unexpected response -- $r"))
         }
       }
     } catch {

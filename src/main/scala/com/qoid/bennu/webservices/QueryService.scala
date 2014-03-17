@@ -1,14 +1,13 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
-import com.qoid.bennu.distributed.messages._
+import com.qoid.bennu.distributed.messages
+import com.qoid.bennu.distributed.messages.{DistributedMessage, DistributedMessageKind, QueryRequest}
 import com.qoid.bennu.model._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext
@@ -18,10 +17,9 @@ import com.qoid.bennu.squery.StandingQueryManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
-import m3.json.Json
 import m3.predef._
 import m3.servlet.beans.Parm
-import m3.servlet.longpoll.ChannelId
+import m3.servlet.longpoll.{ChannelManager, ChannelId}
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
@@ -31,11 +29,13 @@ case class QueryService @Inject()(
   distributedMgr: DistributedManager,
   sQueryMgr: StandingQueryManager,
   queryResponseMgr: QueryResponseManager,
+  channelMgr: ChannelManager,
   securityContext: SecurityContext,
   channelId: ChannelId,
   @Parm("type") _type: String,
   @Parm("q") queryStr: String,
   @Parm aliasIid: Option[InternalId] = None,
+  @Parm local: Boolean = true,
   @Parm connectionIids: List[InternalId] = Nil,
   @Parm historical: Boolean = true,
   @Parm standing: Boolean = false,
@@ -54,7 +54,7 @@ case class QueryService @Inject()(
 
     Txn.setViaTypename[SecurityContext](sc)
 
-    if (aliasIid.nonEmpty || connectionIids.isEmpty) submitLocalQuery(sc)
+    if (local) submitLocalQuery(sc)
     if (connectionIids.nonEmpty) submitRemoteQuery()
 
     "handle" -> handle
@@ -68,9 +68,8 @@ case class QueryService @Inject()(
           val av = injector.instance[AgentView]
           implicit val mapper = findMapperByTypeName(_type)
           val results = av.select(queryStr).toList
-          val responseData = QueryService.ResponseData(Some(sc.aliasIid), None, _type, None, results.map(_.toJson))
-          AsyncResponse(AsyncResponseType.Query, handle, true, responseData.toJson, context)
-            .send(channelId)
+          val response = QueryResponse(QueryResponseType.Query, handle, _type, context, results.map(_.toJson), Some(sc.aliasIid))
+          channelMgr.channel(channelId).put(response.toJson)
         }
       }
     }
@@ -82,7 +81,7 @@ case class QueryService @Inject()(
         handle,
         _type,
         queryStr,
-        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, context, channelId)
+        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, context, channelMgr, channelId)
       )
     }
   }
@@ -93,7 +92,7 @@ case class QueryService @Inject()(
 
     queryResponseMgr.registerHandle(
       handle,
-      QueryService.distributedResponseHandler(_, _, handle, _type, context, channelId)
+      QueryService.distributedResponseHandler(_, _, handle, _type, context, channelMgr, channelId)
     )
 
     connectionIids.foreach { connectionIid =>
@@ -112,34 +111,24 @@ object QueryService extends Logging {
     handle: Handle,
     tpe: String,
     context: JValue,
+    channelMgr: ChannelManager,
     channelId: ChannelId
   ): Unit = {
-    val responseData = QueryService.ResponseData(Some(aliasIid), None, tpe, Some(action), List(instance.toJson))
-    AsyncResponse(AsyncResponseType.SQuery, handle, true, responseData.toJson, context)
-      .send(channelId)
+    val response = QueryResponse(QueryResponseType.SQuery, handle, tpe, context, List(instance.toJson), Some(aliasIid), None, Some(action))
+    channelMgr.channel(channelId).put(response.toJson)
   }
 
   def distributedResponseHandler(
     connection: Connection,
-    message: QueryResponse,
+    message: messages.QueryResponse,
     handle: Handle,
     tpe: String,
     context: JValue,
+    channelMgr: ChannelManager,
     channelId: ChannelId
   ): Unit = {
-    val responseData = QueryService.ResponseData(None, Some(connection.iid), tpe, message.action, message.results)
-    val responseType = if (message.standing) AsyncResponseType.SQuery else AsyncResponseType.Query
-    AsyncResponse(responseType, handle, true, responseData.toJson, context)
-      .send(channelId)
+    val responseType = if (message.standing) QueryResponseType.SQuery else QueryResponseType.Query
+    val response = QueryResponse(responseType, handle, tpe, context, message.results, None, Some(connection.iid), message.action)
+    channelMgr.channel(channelId).put(response.toJson)
   }
-
-  object ResponseData extends FromJsonCapable[ResponseData]
-
-  case class ResponseData(
-    aliasIid: Option[InternalId],
-    connectionIid: Option[InternalId],
-    @Json("type") tpe: String,
-    action: Option[StandingQueryAction],
-    results: JValue
-  ) extends ToJsonCapable
 }

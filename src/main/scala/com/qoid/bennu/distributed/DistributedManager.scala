@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.handlers._
 import com.qoid.bennu.distributed.messages._
-import com.qoid.bennu.model._
+import com.qoid.bennu.model.Connection
 import com.qoid.bennu.security.ConnectionSecurityContext
 import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }

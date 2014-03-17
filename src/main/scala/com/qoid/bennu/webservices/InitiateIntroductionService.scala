@@ -3,7 +3,7 @@ package com.qoid.bennu.webservices
 import com.google.inject.Inject
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
-import com.qoid.bennu.distributed.messages._
+import com.qoid.bennu.distributed.messages
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.introduction.IntroductionState
 import com.qoid.bennu.security.AgentView
@@ -51,19 +51,19 @@ case class InitiateIntroductionService @Inject()(
 
         distributedMgr.send(
           aConnection,
-          DistributedMessage(
-            DistributedMessageKind.IntroductionRequest,
+          messages.DistributedMessage(
+            messages.DistributedMessageKind.IntroductionRequest,
             1,
-            IntroductionRequest(introduction.iid, aMessage, profileB).toJson
+            messages.IntroductionRequest(introduction.iid, aMessage, profileB).toJson
           )
         )
 
         distributedMgr.send(
           bConnection,
-          DistributedMessage(
-            DistributedMessageKind.IntroductionRequest,
+          messages.DistributedMessage(
+            messages.DistributedMessageKind.IntroductionRequest,
             1,
-            IntroductionRequest(introduction.iid, bMessage, profileA).toJson
+            messages.IntroductionRequest(introduction.iid, bMessage, profileA).toJson
           )
         )
       }
@@ -75,14 +75,17 @@ case class InitiateIntroductionService @Inject()(
   private def getProfile(av: AgentView, connection: Connection): Future[JValue] = {
     val p = Promise[JValue]()
     val handle = Handle.random
-    val request = QueryRequest("profile", "", historical = true, standing = false, handle = handle)
+    val request = messages.QueryRequest("profile", "", historical = true, standing = false, handle = handle)
 
     queryResponseMgr.registerHandle(
       handle,
       InitiateIntroductionService.distributedResponseHandler(_, _, p)
     )
 
-    distributedMgr.send(connection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
+    distributedMgr.send(
+      connection,
+      messages.DistributedMessage(messages.DistributedMessageKind.QueryRequest, 1, request.toJson)
+    )
 
     p.future
   }
@@ -91,7 +94,7 @@ case class InitiateIntroductionService @Inject()(
 object InitiateIntroductionService {
   def distributedResponseHandler(
     connection: Connection,
-    message: QueryResponse,
+    message: messages.QueryResponse,
     p: Promise[JValue]
   ): Unit = {
     message.results match {
