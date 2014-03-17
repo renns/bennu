@@ -25,12 +25,13 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
 
     lazy val labelTreeLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
-     select rootLabelIid as labelIid from alias where iid = ${aliasIid}
+     select rootLabelIid as labelIid from alias where iid = ${aliasIid} and deleted = false
      union all
      -- the following is the recursion query
      select lc.childIid as labelIid
      from labelchild lc
        join reachable_labels lt on lt.labelIid = lc.parentIid
+     where lc.deleted = false
   )
   select *
   from reachable_labels
@@ -42,7 +43,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
           from
             connection
           where
-            aliasIid in (${reachableAliasIids})
+            aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
 
     lazy val reachableAliasIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
@@ -51,7 +52,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
           from
             alias
           where
-            rootLabelIid in (${labelTreeLabelIids})
+            rootLabelIid in (${labelTreeLabelIids}) and deleted = false
       """).toList
 
     lazy val reachableConnectionIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
@@ -60,7 +61,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
           from
             connection
           where
-            aliasIid in (${reachableAliasIids})
+            aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
 
     lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
@@ -79,7 +80,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
         case "label" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
         case "content" => {
           // TODO this needs to be optimized
-          val content = injector.instance[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids})""").toList
+          val content = injector.instance[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids}) and deleted = false""").toList
           query.and(Query.parse(sql"""iid in (${content})"""))
         }
         case "introduction" => query.and(Query.parse(sql"""aConnectionIid in (${reachableConnectionIids}) and bConnectionIid in (${reachableConnectionIids})"""))
