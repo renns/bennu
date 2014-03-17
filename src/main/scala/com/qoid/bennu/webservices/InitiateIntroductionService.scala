@@ -5,6 +5,7 @@ import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.introduction.IntroductionState
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }

@@ -82,6 +82,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
           val content = injector.instance[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids})""").toList
           query.and(Query.parse(sql"""iid in (${content})"""))
         }
+        case "introduction" => query.and(Query.parse(sql"""aConnectionIid in (${reachableConnectionIids}) and bConnectionIid in (${reachableConnectionIids})"""))
         case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabelIids}) and childIid in (${reachableLabelIids})"""))
         case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabelIids})"""))
         case "notification" => query.and(Query.parse(sql"""fromConnectionIid in (${reachableConnectionIids})"""))

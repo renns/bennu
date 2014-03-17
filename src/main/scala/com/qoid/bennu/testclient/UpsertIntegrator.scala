@@ -35,9 +35,13 @@ object UpsertIntegrator extends GuiceApp {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val label = Label("Insert Label")
-      client.upsert(label)
+      val returnedLabel = client.upsert(label)
 
-      None
+      if (label == returnedLabel) {
+        None
+      } else {
+        Some(new Exception("Returned label doesn't match"))
+      }
     } catch {
       case e: Exception => Some(e)
     }
@@ -49,9 +53,13 @@ object UpsertIntegrator extends GuiceApp {
       val insertLabel = Label("Insert Label")
       val newLabel = client.upsert(insertLabel)
       val updateLabel = newLabel.copy(name = "UpdateLabel")
-      client.upsert(updateLabel)
+      val returnedLabel = client.upsert(updateLabel)
 
-      None
+      if (updateLabel == returnedLabel) {
+        None
+      } else {
+        Some(new Exception("Returned label doesn't match"))
+      }
     } catch {
       case e: Exception => Some(e)
     }

@@ -17,6 +17,7 @@ object IntegratorRunner extends GuiceApp {
   def run(): List[(String, Option[Exception])] = {
     AliasLoginIntegrator.run() ++
     DeleteIntegrator.run() ++
+    IntroductionIntegrator.run() ++
     ProfilesIntegrator.run() ++
     QueryIntegrator.run() ++
     UpsertIntegrator.run()

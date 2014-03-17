@@ -9,11 +9,13 @@ object DistributedMessageKind extends Enum[DistributedMessageKind] {
   case object QueryResponse extends DistributedMessageKind
   case object IntroductionRequest extends DistributedMessageKind
   case object IntroductionResponse extends DistributedMessageKind
+  case object IntroductionConnect extends DistributedMessageKind
 
   override val values: Set[DistributedMessageKind] = Set(
     QueryRequest,
     QueryResponse,
     IntroductionRequest,
-    IntroductionResponse
+    IntroductionResponse,
+    IntroductionConnect
   )
 }

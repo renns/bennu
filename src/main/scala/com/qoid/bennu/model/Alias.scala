@@ -31,13 +31,11 @@ case class Alias(
 
   //TODO: Remove below after profiles are re-done
   import com.qoid.bennu.squery.StandingQueryAction
-  override def notifyStandingQueries(action: StandingQueryAction): TInstance = {
+  override def notifyStandingQueries(action: StandingQueryAction): Unit = {
     super.notifyStandingQueries(action)
 
     if (action == StandingQueryAction.Update) {
       Profile.fromAlias(this).notifyStandingQueries(action)
     }
-
-    this
   }
 }

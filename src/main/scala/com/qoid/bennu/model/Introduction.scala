@@ -1,9 +1,9 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import com.qoid.bennu.model.introduction.IntroductionState
 import m3.jdbc.PrimaryKey
 import net.liftweb.json._
-import com.qoid.bennu.Enum
 
 object Introduction extends BennuMapperCompanion[Introduction] {
 }
@@ -31,18 +31,4 @@ case class Introduction(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
-}
-
-sealed trait IntroductionState
-
-object IntroductionState extends Enum[IntroductionState] {
-  case object NotResponded extends IntroductionState
-  case object Accepted extends IntroductionState
-  case object Rejected extends IntroductionState
-
-  override val values: Set[IntroductionState] = Set(
-    NotResponded,
-    Accepted,
-    Rejected
-  )
 }

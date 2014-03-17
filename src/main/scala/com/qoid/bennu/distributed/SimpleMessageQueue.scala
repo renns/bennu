@@ -10,7 +10,11 @@ class SimpleMessageQueue {
   private val map = new LockFreeMap[(PeerId, PeerId), DistributedMessage => Unit]
 
   def subscribe(connections: List[Connection], fn: Connection => DistributedMessage => Unit): Unit = {
-    connections.foreach(c => map += (c.remotePeerId, c.localPeerId) -> fn(c))
+    connections.foreach(c => map.put((c.remotePeerId, c.localPeerId), fn(c)))
+  }
+
+  def unsubscribe(connection: Connection): Unit = {
+    map.remove((connection.remotePeerId, connection.localPeerId))
   }
 
   def enqueue(connection: Connection, message: DistributedMessage): Unit = {

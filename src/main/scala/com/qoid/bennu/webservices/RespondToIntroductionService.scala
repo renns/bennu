@@ -2,8 +2,11 @@ package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
 import com.qoid.bennu.distributed.DistributedManager
-import com.qoid.bennu.distributed.messages._
+import com.qoid.bennu.distributed.messages.DistributedMessage
+import com.qoid.bennu.distributed.messages.DistributedMessageKind
+import com.qoid.bennu.distributed.messages.IntroductionResponse
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.notification.IntroductionRequest
 import com.qoid.bennu.security.AgentView
 import java.sql.{ Connection => JdbcConn }
 import m3.predef._
@@ -24,11 +27,15 @@ case class RespondToIntroductionService @Inject()(
     val av = injector.instance[AgentView]
 
     val notification = av.fetch[Notification](notificationIid)
-    av.update[Notification](notification.copy(consumed = true))
+    val introductionRequest = IntroductionRequest.fromJson(notification.data)
+    introductionRequest.copy(accepted = Some(accepted))
+
+    av.update[Notification](notification.copy(
+      consumed = true,
+      data = introductionRequest.copy(accepted = Some(accepted)).toJson
+    ))
 
     val connection = av.fetch[Connection](notification.fromConnectionIid)
-
-    val introductionRequest = IntroductionRequest.fromJson(notification.data)
 
     distributedMgr.send(
       connection,

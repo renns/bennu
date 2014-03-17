@@ -2,16 +2,11 @@ package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.distributed.DistributedManager
-import java.sql.{ Connection => JdbcConn }
 import m3.jdbc.PrimaryKey
 import m3.predef._
 import net.liftweb.json._
 
 object Connection extends BennuMapperCompanion[Connection] {
-  override def insert(instance: Connection)(implicit jdbcConn: JdbcConn): Connection = {
-    inject[DistributedManager].listen(List(instance))
-    super.insert(instance)
-  }
 }
 
 case class Connection(
@@ -38,5 +33,11 @@ case class Connection(
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
 
-}
+  override def postInsert(): Unit = {
+    inject[DistributedManager].listen(this)
+  }
 
+  override def postDelete(): Unit = {
+    inject[DistributedManager].stopListen(this)
+  }
+}

@@ -10,10 +10,10 @@ import com.qoid.bennu.webservices.QueryService
 import m3.guice.GuiceApp
 import m3.predef._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.duration.Duration
+import scala.concurrent._
 import scala.util.Failure
 import scala.util.Success
-import scala.concurrent.duration.Duration
 
 object IntroductionIntegrator extends GuiceApp {
   val results = run()
@@ -31,7 +31,7 @@ object IntroductionIntegrator extends GuiceApp {
     implicit val config = HttpAssist.HttpClientConfig()
 
     List[(String, () => Option[Exception])](
-      ("Introduction - Accept/Accept Standing Query", acceptAcceptStandingQuery)
+      ("Introduction - Accept", introduceAccept)
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -40,59 +40,7 @@ object IntroductionIntegrator extends GuiceApp {
     }
   }
 
-//  def run(aAccept: Boolean, bAccept: Boolean): Unit = {
-//    val testName = "Introduction (" + (if (aAccept) "accept" else "reject") + "/" + (if (bAccept) "accept" else "reject") + ")"
-//
-//    try {
-//      val clientA = HttpAssist.createAgent("A")
-//      val clientB = HttpAssist.createAgent("B")
-//      val clientC = HttpAssist.createAgent("C")
-//      val aliasA = clientA.getRootAlias()
-//      val aliasB = clientB.getRootAlias()
-//      val aliasC = clientC.getRootAlias()
-//      val connAIntro = clientA.query[Connection]("").head
-//      val connBIntro = clientB.query[Connection]("").head
-//      val (connAC, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
-//      val (connBC, connCB) = TestAssist.createConnection(clientB, aliasB, clientC, aliasC)
-//
-//      clientC.initiateIntroduction(connCA, "Message to A", connCB, "Message to B")
-//
-//      // Give C time to send notifications
-//      Thread.sleep(1000)
-//
-//      val notificationA = clientA.query[Notification](s"consumed = false and fromConnectionIid = '${connAC.iid.value}' and kind = '${NotificationKind.IntroductionRequest}'").head
-//      logger.debug(s"Received notification -- $notificationA")
-//      clientA.respondToIntroduction(notificationA, aAccept)
-//
-//      val notificationB = clientB.query[Notification](s"consumed = false and fromConnectionIid = '${connBC.iid.value}' and kind = '${NotificationKind.IntroductionRequest}'").head
-//      logger.debug(s"Received notification -- $notificationB")
-//      clientB.respondToIntroduction(notificationB, bAccept)
-//
-//      // Give C time to create connections
-//      Thread.sleep(1000)
-//
-//      val aConnections = clientA.query[Connection](sql"iid <> ${connAC.iid} and iid <> ${connAIntro.iid}")
-//      val bConnections = clientB.query[Connection](sql"iid <> ${connBC.iid} and iid <> ${connBIntro.iid}")
-//
-//      if (aAccept && bAccept) {
-//        if (aConnections.head.localPeerId == bConnections.head.remotePeerId && aConnections.head.remotePeerId == bConnections.head.localPeerId) {
-//          logger.debug(s"$testName: PASS")
-//        } else {
-//          logger.warn(s"$testName: FAIL -- Created connections are not a pair")
-//        }
-//      } else {
-//        if (aConnections.isEmpty && bConnections.isEmpty) {
-//          logger.debug(s"$testName: PASS")
-//        } else {
-//          logger.warn(s"$testName: FAIL -- Connections created when introduction was rejected")
-//        }
-//      }
-//    } catch {
-//      case e: Exception => logger.warn(s"$testName: FAIL", e)
-//    }
-//  }
-
-  def acceptAcceptStandingQuery()(implicit config: HttpClientConfig): Option[Exception] = {
+  def introduceAccept()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val pA = Promise[Connection]()
       val pB = Promise[Connection]()
@@ -124,6 +72,8 @@ object IntroductionIntegrator extends GuiceApp {
             case Failure(e) => pB.failure(e)
           }
 
+          // Put a delay to prevent race condition. This can be removed once race condition is fixed.
+          Thread.sleep(1000)
           clientB.respondToIntroduction(n, true)
         case Failure(e) => pB.failure(e)
       }
@@ -152,6 +102,7 @@ object IntroductionIntegrator extends GuiceApp {
 
         QueryService.ResponseData.fromJson(response.data) match {
           case QueryService.ResponseData(_, _, tpe, Some(StandingQueryAction.Insert), JArray(i :: Nil)) if tpe =:= typeName =>
+            client.deRegisterStandingQuery(response.handle)
             val mapper = JdbcAssist.findMapperByTypeName(typeName)
             p.success(mapper.fromJson(i).asInstanceOf[T])
           case r => p.failure(new Exception(s"Unexpected response data -- $r"))

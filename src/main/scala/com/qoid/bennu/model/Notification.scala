@@ -3,6 +3,7 @@ package com.qoid.bennu.model
 import com.qoid.bennu.JdbcAssist._
 import m3.jdbc._
 import net.liftweb.json._
+import com.qoid.bennu.model.notification.NotificationKind
 
 object Notification extends BennuMapperCompanion[Notification] {
 }
