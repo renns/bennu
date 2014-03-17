@@ -87,12 +87,13 @@ object SecurityContext {
 
       lazy val labelTreeLabelIids = inject[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
-     select rootLabelIid as labelIid from alias where iid = ${aliasIid}
+     select rootLabelIid as labelIid from alias where iid = ${aliasIid} and deleted = false
      union all 
      -- the following is the recursion query
      select lc.childIid as labelIid
      from labelchild lc
        join reachable_labels lt on lt.labelIid = lc.parentIid
+     where lc.deleted = false
   )
   select *
   from reachable_labels
@@ -104,7 +105,7 @@ object SecurityContext {
           from 
             connection
           where
-            aliasIid in (${reachableAliasIids})
+            aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
       
       lazy val reachableAliasIids = inject[JdbcConn].queryFor[InternalId](sql"""
@@ -113,7 +114,7 @@ object SecurityContext {
           from 
             alias
           where
-            rootLabelIid in (${labelTreeLabelIids})
+            rootLabelIid in (${labelTreeLabelIids}) and deleted = false
       """).toList
 
       lazy val reachableConnectionIids = inject[JdbcConn].queryFor[InternalId](sql"""
@@ -122,7 +123,7 @@ object SecurityContext {
           from
             connection
           where
-            aliasIid in (${reachableAliasIids})
+            aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
       
       lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
@@ -137,7 +138,7 @@ object SecurityContext {
           case "label" => query.and(Query.parse(sql"""iid in (${reachableLabelIids})"""))
           case "content" => {
             // TODO this needs to be optimized
-            val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids})""").toList
+            val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabelIids}) and deleted = false""").toList
             query.and(Query.parse(sql"""iid in (${content})"""))
           }
           case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabelIids}) and childIid in (${reachableLabelIids})"""))
@@ -190,19 +191,20 @@ object SecurityContext {
   with recursive reachable_labels as (
      select labelIid
      from labelacl
-     where connectionIid = ${connectionIid}  -- this is the starting point query
+     where connectionIid = ${connectionIid} and deleted = false  -- this is the starting point query
      union all 
      -- the following is the recursion query
      select lc.childIid
      from labelchild lc
        join reachable_labels lt on lt.labelIid = lc.parentIid
+     where lc.deleted = false
   )
   select *
   from reachable_labels
       """).toList
       
       lazy val reachableLabelAcls = inject[JdbcConn].queryFor[InternalId](sql"""
-        select iid from labelacl where connectionIid = ${connectionIid}
+        select iid from labelacl where connectionIid = ${connectionIid} and deleted = false
       """).toList
       
       override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
@@ -213,7 +215,7 @@ object SecurityContext {
             case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
             case "content" =>
               // TODO this needs to be optimized
-              val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabels})""").toList
+              val content = inject[JdbcConn].queryFor[InternalId](sql"""select contentIid from labeledcontent where labelIid in (${reachableLabels}) and deleted = false""").toList
               query.and(Query.parse(sql"""iid in (${content})"""))
             case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
             case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
@@ -304,12 +306,13 @@ object SecurityContext {
   def resolveLabelAncestry(parentLabelIid: InternalId)(implicit jdbcConn: JdbcConn): Iterator[InternalId] = {
     jdbcConn.queryFor[InternalId](sql"""
   with recursive reachable_labels as (
-      select iid as labelIid from label where iid = ${parentLabelIid}
+      select iid as labelIid from label where iid = ${parentLabelIid} and deleted = false
     union all 
       -- the following is the recursion query
       select lc.childIid as labelIid
       from labelchild lc
          join reachable_labels lt on lt.labelIid = lc.parentIid
+       where lc.deleted = false
   )
   select *
   from reachable_labels
