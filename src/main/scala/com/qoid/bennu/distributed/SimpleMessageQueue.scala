@@ -1,11 +1,12 @@
 package com.qoid.bennu.distributed
 
+import com.google.inject.Singleton
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.PeerId
 import m3.LockFreeMap
 
-@com.google.inject.Singleton
+@Singleton
 class SimpleMessageQueue {
   private val map = new LockFreeMap[(PeerId, PeerId), DistributedMessage => Unit]
 

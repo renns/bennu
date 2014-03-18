@@ -1,11 +1,12 @@
 package com.qoid.bennu.distributed
 
+import com.google.inject.Singleton
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.distributed.messages.QueryResponse
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.Handle
 
-@com.google.inject.Singleton
+@Singleton
 class QueryResponseManager {
   private val cache = new MemoryCache[Handle, (Connection, QueryResponse) => Unit]
 

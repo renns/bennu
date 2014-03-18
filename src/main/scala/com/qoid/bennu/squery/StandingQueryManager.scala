@@ -1,6 +1,7 @@
 package com.qoid.bennu.squery
 
 import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.MemoryListCache
@@ -15,7 +16,7 @@ import m3.Txn
 import m3.jdbc._
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
-@com.google.inject.Singleton
+@Singleton
 class StandingQueryManager @Inject()(injector: ScalaInjector) {
   private val cache = new MemoryCache[Handle, StandingQueryManager.CacheValue]
   private val agentTypeIndex = new MemoryListCache[(AgentId, String), Handle]

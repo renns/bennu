@@ -1,6 +1,7 @@
 package com.qoid.bennu.distributed
 
 import com.google.inject.Inject
+import com.google.inject.Singleton
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.handlers._
 import com.qoid.bennu.distributed.messages._
@@ -12,7 +13,7 @@ import m3.Txn
 import m3.predef._
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
-@com.google.inject.Singleton
+@Singleton
 class DistributedManager @Inject()(
   injector: ScalaInjector,
   messageQueue: SimpleMessageQueue
