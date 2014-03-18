@@ -60,9 +60,6 @@ class WebServicesModule extends M3ServletModule {
     serveBean[RespondToIntroductionService](ServicePath.respondToIntroduction)
 
     serveBean[GetProfilesService](ServicePath.getProfiles)
-
-    serveBean[AdditionService]("/api/example/add")
-    serveBean[MultiplicationService]("/api/example/multiply")
     
     addServletBeanFilter
   }
