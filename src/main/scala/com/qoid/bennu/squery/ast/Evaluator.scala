@@ -41,6 +41,11 @@ object Evaluator extends Logging {
         }
       }
       case "hasLabel" => impl.hasLabel(row, InternalId(ContentQuery.stringLiteral(fc.parms)))
+      case "hasConnectionMetaLabel" =>
+        agentView.resolveConnectionMetaLabel() match {
+          case Full(iid) => impl.hasLabel(row, iid)
+          case _ => VFalse
+        }
       case _ => m3x.error("function call not supported -- " + reify(fc))
 
     }

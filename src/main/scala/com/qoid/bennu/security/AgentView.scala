@@ -117,4 +117,6 @@ trait AgentView {
     if ( rootLabel.name == path.head ) recurse(rootLabel, path.tail) ?~ s"label not found -- ${path.mkString("/")}"
     else recurse(rootLabel, path) ?~ s"label not found -- ${path.mkString("/")}"
   }
+
+  def resolveConnectionMetaLabel(): Box[InternalId] = Empty
 }

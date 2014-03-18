@@ -75,5 +75,7 @@ case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: Int
         throw new ServiceException(s"connection is not allowed to access ${mapper.typeName}", ErrorCode.Forbidden)
       }
     }
+
+    override def resolveConnectionMetaLabel(): Box[InternalId] = Full(connection.metaLabelIid)
   }
 }

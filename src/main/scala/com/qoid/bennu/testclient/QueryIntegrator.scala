@@ -29,8 +29,8 @@ object QueryIntegrator extends GuiceApp {
       ("Query - Sub-Alias Local Historical", querySubAliasLocalHistorical),
       ("Query - Sub-Alias Local Standing", querySubAliasLocalStanding),
       ("Query - Remote Historical", queryRemoteHistorical),
-      ("Query - Remote Standing", queryRemoteStanding)
-      //TODO: ("Query - Remote Meta-Label Historical", queryRemoteMetaLabelHistorical) -- This isn't working yet
+      ("Query - Remote Standing", queryRemoteStanding),
+      ("Query - Remote Meta-Label Historical", queryRemoteMetaLabelHistorical)
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -175,7 +175,7 @@ object QueryIntegrator extends GuiceApp {
     }
   }
 
-  private def queryConnectionMetaLabelHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+  private def queryRemoteMetaLabelHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val p = Promise[Unit]()
 
@@ -188,7 +188,6 @@ object QueryIntegrator extends GuiceApp {
       client2.upsert(LabeledContent(content.iid, conn2.metaLabelIid))
 
       val expectedResults = List(content.toJson)
-      //TODO: implement hasConnectionMetaLabel - it would only exist on ConnectionSecurityContext
       client1.query[Content]("hasConnectionMetaLabel()", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
