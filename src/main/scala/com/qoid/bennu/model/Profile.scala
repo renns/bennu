@@ -2,17 +2,17 @@ package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.JsonAssist.jsondsl._
+import m3.jdbc.PrimaryKey
 
 object Profile extends BennuMapperCompanion[Profile] {
-  def fromAlias(alias: Alias): Profile = Profile.fromJson(alias.profile).copy2(agentId = alias.agentId)
 }
 
 case class Profile(
+  aliasIid: InternalId,
   name: String,
   imgSrc: String,
   agentId: AgentId = AgentId(""),
-  iid: InternalId = InternalId(""),
+  @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Profile] { self =>
@@ -29,6 +29,4 @@ case class Profile(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
-
-  override def toJson: JValue = ("name" -> name) ~ ("imgSrc" -> imgSrc)
 }

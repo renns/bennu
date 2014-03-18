@@ -43,10 +43,11 @@ object ProfilesIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val label2 = client2.getRootLabel()
-      val alias2 = client2.createAlias(label2.iid, "Test")
+      val alias2 = client2.createAlias(label2.iid, "Test", "")
+      val profile2 = client2.getProfile(alias2.iid)
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      val expectedResults = List(("name" -> "Test") ~ ("imgSrc" -> ""))
+      val expectedResults = List(profile2)
       client1.query[Profile]("", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
@@ -65,13 +66,14 @@ object ProfilesIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val label2 = client2.getRootLabel()
-      val alias2 = client2.createAlias(label2.iid, "Test")
+      val alias2 = client2.createAlias(label2.iid, "Test", "")
+      val profile2 = client2.getProfile(alias2.iid).copy(name = "Test2")
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
-      val expectedResults = List(("name" -> "Test2") ~ ("imgSrc" -> ""))
+      val expectedResults = List(profile2)
       client1.query[Profile]("", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
-      client2.upsert(alias2.copy(profile = ("name" -> "Test2") ~ ("imgSrc" -> "")))
+      client2.upsert(profile2)
 
       Await.result(p.future, Duration("10 seconds"))
 

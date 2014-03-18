@@ -13,7 +13,7 @@ create cached table alias (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,
 	rootLabelIid varchar(32) not NULL,
-	profile Clob not NULL,
+	name varchar(50) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)
@@ -103,6 +103,17 @@ create cached table notification (
 	consumed bit not NULL,
 	fromConnectionIid varchar(32) not NULL,
 	kind varchar(50) not NULL,
+	data Clob not NULL,
+	deleted bit not NULL,
+	primary key(iid)
+)
+;
+create cached table profile (
+	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
+	aliasIid varchar(32) not NULL,
+	name varchar(50) not NULL,
+	imgSrc Clob not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)

@@ -87,6 +87,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
         case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabelIids}) and childIid in (${reachableLabelIids})"""))
         case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabelIids})"""))
         case "notification" => query.and(Query.parse(sql"""fromConnectionIid in (${reachableConnectionIids})"""))
+        case "profile" => query.and(Query.parse(sql"""aliasIid in (${reachableAliasIids})"""))
         case _ => query.and(Query.parse(sql"""1 <> 1"""))
       }
     }

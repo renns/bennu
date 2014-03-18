@@ -16,7 +16,8 @@ object ConnectionSecurityContext {
     Label,
     LabelAcl,
     LabelChild,
-    LabeledContent
+    LabeledContent,
+    Profile
   )
 }
 
@@ -70,6 +71,7 @@ case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: Int
             query.and(Query.parse(sql"""iid in (${content})"""))
           case "labelchild" => query.and(Query.parse(sql"""parentIid in (${reachableLabels}) and childIid in (${reachableLabels})"""))
           case "labeledcontent" => query.and(Query.parse(sql"""labelIid in (${reachableLabels})"""))
+          case "profile" => query.and(Query.parse(sql"""aliasIid = ${aliasIid.value}"""))
         }
       } else {
         throw new ServiceException(s"connection is not allowed to access ${mapper.typeName}", ErrorCode.Forbidden)

@@ -21,7 +21,7 @@ object AliasLoginIntegrator extends GuiceApp {
     implicit val config = HttpAssist.HttpClientConfig()
 
     List[(String, () => Option[Exception])](
-      ("Alias Login - Get Profile", getProfile)
+      ("Alias Login - Get Alias Name", getAliasName)
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -30,15 +30,15 @@ object AliasLoginIntegrator extends GuiceApp {
     }
   }
 
-  def getProfile()(implicit config: HttpClientConfig): Option[Exception] = {
+  def getAliasName()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       HttpAssist.createAgent("Agent1")
       val client = ChannelClientFactory.createHttpChannelClient("agent1.anonymous")
       val alias = client.getRootAlias()
 
-      alias.profile \ "name" match {
-        case JString("Anonymous") => None
-        case n => Some(new Exception(s"Profile name invalid -- $n"))
+      alias.name match {
+        case "Anonymous" => None
+        case n => Some(new Exception(s"Alias name invalid -- $n"))
       }
     } catch {
       case e: Exception => Some(e)

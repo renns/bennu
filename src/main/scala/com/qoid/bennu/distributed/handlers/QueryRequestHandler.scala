@@ -5,14 +5,12 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
-import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.Handle
 import com.qoid.bennu.model.HasInternalId
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
-import m3.predef._
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 object QueryRequestHandler {
@@ -27,15 +25,6 @@ object QueryRequestHandler {
   }
 
   private def processHistorical(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
-    // TODO: Remove this section once profiles are re-done
-    if (queryRequest.tpe =:= "profile") {
-      implicit val jdbcConn = injector.instance[java.sql.Connection]
-      val results = JArray(List(Alias.fetch(connection.aliasIid).profile))
-      val responseData = QueryResponse(queryRequest.handle, results)
-      val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
-      injector.instance[DistributedManager].send(connection, responseMessage)
-    }
-
     val av = injector.instance[AgentView]
     val mapper = findMapperByTypeName(queryRequest.tpe)
     val results = JArray(av.select(queryRequest.query)(mapper).map(_.toJson).toList)

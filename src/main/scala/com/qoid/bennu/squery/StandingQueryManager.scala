@@ -89,12 +89,6 @@ class StandingQueryManager @Inject()(injector: ScalaInjector) {
       handle <- agentTypeIndex.get((instance.agentId, mapper.typeName.toLowerCase))
       v <- cache.get(handle)
     } {
-      //TODO: Remove this section once profile is re-done
-      if (mapper.typeName.toLowerCase == "profile") {
-        v.fn(instance, action)
-        return
-      }
-
       Txn {
         val securityContext = (v.remote, v.aliasIid, v.connectionIid) match {
           case (false, Some(aliasIid), _) => Some(AliasSecurityContext(injector, aliasIid))

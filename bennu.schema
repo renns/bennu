@@ -42,7 +42,7 @@ table alias {
   iid           InternalId key;
   agentId       AgentId;
   rootLabelIid  Label;
-  profile       Clob;
+  name          Name;
   import(CommonFields);
 }
 
@@ -98,5 +98,14 @@ table introduction {
   aState            varchar(50);
   bConnectionIid    InternalId;
   bState            varchar(50);
+  import(CommonFields);
+}
+
+table profile {
+  iid               InternalId key;
+  agentId           AgentId;
+  aliasIid          InternalId;
+  name              Name;
+  imgSrc            Clob;
   import(CommonFields);
 }

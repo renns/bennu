@@ -41,7 +41,7 @@ object ChannelMap {
         (
           for {
             agent <- Agent.selectOpt(sql"LCASE(name) = ${agentName.toLowerCase}")
-            alias <- Alias.selectOpt(sql"LCASE(json_str(profile, 'name')) = ${aliasName.toLowerCase} and agentId = ${agent.agentId}")
+            alias <- Alias.selectOpt(sql"LCASE(name) = ${aliasName.toLowerCase} and agentId = ${agent.agentId}")
           } yield (createChannel(alias), alias.iid)
         ) ?~ s"failed to authenticate $authenticationId"
       case _ => Failure(s"failed to authenticate $authenticationId")

@@ -1,7 +1,6 @@
 package com.qoid.bennu.schema
 
-import com.qoid.bennu.model.Agent
-import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model._
 import com.qoid.bennu.webservices.CreateAgent
 import java.sql.Connection
 import javax.sql.DataSource
@@ -37,14 +36,16 @@ object CreateDatabase extends App {
         overWrite = true, 
         connectToIntroducer = false
     ).doCreate()
-    
-    val introducerAlias = Alias.fetch(Agent.selectOne(sql"name = ${CreateAgent.introducerAgentName}").uberAliasIid)
+
+    val introducerAgent = Agent.selectOne(sql"name = ${CreateAgent.introducerAgentName}")
+    val introducerAlias = Alias.fetch(introducerAgent.uberAliasIid)
+    val introducerLabel = Label.fetch(introducerAlias.rootLabelIid)
+    val introducerProfile = Profile.selectOne(sql"aliasIid = ${introducerAlias.iid}")
 
     // fix the name of the introducer's alias
-    introducerAlias.copy(profile = CreateAgent.createProfile("introducer")).sqlUpdate
-
-    CreateAgent()(conn, "007", true, true).doCreate()
-    CreateAgent()(conn, "008", true, true).doCreate()
+    introducerAlias.copy(name = CreateAgent.introducerAliasName).sqlUpdate
+    introducerLabel.copy(name = CreateAgent.introducerAliasName).sqlUpdate
+    introducerProfile.copy(name = CreateAgent.introducerAliasName).sqlUpdate
 
     conn.commit()
   }
