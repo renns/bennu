@@ -2,7 +2,7 @@ package com.qoid.bennu
 
 
 import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.InternalId
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet

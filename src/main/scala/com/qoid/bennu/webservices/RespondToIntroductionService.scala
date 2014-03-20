@@ -6,6 +6,7 @@ import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.distributed.messages.DistributedMessageKind
 import com.qoid.bennu.distributed.messages.IntroductionResponse
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.notification.IntroductionRequest
 import com.qoid.bennu.security.AgentView
 import java.sql.{ Connection => JdbcConn }

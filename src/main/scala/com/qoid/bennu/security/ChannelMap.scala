@@ -3,7 +3,7 @@ package com.qoid.bennu.security
 import com.qoid.bennu.Config
 import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.Alias
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.InternalId
 import java.sql.{ Connection => JdbcConn }
 import m3.LockFreeMap
 import m3.jdbc._

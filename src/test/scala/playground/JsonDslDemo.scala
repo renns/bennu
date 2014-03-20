@@ -1,10 +1,10 @@
 package playground
 
-import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.JsonAssist._
-import jsondsl._
 import com.qoid.bennu.model.Agent
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
+import jsondsl._
 
 object JsonDslDemo {
 

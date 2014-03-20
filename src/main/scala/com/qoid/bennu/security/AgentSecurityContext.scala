@@ -2,6 +2,7 @@ package com.qoid.bennu.security
 
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import com.qoid.bennu.squery.ast.Query
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._

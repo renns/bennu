@@ -2,6 +2,7 @@ package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.model.id._
 import m3.jdbc.PrimaryKey
 import m3.predef._
 import net.liftweb.json._

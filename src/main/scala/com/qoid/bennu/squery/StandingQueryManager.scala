@@ -6,6 +6,7 @@ import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.MemoryListCache
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext
 import com.qoid.bennu.security.ConnectionSecurityContext
@@ -13,7 +14,6 @@ import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.squery.ast.Evaluator
 import com.qoid.bennu.squery.ast.Query
 import m3.Txn
-import m3.jdbc._
 import m3.predef._
 
 @Singleton

@@ -3,6 +3,7 @@ package com.qoid.bennu.distributed.handlers
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.PeerId
 import com.qoid.bennu.model.introduction.IntroductionState
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext

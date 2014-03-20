@@ -4,7 +4,7 @@ import com.google.inject.Singleton
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.distributed.messages.QueryResponse
 import com.qoid.bennu.model.Connection
-import com.qoid.bennu.model.Handle
+import com.qoid.bennu.model.id.Handle
 
 @Singleton
 class QueryResponseManager {

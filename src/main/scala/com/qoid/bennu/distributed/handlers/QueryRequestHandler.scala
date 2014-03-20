@@ -6,8 +6,8 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model.Connection
-import com.qoid.bennu.model.Handle
 import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.model.id.Handle
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager

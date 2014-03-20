@@ -3,8 +3,8 @@ package com.qoid.bennu.security
 import com.google.inject.Inject
 import com.google.inject.Provider
 import com.google.inject.Singleton
-import com.qoid.bennu.model.AgentId
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._

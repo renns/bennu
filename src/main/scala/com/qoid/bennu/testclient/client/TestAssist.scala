@@ -3,6 +3,7 @@ package com.qoid.bennu.testclient.client
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.PeerId
 import m3.predef._
 import scala.concurrent.Promise
 

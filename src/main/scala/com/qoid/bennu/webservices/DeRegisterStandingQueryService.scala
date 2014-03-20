@@ -6,6 +6,7 @@ import com.qoid.bennu.distributed.messages.DeRegisterStandingQuery
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.distributed.messages.DistributedMessageKind
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.Handle
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery._
 import m3.jdbc._

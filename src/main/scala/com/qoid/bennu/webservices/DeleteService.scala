@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu._
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentView
 import m3.predef._
 import m3.servlet.beans.Parm

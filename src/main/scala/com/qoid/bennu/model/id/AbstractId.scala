@@ -1,14 +1,13 @@
-package com.qoid.bennu.model
+package com.qoid.bennu.model.id
 
-
-import m3.StringConverters.HasStringConverter
 import m3.StringConverters.Converter
-import m3.predef._
-import net.model3.util.UidGenerator
-import m3.jdbc.RowMapper
+import m3.StringConverters.HasStringConverter
 import m3.jdbc.Row
-import scala.language.implicitConversions
+import m3.jdbc.RowMapper
+import m3.predef._
 import net.liftweb.json.JString
+import net.model3.util.UidGenerator
+import scala.language.implicitConversions
 
 trait AbstractIdCompanion[IdType <: AbstractId] extends HasStringConverter { outer =>
   

@@ -2,6 +2,7 @@ package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.model.id._
 import m3.jdbc.PrimaryKey
 
 object Profile extends BennuMapperCompanion[Profile] {

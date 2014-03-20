@@ -1,4 +1,4 @@
-package com.qoid.bennu.model
+package com.qoid.bennu.model.id
 
 import scala.language.implicitConversions
 

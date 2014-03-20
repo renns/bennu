@@ -1,7 +1,7 @@
 package com.qoid.bennu.squery.ast
 
 
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentView
 import java.sql.{ Connection => JdbcConn }
 import m3.StringConverters

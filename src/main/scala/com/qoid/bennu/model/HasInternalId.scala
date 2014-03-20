@@ -2,6 +2,8 @@ package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.squery._
 import m3.predef._
 import net.liftweb.json.JValue
@@ -19,7 +21,7 @@ trait HasInternalId extends ToJsonCapable { self =>
   def mapper: BennuMapperCompanion[TInstance]
   
   /**
-   * A safeCast to it's type (one asInstanceOf's to rule them all)
+   * A safeCast to it's type (one asInstanceOf to rule them all)
    * 
    * Had some type challenges using a self type of TInstance so settled on having this single safeCast to get the same effect
    * 

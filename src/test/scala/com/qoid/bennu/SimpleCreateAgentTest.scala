@@ -1,13 +1,13 @@
 package com.qoid.bennu
 
-import org.junit.Test
+import JsonAssist._
+import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
+import java.sql.Connection
 import m3.Txn
 import m3.predef._
-import java.sql.Connection
-import com.qoid.bennu.model.InternalId
-import com.qoid.bennu.model.Agent
-import JsonAssist._
-import com.qoid.bennu.model.AgentId
+import org.junit.Test
 
 class SimpleCreateAgentTest extends ScalaUnitTest {
 

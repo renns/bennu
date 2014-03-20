@@ -1,6 +1,6 @@
 package com.qoid.bennu.squery.ast
 
-import com.qoid.bennu.model.InternalId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }

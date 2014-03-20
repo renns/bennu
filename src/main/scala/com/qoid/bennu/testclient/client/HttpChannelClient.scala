@@ -3,6 +3,7 @@ package com.qoid.bennu.testclient.client
 import com.qoid.bennu.JsonAssist
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import java.util.UUID
 import m3.LockFreeMap

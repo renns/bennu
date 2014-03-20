@@ -1,6 +1,7 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import com.qoid.bennu.model.id._
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._
 import net.liftweb.json._

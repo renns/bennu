@@ -6,7 +6,7 @@ import com.google.inject.Provider
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.google.inject.util.Modules
-import com.qoid.bennu.model.AgentId
+import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.security.SecurityContext.BennuProviderChannelId

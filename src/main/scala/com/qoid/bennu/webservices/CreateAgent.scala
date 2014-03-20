@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import java.sql.{ Connection => JdbcConn }
 import jsondsl._
 import m3.jdbc._

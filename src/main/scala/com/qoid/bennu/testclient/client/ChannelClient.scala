@@ -3,6 +3,7 @@ package com.qoid.bennu.testclient.client
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import m3.LockFreeMap
 import m3.json.LiftJsonAssist._

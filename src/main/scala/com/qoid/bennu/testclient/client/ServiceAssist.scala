@@ -5,6 +5,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 
 trait ServiceAssist {
   this: ChannelClient =>

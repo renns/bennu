@@ -1,8 +1,8 @@
 package com.qoid.bennu.security
 
 import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.ast.ContentQuery
 import com.qoid.bennu.squery.ast.Query

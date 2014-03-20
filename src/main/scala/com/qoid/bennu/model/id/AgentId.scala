@@ -1,4 +1,4 @@
-package com.qoid.bennu.model
+package com.qoid.bennu.model.id
 
 import com.qoid.bennu.JsonAssist._
 import m3.json.Handlers.HasJsonHandler

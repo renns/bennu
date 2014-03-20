@@ -1,6 +1,7 @@
 package com.qoid.bennu.testclient.client
 
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import m3.jdbc._
 
 trait ModelAssist {

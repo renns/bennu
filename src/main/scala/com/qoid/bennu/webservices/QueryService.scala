@@ -11,6 +11,7 @@ import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.distributed.messages.DistributedMessageKind
 import com.qoid.bennu.distributed.messages.QueryRequest
 import com.qoid.bennu.model._
+import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext
 import com.qoid.bennu.security.SecurityContext

@@ -1,14 +1,13 @@
 package com.qoid.bennu.squery.ast
 
 import com.qoid.bennu.ScalaUnitTest
+import com.qoid.bennu.model.id.AgentId
 import org.junit.Test
-import m3.Chord
-import com.qoid.bennu.model.AgentId
 
-class EvaluatorTest extends ScalaUnitTest { 
+class EvaluatorTest extends ScalaUnitTest {
 
   import Evaluator._
-  
+
   case class TestRow(xyz: String, agentId: AgentId = AgentId(""))
 
   @Test def basic = {
