@@ -5,7 +5,6 @@ import com.google.inject.Provider
 import com.google.inject.Singleton
 import com.qoid.bennu.model.AgentId
 import com.qoid.bennu.model.InternalId
-import com.qoid.bennu.squery.ast.Query
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
@@ -95,5 +94,4 @@ trait SecurityContext {
   def agentId: AgentId
   def aliasIid: InternalId
   def createView: AgentView
-  lazy val agentWhereClause: Query = Query.parse(sql"agentId = ${agentId}")
 }

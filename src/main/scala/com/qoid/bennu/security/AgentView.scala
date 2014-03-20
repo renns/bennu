@@ -1,6 +1,5 @@
 package com.qoid.bennu.security
 
-import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.model.HasInternalId
 import com.qoid.bennu.model.InternalId
 import com.qoid.bennu.model.Label
@@ -8,11 +7,13 @@ import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.ast.ContentQuery
 import com.qoid.bennu.squery.ast.Query
 import com.qoid.bennu.squery.ast.Transformer
-import com.qoid.bennu.{ErrorCode, ServiceException}
+import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.ServiceException
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 
 object AgentView {
   val notDeleted = Query.parse("deleted = false")
@@ -32,12 +33,6 @@ trait AgentView {
    * Ensure that t is can be inserted, updated and deleted from this view
    */
   def validateInsertUpdateOrDelete[T <: HasInternalId](t: T): Box[T]
-
-  /**
-   * Can remove data that should be hidden at this view or outright deny access.
-   * readResolve is called on data that has already been constricted
-   */
-  def readResolve[T <: HasInternalId](t: T): Box[T]
 
   def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query
 
@@ -119,4 +114,6 @@ trait AgentView {
   }
 
   def resolveConnectionMetaLabel(): Box[InternalId] = Empty
+
+  def hasAccessToAlias(aliasIid: InternalId): Boolean = false
 }

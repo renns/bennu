@@ -14,12 +14,13 @@ import com.qoid.bennu.squery.ast.Evaluator
 import com.qoid.bennu.squery.ast.Query
 import m3.Txn
 import m3.jdbc._
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import m3.predef._
 
 @Singleton
 class StandingQueryManager @Inject()(injector: ScalaInjector) {
   private val cache = new MemoryCache[Handle, StandingQueryManager.CacheValue]
   private val agentTypeIndex = new MemoryListCache[(AgentId, String), Handle]
+  private val connectionIidCache = new MemoryCache[Handle, (List[InternalId], InternalId)]
 
   def addLocal(
     agentId: AgentId,
@@ -64,12 +65,11 @@ class StandingQueryManager @Inject()(injector: ScalaInjector) {
   }
 
   def remove(handle: Handle): Unit = {
-    //TODO: Make sure proper security is set by caller (remote)
     cache.get(handle).foreach { v =>
       val av = injector.instance[AgentView]
 
       val allowed = (v.remote, v.aliasIid, v.connectionIid, av.securityContext) match {
-        case (false, Some(aliasIid), _, _) => av.select[Alias](sql"iid = $aliasIid").length > 0
+        case (false, Some(aliasIid), _, _) => av.hasAccessToAlias(aliasIid)
         case (true, _, Some(connectionIid), sc: ConnectionSecurityContext) => connectionIid == sc.connectionIid
         case _ => false
       }
@@ -109,6 +109,32 @@ class StandingQueryManager @Inject()(injector: ScalaInjector) {
         }
       }
     }
+  }
+
+  def addConnectionIids(handle: Handle, connectionIids: List[InternalId], aliasIid: InternalId): Unit = {
+    connectionIidCache.put(handle, (connectionIids, aliasIid))
+  }
+
+  def removeConnectionIids(handle: Handle): Unit = {
+    for ((_, aliasIid) <- connectionIidCache.get(handle)) {
+      val av = injector.instance[AgentView]
+
+      if (av.hasAccessToAlias(aliasIid)) {
+        connectionIidCache.remove(handle)
+      }
+    }
+  }
+
+  def getConnectionIids(handle: Handle): List[InternalId] = {
+    (for ((connectionIids, aliasIid) <- connectionIidCache.get(handle)) yield {
+      val av = injector.instance[AgentView]
+
+      if (av.hasAccessToAlias(aliasIid)) {
+        connectionIids
+      } else {
+        Nil
+      }
+    }).getOrElse(Nil)
   }
 }
 

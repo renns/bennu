@@ -7,7 +7,9 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
 import com.qoid.bennu.distributed.messages
-import com.qoid.bennu.distributed.messages.{DistributedMessage, DistributedMessageKind, QueryRequest}
+import com.qoid.bennu.distributed.messages.DistributedMessage
+import com.qoid.bennu.distributed.messages.DistributedMessageKind
+import com.qoid.bennu.distributed.messages.QueryRequest
 import com.qoid.bennu.model._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext
@@ -19,7 +21,8 @@ import m3.Txn
 import m3.jdbc._
 import m3.predef._
 import m3.servlet.beans.Parm
-import m3.servlet.longpoll.{ChannelManager, ChannelId}
+import m3.servlet.longpoll.ChannelId
+import m3.servlet.longpoll.ChannelManager
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
@@ -55,7 +58,7 @@ case class QueryService @Inject()(
     Txn.setViaTypename[SecurityContext](sc)
 
     if (local) submitLocalQuery(sc)
-    if (connectionIids.nonEmpty) submitRemoteQuery()
+    if (connectionIids.nonEmpty) submitRemoteQuery(sc)
 
     "handle" -> handle
   }
@@ -86,9 +89,13 @@ case class QueryService @Inject()(
     }
   }
 
-  private def submitRemoteQuery(): Unit = {
+  private def submitRemoteQuery(sc: SecurityContext): Unit = {
     val av = injector.instance[AgentView]
     val request = QueryRequest(_type, queryStr, historical, standing, handle)
+
+    if (standing) {
+      sQueryMgr.addConnectionIids(handle, connectionIids, sc.aliasIid)
+    }
 
     queryResponseMgr.registerHandle(
       handle,

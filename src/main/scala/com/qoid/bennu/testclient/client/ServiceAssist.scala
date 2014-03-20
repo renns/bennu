@@ -46,8 +46,7 @@ trait ServiceAssist {
         try {
           (response.responseType, response.results) match {
             case (QueryResponseType.Query, JArray(r)) =>
-              val typeName = manifest[T].runtimeClass.getSimpleName
-              val mapper = JdbcAssist.findMapperByTypeName(typeName)
+              val mapper = JdbcAssist.findMapperByType[T]
               p.success(r.map(mapper.fromJson(_).asInstanceOf[T]))
             case (QueryResponseType.Query, JNothing) => p.success(Nil)
             case _ => p.failure(new Exception("Query didn't complete successfully"))
@@ -75,7 +74,7 @@ trait ServiceAssist {
     callback: QueryResponse => Unit
   ): InternalId = {
 
-    val typeName = manifest[T].runtimeClass.getSimpleName
+    val typeName = JdbcAssist.findMapperByType[T].typeName
 
     val parms = Map[String, JValue](
       "type" -> typeName.toLowerCase,

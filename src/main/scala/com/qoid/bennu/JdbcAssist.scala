@@ -51,7 +51,7 @@ object JdbcAssist extends Logging {
     def softDelete(implicit conn: Connection): Unit = mapper.softDelete(safeCast)
   }
  
-  lazy val allMappers = List(
+  lazy val allMappers = List[BennuMapperCompanion[_ <: HasInternalId]](
     model.Agent,
     model.Alias,
     model.Connection,
@@ -65,10 +65,12 @@ object JdbcAssist extends Logging {
     model.Profile
   )
 
-
   def findMapperByTypeName(typeName: String): BennuMapperCompanion[_ <: HasInternalId] = {
-    import model._
     allMappers.find(_.typeName =:= typeName).getOrError(s"don't know how to handle type ${typeName}")
+  }
+
+  def findMapperByType[T <: HasInternalId : Manifest]: BennuMapperCompanion[T] = {
+    findMapperByTypeName(manifest[T].runtimeClass.getSimpleName).asInstanceOf[BennuMapperCompanion[T]]
   }
   
   object jvalueColumnMapper extends SingleColumnMapper[JValue] {

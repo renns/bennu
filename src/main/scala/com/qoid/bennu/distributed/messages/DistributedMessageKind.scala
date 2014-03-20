@@ -7,6 +7,7 @@ sealed trait DistributedMessageKind
 object DistributedMessageKind extends Enum[DistributedMessageKind] {
   case object QueryRequest extends DistributedMessageKind
   case object QueryResponse extends DistributedMessageKind
+  case object DeRegisterStandingQuery extends DistributedMessageKind
   case object IntroductionRequest extends DistributedMessageKind
   case object IntroductionResponse extends DistributedMessageKind
   case object IntroductionConnect extends DistributedMessageKind
@@ -14,6 +15,7 @@ object DistributedMessageKind extends Enum[DistributedMessageKind] {
   override val values: Set[DistributedMessageKind] = Set(
     QueryRequest,
     QueryResponse,
+    DeRegisterStandingQuery,
     IntroductionRequest,
     IntroductionResponse,
     IntroductionConnect

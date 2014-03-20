@@ -97,13 +97,12 @@ object IntroductionIntegrator extends GuiceApp {
 
     try {
       client.query[T]("", historical = false, standing = true) { response =>
-        val typeName = manifest[T].runtimeClass.getSimpleName
+        val mapper = JdbcAssist.findMapperByType[T]
 
         response match {
-          case QueryResponse(QueryResponseType.SQuery, handle, tpe, _, JArray(i :: Nil), _, _, Some(StandingQueryAction.Insert)) if tpe =:= typeName =>
+          case QueryResponse(QueryResponseType.SQuery, handle, tpe, _, JArray(i :: Nil), _, _, Some(StandingQueryAction.Insert)) if tpe =:= mapper.typeName =>
             client.deRegisterStandingQuery(handle)
-            val mapper = JdbcAssist.findMapperByTypeName(tpe)
-            p.success(mapper.fromJson(i).asInstanceOf[T])
+            p.success(mapper.fromJson(i))
           case r => p.failure(new Exception(s"Unexpected response -- $r"))
         }
       }

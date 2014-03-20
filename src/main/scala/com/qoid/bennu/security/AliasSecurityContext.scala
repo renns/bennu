@@ -5,8 +5,8 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.squery.ast.Query
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._
+import m3.predef._
 import m3.predef.box._
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) extends SecurityContext { sc =>
 
@@ -21,9 +21,9 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
       else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
     }
 
-    lazy val alias = Alias.fetch(aliasIid)(injector.instance[JdbcConn])
+    private lazy val alias = Alias.fetch(aliasIid)(injector.instance[JdbcConn])
 
-    lazy val labelTreeLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
+    private lazy val labelTreeLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select rootLabelIid as labelIid from alias where iid = ${aliasIid} and deleted = false
      union all
@@ -37,7 +37,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
   from reachable_labels
       """).toList
 
-    lazy val connectionLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
+    private lazy val connectionLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
           select
             metaLabelIid
           from
@@ -46,7 +46,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
             aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
 
-    lazy val reachableAliasIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
+    private lazy val reachableAliasIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
           select
             iid
           from
@@ -55,7 +55,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
             rootLabelIid in (${labelTreeLabelIids}) and deleted = false
       """).toList
 
-    lazy val reachableConnectionIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
+    private lazy val reachableConnectionIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
           select
             iid
           from
@@ -64,12 +64,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
             aliasIid in (${reachableAliasIids}) and deleted = false
       """).toList
 
-    lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
-
-    override def readResolve[T <: HasInternalId](t: T): Box[T] = {
-      if ( agentId == t.agentId ) Full(t)
-      else Failure("agent cannot read another agents data")
-    }
+    private lazy val reachableLabelIids = labelTreeLabelIids ::: connectionLabelIids
 
     override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
       mapper.typeName.toLowerCase match {
@@ -91,5 +86,7 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
         case _ => query.and(Query.parse(sql"""1 <> 1"""))
       }
     }
+
+    override def hasAccessToAlias(aliasIid: InternalId): Boolean = reachableAliasIids.contains(aliasIid)
   }
 }

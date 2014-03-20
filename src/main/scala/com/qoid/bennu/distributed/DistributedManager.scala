@@ -71,6 +71,8 @@ class DistributedManager @Inject()(
           QueryRequestHandler.handle(connection, QueryRequest.fromJson(message.data), injector)
         case (DistributedMessageKind.QueryResponse, 1) =>
           QueryResponseHandler.handle(connection, QueryResponse.fromJson(message.data), injector)
+        case (DistributedMessageKind.DeRegisterStandingQuery, 1) =>
+          DeRegisterStandingQueryHandler.handle(connection, DeRegisterStandingQuery.fromJson(message.data), injector)
         case (DistributedMessageKind.IntroductionRequest, 1) =>
           IntroductionRequestHandler.handle(connection, IntroductionRequest.fromJson(message.data), injector)
         case (DistributedMessageKind.IntroductionResponse, 1) =>
