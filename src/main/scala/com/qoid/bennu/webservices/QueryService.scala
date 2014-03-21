@@ -61,7 +61,7 @@ case class QueryService @Inject()(
     if (local) submitLocalQuery(sc)
     if (connectionIids.nonEmpty) submitRemoteQuery(sc)
 
-    "handle" -> handle
+    ("handle" -> handle) ~ ("context" -> context)
   }
 
   private def submitLocalQuery(sc: SecurityContext): Unit = {
