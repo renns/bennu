@@ -4,6 +4,7 @@ types {
   InternalId    varchar(32);
   PeerId        varchar(32);
   AgentId       varchar(32);
+  SharedId      varchar(32);
   Name          varchar(50);
   Url           varchar(1024);
 }
@@ -51,6 +52,7 @@ table content {
   agentId       AgentId;
   aliasIid		InternalId;
   contentType   varchar(32);
+  metaData      Clob;
   import(CommonFields);
 }
 
@@ -107,5 +109,6 @@ table profile {
   aliasIid          InternalId;
   name              Name;
   imgSrc            Clob;
+  sharedId          SharedId;
   import(CommonFields);
 }

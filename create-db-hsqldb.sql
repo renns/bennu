@@ -36,6 +36,7 @@ create cached table content (
 	agentId varchar(32) not NULL,
 	aliasIid varchar(32) not NULL,
 	contentType varchar(32) not NULL,
+	metaData Clob not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)
@@ -114,6 +115,7 @@ create cached table profile (
 	aliasIid varchar(32) not NULL,
 	name varchar(50) not NULL,
 	imgSrc Clob not NULL,
+	sharedId varchar(32) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)

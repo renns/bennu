@@ -11,4 +11,7 @@ object ServicePath {
   val deRegisterStandingQuery = "/api/query/deregister"
   val initiateIntroduction = "/api/introduction/initiate"
   val respondToIntroduction = "/api/introduction/respond"
+  val requestVerification = "/api/verification/request"
+  val verify = "/api/verification/verify"
+  val acceptVerification = "/api/verification/accept"
 }

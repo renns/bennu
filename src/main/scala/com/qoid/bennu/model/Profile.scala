@@ -14,6 +14,7 @@ case class Profile(
   imgSrc: String,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
+  sharedId: SharedId = SharedId.random,
   data: JValue = JNothing,
   deleted: Boolean = false
 ) extends HasInternalId with BennuMappedInstance[Profile] { self =>

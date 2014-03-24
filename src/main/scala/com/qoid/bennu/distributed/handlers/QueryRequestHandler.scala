@@ -11,7 +11,7 @@ import com.qoid.bennu.model.id.Handle
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
+import m3.predef._
 
 object QueryRequestHandler {
   def handle(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {

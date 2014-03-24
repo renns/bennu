@@ -11,7 +11,6 @@ import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.predef._
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 
 @Singleton
 class DistributedManager @Inject()(
@@ -79,6 +78,10 @@ class DistributedManager @Inject()(
           IntroductionResponseHandler.handle(connection, IntroductionResponse.fromJson(message.data), injector)
         case (DistributedMessageKind.IntroductionConnect, 1) =>
           IntroductionConnectHandler.handle(connection, IntroductionConnect.fromJson(message.data), injector)
+        case (DistributedMessageKind.VerificationRequest, 1) =>
+          VerificationRequestHandler.handle(connection, VerificationRequest.fromJson(message.data), injector)
+        case (DistributedMessageKind.VerificationResponse, 1) =>
+          VerificationResponseHandler.handle(connection, VerificationResponse.fromJson(message.data), injector)
         case _ =>
           logger.warn(s"unhandled distributed message -- ${message.kind},${message.version}")
       }
