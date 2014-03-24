@@ -11,7 +11,6 @@ import m3.jdbc.ColumnMapper.SingleColumnMapper
 import m3.jdbc._
 import m3.json.JsonSerializer
 import m3.predef._
-import m3.Txn
 import m3.TypeInfo
 import net.liftweb.json.JNothing
 import net.liftweb.json.JValue
@@ -28,27 +27,37 @@ object JdbcAssist extends Logging {
     lazy val typeName = ClassX.getShortName(clazz) 
     
     val serializer = inject[JsonSerializer]
-    
-    def softDeleteViaKey(iid: InternalId)(implicit conn: Connection): Unit = {
-      conn.update(sql"update ${tableName.rawSql} set deleted = true where iid = ${iid}")
+
+    override def insert(instance: T)(implicit conn: Connection): T = {
+      val i = super.insert(instance)
+      postInsert(i)
+      i
     }
-    def softDelete(t: T)(implicit conn: Connection): T = {
-      Txn {
-        val i = t.copy2(deleted=true)
-        t.mapper.update(i)
-        i.asInstanceOf[T]
-      }
+
+    override def update(instance: T)(implicit conn: Connection): T = {
+      val i = super.update(instance)
+      postUpdate(i)
+      i
     }
+
+    def softDelete(instance: T)(implicit conn: Connection): T = {
+      val i = super.update(instance.copy2(deleted=true).asInstanceOf[T])
+      postDelete(i)
+      i
+    }
+
+    def postInsert(instance: T): Unit = {}
+    def postUpdate(instance: T): Unit = {}
+    def postDelete(instance: T): Unit = {}
+
     def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
-    
+
     implicit def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
     
     implicit def implicitMapper = this
-    
   }
 
   trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>
-    def softDelete(implicit conn: Connection): Unit = mapper.softDelete(safeCast)
   }
  
   lazy val allMappers = List[BennuMapperCompanion[_ <: HasInternalId]](

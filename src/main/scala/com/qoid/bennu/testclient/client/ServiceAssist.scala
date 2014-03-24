@@ -48,7 +48,7 @@ trait ServiceAssist {
           (response.responseType, response.results) match {
             case (QueryResponseType.Query, JArray(r)) =>
               val mapper = JdbcAssist.findMapperByType[T]
-              p.success(r.map(mapper.fromJson(_).asInstanceOf[T]))
+              p.success(r.map(mapper.fromJson))
             case (QueryResponseType.Query, JNothing) => p.success(Nil)
             case _ => p.failure(new Exception("Query didn't complete successfully"))
           }
@@ -69,8 +69,7 @@ trait ServiceAssist {
     local: Boolean = true,
     connections: List[Connection] = Nil,
     historical: Boolean = true,
-    standing: Boolean = false,
-    context: JValue = JNothing
+    standing: Boolean = false
   )(
     callback: QueryResponse => Unit
   ): InternalId = {
@@ -84,14 +83,13 @@ trait ServiceAssist {
       "local" -> local,
       "connectionIids" -> connections.map(c => c.iid),
       "historical" -> historical,
-      "standing" -> standing,
-      "context" -> context
+      "standing" -> standing
     )
 
-    val response = post(ServicePath.query, parms, Some(context))
+    val response = post(ServicePath.query, parms)
 
     response.result match {
-      case JObject(JField("handle", JString(handle)) :: Nil) =>
+      case JObject(JField("handle", JString(handle)) :: _) =>
         asyncCallbacks += Handle(handle) -> callback
         InternalId(handle)
       case r => throw new Exception(s"Distributed query result invalid -- $r")

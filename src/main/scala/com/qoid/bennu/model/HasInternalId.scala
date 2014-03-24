@@ -42,13 +42,4 @@ trait HasInternalId extends ToJsonCapable { self =>
         }
     })
   }
-
-  def postInsert(): Unit = {
-  }
-
-  def postUpdate(): Unit = {
-  }
-
-  def postDelete(): Unit = {
-  }
 }

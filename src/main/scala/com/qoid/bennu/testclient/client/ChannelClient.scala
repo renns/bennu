@@ -17,8 +17,8 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
 
   protected val asyncCallbacks = new LockFreeMap[Handle, QueryResponse => Unit]
 
-  def postAsync(path: String, parms: Map[String, JValue], context: JValue = JNothing)(implicit ec: ExecutionContext): Future[ChannelResponse]
-  def post(path: String, parms: Map[String, JValue], context: JValue = JNothing): ChannelResponse
+  def postAsync(path: String, parms: Map[String, JValue], context: JValue = JString(InternalId.random.value))(implicit ec: ExecutionContext): Future[ChannelResponse]
+  def post(path: String, parms: Map[String, JValue], context: JValue = JString(InternalId.random.value)): ChannelResponse
 }
 
 object ChannelClientFactory extends HttpAssist with Logging {
