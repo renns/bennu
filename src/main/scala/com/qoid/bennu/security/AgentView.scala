@@ -41,7 +41,6 @@ trait AgentView {
       case Full(i) =>
         val i2 = mapper.insert(i)(inject[JdbcConn])
         i2.notifyStandingQueries(StandingQueryAction.Insert)
-        i2.postInsert()
         i2
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
@@ -52,7 +51,6 @@ trait AgentView {
       case Full(i) =>
         val i2 = mapper.update(i)(inject[JdbcConn])
         i2.notifyStandingQueries(StandingQueryAction.Update)
-        i2.postUpdate()
         i2
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
@@ -63,7 +61,6 @@ trait AgentView {
       case Full(i) =>
         val i2 = mapper.softDelete(i)(inject[JdbcConn])
         i2.notifyStandingQueries(StandingQueryAction.Delete)
-        i2.postDelete()
         i2
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
