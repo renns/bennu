@@ -69,8 +69,7 @@ trait ServiceAssist {
     local: Boolean = true,
     connections: List[Connection] = Nil,
     historical: Boolean = true,
-    standing: Boolean = false,
-    context: JValue = JNothing
+    standing: Boolean = false
   )(
     callback: QueryResponse => Unit
   ): InternalId = {
@@ -84,11 +83,10 @@ trait ServiceAssist {
       "local" -> local,
       "connectionIids" -> connections.map(c => c.iid),
       "historical" -> historical,
-      "standing" -> standing,
-      "context" -> context
+      "standing" -> standing
     )
 
-    val response = post(ServicePath.query, parms, Some(context))
+    val response = post(ServicePath.query, parms)
 
     response.result match {
       case JObject(JField("handle", JString(handle)) :: _) =>

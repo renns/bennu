@@ -1,13 +1,13 @@
 package com.qoid.bennu.testclient.client
 
 import com.qoid.bennu.JsonAssist
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import java.util.UUID
 import m3.LockFreeMap
-import m3.json.LiftJsonAssist._
 import m3.predef._
 import m3.servlet.longpoll.ChannelId
 import scala.concurrent._
@@ -24,7 +24,7 @@ case class HttpChannelClient(
 
   spawnLongPoller()
 
-  override def postAsync(path: String, parms: Map[String, JValue], context0: JValue = JNothing)(implicit ec: ExecutionContext): Future[ChannelResponse] = {
+  override def postAsync(path: String, parms: Map[String, JValue], context0: JValue = JString(InternalId.random.value))(implicit ec: ExecutionContext): Future[ChannelResponse] = {
     val promise = Promise[ChannelResponse]()
 
     future {
@@ -50,7 +50,7 @@ case class HttpChannelClient(
     promise.future
   }
 
-  override def post(path: String, parms: Map[String, JValue], context: JValue = JNothing): ChannelResponse = {
+  override def post(path: String, parms: Map[String, JValue], context: JValue = JString(InternalId.random.value)): ChannelResponse = {
     import scala.concurrent.ExecutionContext.Implicits.global
     Await.result(postAsync(path, parms, context), Duration(s"${config.requestTimeout.inSeconds()} seconds"))
   }

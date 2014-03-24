@@ -21,6 +21,7 @@ import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
+import m3.servlet.beans.MultiRequestHandler.MethodInvocation
 import m3.servlet.beans.Parm
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.ChannelManager
@@ -36,14 +37,14 @@ case class QueryService @Inject()(
   channelMgr: ChannelManager,
   securityContext: SecurityContext,
   channelId: ChannelId,
+  methodInvocation: MethodInvocation,
   @Parm("type") _type: String,
   @Parm("q") queryStr: String,
   @Parm aliasIid: Option[InternalId] = None,
   @Parm local: Boolean = true,
   @Parm connectionIids: List[InternalId] = Nil,
   @Parm historical: Boolean = true,
-  @Parm standing: Boolean = false,
-  @Parm context: JValue = JNothing
+  @Parm standing: Boolean = false
 ) extends Logging {
 
   implicit def jdbcConn = injector.instance[JdbcConn]
@@ -61,7 +62,7 @@ case class QueryService @Inject()(
     if (local) submitLocalQuery(sc)
     if (connectionIids.nonEmpty) submitRemoteQuery(sc)
 
-    ("handle" -> handle) ~ ("context" -> context)
+    "handle" -> handle
   }
 
   private def submitLocalQuery(sc: SecurityContext): Unit = {
@@ -72,7 +73,7 @@ case class QueryService @Inject()(
           val av = injector.instance[AgentView]
           implicit val mapper = findMapperByTypeName(_type)
           val results = av.select(queryStr).toList
-          val response = QueryResponse(QueryResponseType.Query, handle, _type, context, results.map(_.toJson), Some(sc.aliasIid))
+          val response = QueryResponse(QueryResponseType.Query, handle, _type, methodInvocation.context, results.map(_.toJson), Some(sc.aliasIid))
           channelMgr.channel(channelId).put(response.toJson)
         }
       }
@@ -85,7 +86,7 @@ case class QueryService @Inject()(
         handle,
         _type,
         queryStr,
-        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, context, channelMgr, channelId)
+        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, methodInvocation.context, channelMgr, channelId)
       )
     }
   }
@@ -100,7 +101,7 @@ case class QueryService @Inject()(
 
     queryResponseMgr.registerHandle(
       handle,
-      QueryService.distributedResponseHandler(_, _, handle, _type, context, channelMgr, channelId)
+      QueryService.distributedResponseHandler(_, _, handle, _type, methodInvocation.context, channelMgr, channelId)
     )
 
     connectionIids.foreach { connectionIid =>
