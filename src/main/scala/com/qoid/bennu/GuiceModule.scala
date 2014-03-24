@@ -29,7 +29,6 @@ import m3.servlet.beans.guice.ProviderOptionalRequest
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.ChannelManager
 import m3.servlet.longpoll.JettyChannelManager
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import net.codingwell.scalaguice.ScalaModule
 import net.model3.collections.PropertiesX
 import net.model3.guice.LifeCycleListeners

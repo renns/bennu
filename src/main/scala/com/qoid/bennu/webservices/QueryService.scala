@@ -19,12 +19,10 @@ import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
-import m3.jdbc._
 import m3.predef._
 import m3.servlet.beans.Parm
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.ChannelManager
-import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
 
@@ -104,9 +102,8 @@ case class QueryService @Inject()(
     )
 
     connectionIids.foreach { connectionIid =>
-      av.select[Connection](sql"iid = $connectionIid").foreach { c =>
-        distributedMgr.send(c, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
-      }
+      val connection = av.fetch[Connection](connectionIid)
+      distributedMgr.send(connection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
     }
   }
 }

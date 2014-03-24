@@ -29,7 +29,6 @@ case class RespondToIntroductionService @Inject()(
 
     val notification = av.fetch[Notification](notificationIid)
     val introductionRequest = IntroductionRequest.fromJson(notification.data)
-    introductionRequest.copy(accepted = Some(accepted))
 
     av.update[Notification](notification.copy(
       consumed = true,
