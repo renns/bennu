@@ -28,27 +28,20 @@ object JdbcAssist extends Logging {
     
     val serializer = inject[JsonSerializer]
 
-    override def insert(instance: T)(implicit conn: Connection): T = {
-      val i = super.insert(instance)
-      postInsert(i)
-      i
-    }
-
-    override def update(instance: T)(implicit conn: Connection): T = {
-      val i = super.update(instance)
-      postUpdate(i)
-      i
-    }
+    override def insert(instance: T)(implicit conn: Connection): T = postInsert(super.insert(preInsert(instance)))
+    override def update(instance: T)(implicit conn: Connection): T = postUpdate(super.update(preUpdate(instance)))
 
     def softDelete(instance: T)(implicit conn: Connection): T = {
-      val i = super.update(instance.copy2(deleted=true).asInstanceOf[T])
-      postDelete(i)
-      i
+      postDelete(super.update(preDelete(instance.copy2(deleted = true).asInstanceOf[T])))
     }
 
-    def postInsert(instance: T): Unit = {}
-    def postUpdate(instance: T): Unit = {}
-    def postDelete(instance: T): Unit = {}
+    protected def preInsert(instance: T): T = instance
+    protected def preUpdate(instance: T): T = instance
+    protected def preDelete(instance: T): T = instance
+
+    protected def postInsert(instance: T): T = instance
+    protected def postUpdate(instance: T): T = instance
+    protected def postDelete(instance: T): T = instance
 
     def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
 

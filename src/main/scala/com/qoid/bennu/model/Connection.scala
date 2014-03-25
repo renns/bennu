@@ -8,12 +8,14 @@ import m3.jdbc.PrimaryKey
 import m3.predef._
 
 object Connection extends BennuMapperCompanion[Connection] {
-  override def postInsert(instance: Connection): Unit = {
+  override protected def postInsert(instance: Connection): Connection = {
     inject[DistributedManager].listen(instance)
+    instance
   }
 
-  override def postDelete(instance: Connection): Unit = {
+  override protected def postDelete(instance: Connection): Connection = {
     inject[DistributedManager].stopListen(instance)
+    instance
   }
 }
 
