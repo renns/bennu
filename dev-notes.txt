@@ -1,5 +1,18 @@
 
 
+== Notes (until we get a wiki) ==
+
+* qoid.com dns
+ 		[3/4/14, 5:51:23 PM] Fred Fisher: qoid.com is pointing to media temple
+		[3/4/14, 5:51:32 PM] Fred Fisher: account management page is:
+		[3/4/14, 5:51:38 PM] Fred Fisher: https://ac.mediatemple.net/login.mt?redirect=home.mt
+		[3/4/14, 5:51:44 PM] Fred Fisher: use my email
+		[3/4/14, 5:51:52 PM] Fred Fisher: pw is Provenance43
+
+
+
+
+
 == Bugs ==
 
 * modifying alias doesn't update it right away
