@@ -64,8 +64,7 @@ object DeRegisterIntegrator extends GuiceApp {
 
       client.query[Label](s"name = 'A'", historical = false, standing = true)(handleQueryResponse(_, client, p))
 
-      client.upsert(label)
-      client.upsert(LabelChild(rootLabel.iid, label.iid))
+      client.upsert(label, Some(rootLabel.iid))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -105,7 +104,7 @@ object DeRegisterIntegrator extends GuiceApp {
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
-      val label2 = client2.createChildLabel(alias2.rootLabelIid, "A")
+      val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 

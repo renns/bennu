@@ -10,8 +10,20 @@ import com.qoid.bennu.model.id._
 trait ServiceAssist {
   this: ChannelClient =>
 
-  def upsert[T <: HasInternalId](instance: T): T = {
-    val parms = Map[String, JValue]("type" -> instance.mapper.typeName, "instance" -> instance.toJson)
+  def upsert[T <: HasInternalId](
+    instance: T,
+    parentIid: Option[InternalId] = None,
+    profileName: Option[String] = None,
+    profileImgSrc: Option[String] = None
+  ): T = {
+
+    val parms = Map[String, JValue](
+      "type" -> instance.mapper.typeName,
+      "instance" -> instance.toJson,
+      "parentIid" -> parentIid,
+      "profileName" -> profileName,
+      "profileImgSrc" -> profileImgSrc
+    )
 
     val response = post(ServicePath.upsert, parms)
 

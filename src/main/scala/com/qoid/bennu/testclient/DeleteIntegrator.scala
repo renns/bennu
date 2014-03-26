@@ -33,7 +33,7 @@ object DeleteIntegrator extends GuiceApp {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
-      val label = client.createChildLabel(rootLabel.iid, "Label")
+      val label = client.createLabel(rootLabel.iid, "Label")
       val deletedLabel = client.delete(label)
 
       if (deletedLabel.deleted) {

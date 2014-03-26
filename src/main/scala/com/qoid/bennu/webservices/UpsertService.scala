@@ -3,7 +3,7 @@ package com.qoid.bennu.webservices
 import com.google.inject.Inject
 import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
-import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.model.{Profile, LabelChild, HasInternalId}
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }
@@ -11,12 +11,17 @@ import m3.predef._
 import m3.servlet.beans.Parm
 import net.liftweb.json._
 import scala.language.existentials
+import com.qoid.bennu.model.id.InternalId
+import m3.Txn
 
 case class UpsertService @Inject()(
   injector: ScalaInjector,
   securityContext: SecurityContext,
   @Parm("type") tpe: String,
-  @Parm("instance") instanceJson: JValue
+  @Parm("instance") instanceJson: JValue,
+  @Parm parentIid: Option[InternalId] = None,
+  @Parm profileName: Option[String] = None,
+  @Parm profileImgSrc: Option[String] = None
 ) extends Logging {
 
   def service: JValue = {
@@ -24,6 +29,10 @@ case class UpsertService @Inject()(
     implicit val jdbcConn = injector.instance[JdbcConn]
     implicit val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[BennuMapperCompanion[HasInternalId]]
     val instance = mapper.fromJson(instanceJson).copy2(agentId = securityContext.agentId).asInstanceOf[HasInternalId]
+
+    parentIid.foreach(Txn.set(LabelChild.parentIidAttrName, _))
+    profileName.foreach(Txn.set(Profile.nameAttrName, _))
+    profileImgSrc.foreach(Txn.set(Profile.imgSrcAttrName, _))
 
     val result = mapper.fetchOpt(instance.iid) match {
       case None => av.insert(instance)

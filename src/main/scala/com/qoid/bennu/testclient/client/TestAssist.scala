@@ -8,23 +8,31 @@ import m3.predef._
 import scala.concurrent.Promise
 
 object TestAssist extends Logging {
+
   def createConnection(
     clientA: ChannelClient,
     aliasA: Alias,
     clientB: ChannelClient,
     aliasB: Alias
-    ): (Connection, Connection) = {
+  ): (Connection, Connection) = {
+
     val peerId1 = PeerId.random
     val peerId2 = PeerId.random
     val connAB = clientA.createConnection(aliasA.iid, peerId1, peerId2)
     val connBA = clientB.createConnection(aliasB.iid, peerId2, peerId1)
+
     (connAB, connBA)
   }
 
-  def createSampleContent(client: ChannelClient, alias: Alias, aclConnection: Option[Connection]): (List[Content], List[Label]) = {
-    val l_a = client.createChildLabel(alias.rootLabelIid, "A")
-    val l_b = client.createChildLabel(l_a.iid, "B")
-    val l_c = client.createChildLabel(l_b.iid, "C")
+  def createSampleContent(
+    client: ChannelClient,
+    alias: Alias,
+    aclConnection: Option[Connection]
+  ): (List[Content], List[Label]) = {
+
+    val l_a = client.createLabel(alias.rootLabelIid, "A")
+    val l_b = client.createLabel(l_a.iid, "B")
+    val l_c = client.createLabel(l_b.iid, "C")
 
     val labels = List(l_a, l_b, l_c)
     var contents = List.empty[Content]

@@ -45,7 +45,7 @@ object QueryIntegrator extends GuiceApp {
 
       val client = HttpAssist.createAgent("Agent1")
       val alias = client.getRootAlias()
-      val label = client.createChildLabel(alias.rootLabelIid, "A")
+      val label = client.createLabel(alias.rootLabelIid, "A")
 
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'")(TestAssist.handleQueryResponse(_, expectedResults, p))
@@ -69,8 +69,7 @@ object QueryIntegrator extends GuiceApp {
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'", historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
-      client.upsert(label)
-      client.upsert(LabelChild(rootLabel.iid, label.iid))
+      client.upsert(label, Some(rootLabel.iid))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -86,8 +85,8 @@ object QueryIntegrator extends GuiceApp {
 
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
-      val subAlias = client.createAlias(rootLabel.iid, "Sub-Alias", "")
-      val label = client.createChildLabel(subAlias.rootLabelIid, "A")
+      val subAlias = client.createAlias(rootLabel.iid, "Sub-Alias")
+      val label = client.createLabel(subAlias.rootLabelIid, "A")
 
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'", Some(subAlias))(TestAssist.handleQueryResponse(_, expectedResults, p))
@@ -106,14 +105,13 @@ object QueryIntegrator extends GuiceApp {
 
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
-      val subAlias = client.createAlias(rootLabel.iid, "Sub-Alias", "")
+      val subAlias = client.createAlias(rootLabel.iid, "Sub-Alias")
       val label = Label("A")
 
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'", Some(subAlias), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
-      client.upsert(label)
-      client.upsert(LabelChild(subAlias.rootLabelIid, label.iid))
+      client.upsert(label, Some(subAlias.rootLabelIid))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -155,7 +153,7 @@ object QueryIntegrator extends GuiceApp {
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
-      val label2 = client2.createChildLabel(alias2.rootLabelIid, "A")
+      val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 

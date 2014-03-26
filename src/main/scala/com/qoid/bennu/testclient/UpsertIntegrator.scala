@@ -34,8 +34,9 @@ object UpsertIntegrator extends GuiceApp {
   def insertLabel()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client = HttpAssist.createAgent("Agent1")
+      val rootLabel = client.getRootLabel()
       val label = Label("Insert Label")
-      val returnedLabel = client.upsert(label)
+      val returnedLabel = client.upsert(label, Some(rootLabel.iid))
 
       if (label == returnedLabel) {
         None
@@ -50,8 +51,9 @@ object UpsertIntegrator extends GuiceApp {
   def updateLabel()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       val client = HttpAssist.createAgent("Agent1")
+      val rootLabel = client.getRootLabel()
       val insertLabel = Label("Insert Label")
-      val newLabel = client.upsert(insertLabel)
+      val newLabel = client.upsert(insertLabel, Some(rootLabel.iid))
       val updateLabel = newLabel.copy(name = "UpdateLabel")
       val returnedLabel = client.upsert(updateLabel)
 

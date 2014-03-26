@@ -43,7 +43,7 @@ object ProfilesIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val label2 = client2.getRootLabel()
-      val alias2 = client2.createAlias(label2.iid, "Test", "")
+      val alias2 = client2.createAlias(label2.iid, "Test")
       val profile2 = client2.getProfile(alias2.iid)
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 
@@ -66,7 +66,7 @@ object ProfilesIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val label2 = client2.getRootLabel()
-      val alias2 = client2.createAlias(label2.iid, "Test", "")
+      val alias2 = client2.createAlias(label2.iid, "Test")
       val profile2 = client2.getProfile(alias2.iid).copy(name = "Test2")
       val (conn1, _) = TestAssist.createConnection(client1, alias1, client2, alias2)
 

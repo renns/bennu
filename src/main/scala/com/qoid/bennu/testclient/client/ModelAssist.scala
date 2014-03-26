@@ -1,5 +1,6 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
 import m3.jdbc._
@@ -7,34 +8,16 @@ import m3.jdbc._
 trait ModelAssist {
   this: ChannelClient with ServiceAssist =>
 
-  def createAlias(parentLabelIid: InternalId, name: String, imgSrc: String): Alias = {
-    val label = createChildLabel(parentLabelIid, name)
-    val alias = upsert(Alias(label.iid, name))
-    upsert(Profile(alias.iid, name, imgSrc))
-    alias
+  def createAlias(parentIid: InternalId, name: String, profileName: Option[String] = None, profileImgSrc: Option[String] = None): Alias = {
+    upsert(Alias(name), Some(parentIid), profileName, profileImgSrc)
   }
 
-  def createConnection(aliasId: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {
-    val label = upsert(Label("connection"))
-    upsert(Connection(aliasId, label.iid, localPeerId, remotePeerId))
+  def createConnection(aliasIid: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {
+    upsert(Connection(aliasIid, localPeerId, remotePeerId))
   }
 
-  def createLabel(name: String): Label = {
-    upsert(Label(name))
-  }
-
-  def createChildLabel(parentLabelIid: InternalId, childLabelName: String): Label = {
-    val childLabel = createLabel(childLabelName)
-    createLabelChild(parentLabelIid, childLabel.iid)
-    childLabel
-  }
-
-  def createLabelChild(parentIid: InternalId, childIid: InternalId): LabelChild = {
-    upsert(LabelChild(parentIid, childIid))
-  }
-
-  def createProfile(aliasIid: InternalId, name: String, imgSrc: String): Profile = {
-    upsert(Profile(aliasIid, name, imgSrc))
+  def createLabel(parentIid: InternalId, name: String): Label = {
+    upsert(Label(name, data = "color" -> "#7F7F7F"), Some(parentIid))
   }
 
   def getRootLabel(): Label = {

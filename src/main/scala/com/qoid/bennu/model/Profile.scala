@@ -6,6 +6,8 @@ import com.qoid.bennu.model.id._
 import m3.jdbc.PrimaryKey
 
 object Profile extends BennuMapperCompanion[Profile] {
+  val nameAttrName = "com.qoid.bennu.model.Profile.name"
+  val imgSrcAttrName = "com.qoid.bennu.model.Profile.imgSrc"
 }
 
 case class Profile(

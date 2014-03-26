@@ -1,17 +1,28 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.JdbcAssist._
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
+import com.qoid.bennu.security.AgentView
 import m3.jdbc.PrimaryKey
-import net.liftweb.json._
+import m3.predef._
 
 object Agent extends BennuMapperCompanion[Agent] {
+  private val uberAliasName = "Uber Alias"
+
+  override protected def preInsert(instance: Agent): Agent = {
+    val av = inject[AgentView]
+
+    val alias = av.insert[Alias](Alias(uberAliasName, instance.agentId))
+
+    instance.copy(uberAliasIid = alias.iid)
+  }
 }
 
 case class Agent(
-  uberAliasIid: InternalId,
   name: String,
   agentId: AgentId = AgentId(""),
+  uberAliasIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   deleted: Boolean = false

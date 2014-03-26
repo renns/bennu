@@ -1,6 +1,5 @@
 package com.qoid.bennu.testclient
 
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
@@ -33,6 +32,7 @@ object AliasLoginIntegrator extends GuiceApp {
   def getAliasName()(implicit config: HttpClientConfig): Option[Exception] = {
     try {
       HttpAssist.createAgent("Agent1")
+
       val client = ChannelClientFactory.createHttpChannelClient("agent1.anonymous")
       val alias = client.getRootAlias()
 

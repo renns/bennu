@@ -30,11 +30,11 @@ object CreateDatabase extends App {
 
     file("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
 
-    CreateAgent()(
-        conn = conn, 
-        name = CreateAgent.introducerAgentName, 
-        overWrite = true, 
-        connectToIntroducer = false
+    CreateAgent(
+      injector = inject[ScalaInjector],
+      name = CreateAgent.introducerAgentName,
+      overWrite = true,
+      connectToIntroducer = false
     ).doCreate()
 
     val introducerAgent = Agent.selectOne(sql"name = ${CreateAgent.introducerAgentName}")

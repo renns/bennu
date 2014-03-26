@@ -21,14 +21,8 @@ object IntroductionConnectHandler extends Logging {
         case n :: Nil =>
           notification.IntroductionRequest.fromJson(n.data).accepted match {
             case Some(true) =>
-              val metaLabel = av.insert(Label(
-                name = "connection",
-                agentId = connection.agentId
-              ))
-
               av.insert(Connection(
                 aliasIid = connection.aliasIid,
-                metaLabelIid = metaLabel.iid,
                 localPeerId = introductionConnect.localPeerId,
                 remotePeerId = introductionConnect.remotePeerId,
                 agentId = connection.agentId
