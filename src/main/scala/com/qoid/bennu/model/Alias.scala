@@ -45,6 +45,15 @@ object Alias extends BennuMapperCompanion[Alias] {
 
     instance
   }
+
+  override protected def postUpdate(instance: Alias): Alias = {
+    val av = inject[AgentView]
+
+    val label = av.fetch[Label](instance.rootLabelIid)
+    av.update(label.copy(name = instance.name))
+
+    instance
+  }
 }
 
 case class Alias(
