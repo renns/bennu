@@ -53,4 +53,6 @@ object CreateDatabase extends App {
   Txn {
     inject[DataSource].getConnection.update("shutdown")
   }
+
+  System.exit(0)
 }

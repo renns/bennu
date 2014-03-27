@@ -1,5 +1,6 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
@@ -14,6 +15,10 @@ trait ModelAssist {
 
   def createConnection(aliasIid: InternalId, localPeerId: PeerId, remotePeerId: PeerId): Connection = {
     upsert(Connection(aliasIid, localPeerId, remotePeerId))
+  }
+
+  def createContent(aliasIid: InternalId, contentType: String, data: JValue, labelIids: Option[List[InternalId]] = None): Content = {
+    upsert(Content(aliasIid, contentType, data = data), labelIids = labelIids)
   }
 
   def createLabel(parentIid: InternalId, name: String): Label = {

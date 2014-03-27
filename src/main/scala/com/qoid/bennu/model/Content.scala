@@ -5,7 +5,10 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.id._
+import com.qoid.bennu.security.AgentView
 import m3.jdbc.PrimaryKey
+import m3.predef._
+import m3.Txn
 
 object Content extends BennuMapperCompanion[Content] {
   object MetaData extends FromJsonCapable[MetaData]
@@ -26,6 +29,18 @@ object Content extends BennuMapperCompanion[Content] {
     hash: String,
     hashAlgorithm: String
   )
+
+  override protected def postInsert(instance: Content): Content = {
+    val av = inject[AgentView]
+
+    val labelIids = Txn.find[List[InternalId]](LabeledContent.labelIidsAttrName, false).getOrElse(Nil)
+
+    labelIids.foreach { iid =>
+      av.insert[LabeledContent](LabeledContent(instance.iid, iid, agentId = instance.agentId))
+    }
+
+    instance
+  }
 }
 
 case class Content(

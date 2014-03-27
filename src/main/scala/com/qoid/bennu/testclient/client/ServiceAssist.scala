@@ -14,7 +14,8 @@ trait ServiceAssist {
     instance: T,
     parentIid: Option[InternalId] = None,
     profileName: Option[String] = None,
-    profileImgSrc: Option[String] = None
+    profileImgSrc: Option[String] = None,
+    labelIids: Option[List[InternalId]] = None
   ): T = {
 
     val parms = Map[String, JValue](
@@ -22,7 +23,8 @@ trait ServiceAssist {
       "instance" -> instance.toJson,
       "parentIid" -> parentIid,
       "profileName" -> profileName,
-      "profileImgSrc" -> profileImgSrc
+      "profileImgSrc" -> profileImgSrc,
+      "labelIids" -> labelIids
     )
 
     val response = post(ServicePath.upsert, parms)

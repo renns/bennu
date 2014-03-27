@@ -86,7 +86,7 @@ object DeRegisterIntegrator extends GuiceApp {
         case JArray(i :: Nil) =>
           val content = Content.fromJson(i)
 
-          if (content.contentType == "text") {
+          if (content.contentType == "TEXT") {
             client1.deRegisterStandingQuery(response.handle)
             client2.upsert(content.copy(contentType = "image"))
           } else {
@@ -106,12 +106,10 @@ object DeRegisterIntegrator extends GuiceApp {
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
       val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
-      val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 
-      client1.query[Content](s"hasLabelPath('Uber Alias','A')", local = false, connections = List(conn1), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connections = List(conn1), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
 
-      client2.upsert(content)
-      client2.upsert(LabeledContent(content.iid, label2.iid))
+      client2.createContent(alias2.iid, "TEXT", ("text" -> "Content") ~ ("booyaka" -> "wop"), Some(List(label2.iid)))
 
       Await.result(p.future, Duration("10 seconds"))
 

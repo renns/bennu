@@ -160,8 +160,7 @@ object QueryIntegrator extends GuiceApp {
       val expectedResults = List(content.toJson)
       client1.query[Content](s"hasLabelPath('Uber Alias','A')", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
-      client2.upsert(content)
-      client2.upsert(LabeledContent(content.iid, label2.iid))
+      client2.upsert(content, labelIids = Some(List(label2.iid)))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -180,8 +179,7 @@ object QueryIntegrator extends GuiceApp {
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
-      val content = client2.upsert(Content(alias2.iid, "TEXT", data = "text" ->  "agent 2 should see this"))
-      client2.upsert(LabeledContent(content.iid, conn2.metaLabelIid))
+      val content = client2.createContent(alias2.iid, "TEXT", "text" -> "agent 2 should see this", Some(List(conn2.metaLabelIid)))
 
       val expectedResults = List(content.toJson)
       client1.query[Content]("hasConnectionMetaLabel()", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))

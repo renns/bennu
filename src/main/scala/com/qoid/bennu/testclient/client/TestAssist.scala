@@ -38,16 +38,12 @@ object TestAssist extends Logging {
     var contents = List.empty[Content]
 
     labels.foreach { l =>
-      val content = client.upsert(Content(
-        aliasIid = alias.iid,
-        contentType = "text",
-        data = ("text" ->  l.name) ~ ("booyaka" -> "wop")
-      ))
-
-      client.upsert(LabeledContent(
-        contentIid = content.iid,
-        labelIid = l.iid
-      ))
+      val content = client.createContent(
+        alias.iid,
+        "TEXT",
+        ("text" -> l.name) ~ ("booyaka" -> "wop"),
+        Some(List(l.iid))
+      )
 
       contents = content :: contents
     }

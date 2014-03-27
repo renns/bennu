@@ -6,6 +6,7 @@ import m3.jdbc.PrimaryKey
 import net.liftweb.json._
 
 object LabeledContent extends BennuMapperCompanion[LabeledContent] {
+  val labelIidsAttrName = "com.qoid.bennu.model.LabeledContent.labelIids"
 }
 
 case class LabeledContent(
