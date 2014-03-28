@@ -6,8 +6,9 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model._
-import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id._
 import com.qoid.bennu.security._
+import java.sql.{ Connection => JdbcConn }
 import java.text.SimpleDateFormat
 import m3.jdbc._
 import m3.predef._
@@ -20,45 +21,79 @@ case class VerifyService @Inject() (
   securityContext: SecurityContext,
   @Parm connectionIid: InternalId,
   @Parm contentIid: InternalId,
-  @Parm content: String,
-  @Parm message: String,
-  @Parm notificationIid: Option[InternalId] = None
+  @Parm contentData: JValue,
+  @Parm message: String
 ) extends Logging {
 
   def service: JValue = {
     val av = injector.instance[AgentView]
+    implicit val jdbcConn = injector.instance[JdbcConn]
+
+    VerifyService.verify(
+      av,
+      distributedMgr,
+      connectionIid,
+      contentIid,
+      contentData,
+      message,
+      securityContext.agentId,
+      securityContext.aliasIid
+    )
+
+    JString("success")
+  }
+}
+
+object VerifyService {
+  def verify(
+    av: AgentView,
+    distributedMgr: DistributedManager,
+    connectionIid: InternalId,
+    contentIid: InternalId,
+    contentData: JValue,
+    message: String,
+    agentId: AgentId,
+    aliasIid: InternalId
+  )(
+    implicit jdbcConn: JdbcConn
+  ): Unit = {
 
     val now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new DateTime().asDate())
 
-    val verification = Content(
-      securityContext.aliasIid,
+    // Insert verification content
+    val verification = av.insert[Content](Content(
+      aliasIid,
       "VERIFICATION",
-      agentId = securityContext.agentId,
+      agentId = agentId,
       data = ("created" -> now) ~ ("modified" -> now) ~ ("text" -> message),
-      metaData = Content.MetaData(Some(Content.MetaDataVerifiedContent(content, "COPY"))).toJson
-    )
+      metaData = Content.MetaData(Some(Content.MetaDataVerifiedContent(contentData, "COPY"))).toJson
+    ))
 
-    av.insert[Content](verification)
-    // TODO: Put verification content under Verifications label
+    // Get Verifications Meta-Label
+    val alias = av.fetch[Alias](aliasIid)
+    val rootLabel = av.fetch[Label](alias.rootLabelIid)
+    val metaLabel = rootLabel.findChild(Alias.metaLabelName).head
+    val verificationsMetaLabel = metaLabel.findChild(Alias.verificationsLabelName).head
 
-    // Mark notification as consumed
-    notificationIid.foreach { iid =>
-      val notification = av.fetch[Notification](iid).copy(consumed = true)
-      av.update[Notification](notification)
-    }
+    // Label verification content with the verifications meta-label
+    av.insert[LabeledContent](LabeledContent(
+      verification.iid,
+      verificationsMetaLabel.iid,
+      agentId = agentId
+    ))
 
+    // Get Profile
     val connection = av.fetch[Connection](connectionIid)
     val profile = av.select[Profile](sql"aliasIid = ${connection.aliasIid}").toList.head
 
+    // Send Verification Response message
     distributedMgr.send(
       connection,
       DistributedMessage(
         DistributedMessageKind.VerificationResponse,
         1,
-        VerificationResponse(contentIid, verification.iid, profile.sharedId).toJson
+        VerificationResponse(contentIid, verification.iid, verification.data, profile.sharedId).toJson
       )
     )
-
-    JString("success")
   }
 }

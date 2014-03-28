@@ -16,6 +16,7 @@ object VerificationResponseHandler {
       val data = notification.VerificationResponse(
         verificationResponse.contentIid,
         verificationResponse.verificationContentIid,
+        verificationResponse.verificationContentData,
         verificationResponse.verifierId
       )
 

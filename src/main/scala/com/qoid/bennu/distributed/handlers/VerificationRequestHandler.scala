@@ -15,6 +15,8 @@ object VerificationRequestHandler {
 
       val data = notification.VerificationRequest(
         verificationRequest.contentIid,
+        verificationRequest.contentType,
+        verificationRequest.contentData,
         verificationRequest.message
       )
 

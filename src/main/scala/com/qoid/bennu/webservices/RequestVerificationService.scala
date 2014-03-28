@@ -1,15 +1,15 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.messages._
-import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentView
 import java.sql.{ Connection => JdbcConn }
 import m3.predef._
 import m3.servlet.beans.Parm
-import net.liftweb.json._
 
 case class RequestVerificationService @Inject()(
   injector: ScalaInjector,
@@ -24,7 +24,8 @@ case class RequestVerificationService @Inject()(
   def service: JValue = {
     val av = injector.instance[AgentView]
 
-    val request = VerificationRequest(contentIid, message)
+    val content = av.fetch[Content](contentIid)
+    val request = VerificationRequest(contentIid, content.contentType, content.data, message)
 
     connectionIids.foreach { connectionIid =>
       val connection = av.fetch[Connection](connectionIid)

@@ -19,14 +19,14 @@ object Content extends BennuMapperCompanion[Content] {
   ) extends ToJsonCapable
 
   case class MetaDataVerifiedContent(
-    hash: String,
+    hash: JValue,
     hashAlgorithm: String
   )
 
   case class MetaDataVerification(
     verifierId: SharedId,
     verificationIid: InternalId,
-    hash: String,
+    hash: JValue,
     hashAlgorithm: String
   )
 

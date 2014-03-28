@@ -12,6 +12,7 @@ object ServicePath {
   val initiateIntroduction = "/api/introduction/initiate"
   val respondToIntroduction = "/api/introduction/respond"
   val requestVerification = "/api/verification/request"
+  val respondToVerification = "/api/verification/respond"
   val verify = "/api/verification/verify"
   val acceptVerification = "/api/verification/accept"
 }

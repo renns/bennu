@@ -56,6 +56,7 @@ class WebServicesModule extends M3ServletModule {
     serveBean[RespondToIntroductionService](ServicePath.respondToIntroduction)
 
     serveBean[RequestVerificationService](ServicePath.requestVerification)
+    serveBean[RespondToVerificationService](ServicePath.respondToVerification)
     serveBean[VerifyService](ServicePath.verify)
     serveBean[AcceptVerificationService](ServicePath.acceptVerification)
 

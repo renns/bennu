@@ -11,8 +11,7 @@ import m3.servlet.beans.Parm
 
 case class AcceptVerificationService @Inject() (
   injector: ScalaInjector,
-  @Parm notificationIid: InternalId,
-  @Parm verificationContent: String
+  @Parm notificationIid: InternalId
 ) extends Logging {
 
   def service: JValue = {
@@ -23,7 +22,13 @@ case class AcceptVerificationService @Inject() (
 
     val content = av.fetch[Content](verificationResponse.contentIid)
     val metaData = Content.MetaData.fromJson(content.metaData)
-    val verification = Content.MetaDataVerification(verificationResponse.verifierId, verificationResponse.verificationContentIid, verificationContent, "COPY")
+
+    val verification = Content.MetaDataVerification(
+      verificationResponse.verifierId,
+      verificationResponse.verificationContentIid,
+      verificationResponse.verificationContentData,
+      "COPY"
+    )
 
     val verifications = metaData.verifications match {
       case Some(v) => verification :: v
@@ -31,7 +36,6 @@ case class AcceptVerificationService @Inject() (
     }
 
     av.update[Content](content.copy(metaData = metaData.copy(verifications = Some(verifications)).toJson))
-
     av.update[Notification](notification.copy(consumed = true))
 
     JString("success")
