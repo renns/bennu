@@ -1,8 +1,6 @@
 package com.qoid.bennu.webservices
 
 import com.qoid.bennu.ServicePath
-import com.qoid.bennu.webservices.examples.AdditionService
-import com.qoid.bennu.webservices.examples.MultiplicationService
 import m3.servlet.CorsFilter
 import m3.servlet.CurlFilter
 import m3.servlet.M3ServletModule
@@ -11,7 +9,6 @@ import m3.servlet.TransactionFilter
 import m3.servlet.compression.CompressionFilter
 import m3.servlet.longpoll.webservice.ChannelPoll
 import m3.servlet.longpoll.webservice.SubmitChannelRequests
-import m3.servlet.scalate.ScalateFilter
 import m3.servlet.upload.FileUploadFilter
 
 class WebServicesModule extends M3ServletModule {
@@ -23,7 +20,6 @@ class WebServicesModule extends M3ServletModule {
     
     filter("/api/*").through(classOf[CorsFilter])
     
-    // currently this breaks long polling so we have it commented out
     filter("/*").through(classOf[CompressionFilter])
     
     // support multipart content types
@@ -60,9 +56,6 @@ class WebServicesModule extends M3ServletModule {
     serveBean[VerifyService](ServicePath.verify)
     serveBean[AcceptVerificationService](ServicePath.acceptVerification)
 
-    serveBean[AdditionService]("/api/example/add")
-    serveBean[MultiplicationService]("/api/example/multiply")
-    
     addServletBeanFilter
   }
 }
