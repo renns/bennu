@@ -17,7 +17,7 @@ case class RespondToVerificationService @Inject()(
   distributedMgr: DistributedManager,
   securityContext: SecurityContext,
   @Parm notificationIid: InternalId,
-  @Parm message: String
+  @Parm verificationContent: String
 ) extends Logging {
 
   implicit def jdbcConn = injector.instance[JdbcConn]
@@ -35,7 +35,7 @@ case class RespondToVerificationService @Inject()(
       notification.fromConnectionIid,
       verificationRequest.contentIid,
       verificationRequest.contentData,
-      message,
+      verificationContent,
       securityContext.agentId,
       securityContext.aliasIid
     )
