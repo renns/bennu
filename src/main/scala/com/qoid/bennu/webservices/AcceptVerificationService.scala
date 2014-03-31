@@ -21,7 +21,11 @@ case class AcceptVerificationService @Inject() (
     val verificationResponse = VerificationResponse.fromJson(notification.data)
 
     val content = av.fetch[Content](verificationResponse.contentIid)
-    val metaData = Content.MetaData.fromJson(content.metaData)
+
+    val metaData = content.metaData match {
+      case JNothing => Content.MetaData()
+      case m => Content.MetaData.fromJson(m)
+    }
 
     val verification = Content.MetaDataVerification(
       verificationResponse.verifierId,

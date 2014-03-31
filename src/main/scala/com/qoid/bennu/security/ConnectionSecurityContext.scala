@@ -19,10 +19,12 @@ case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: Int
     override lazy val rootLabel = Label.fetch(alias.rootLabelIid)(injector.instance[JdbcConn])
     private lazy val connection = Connection.fetch(connectionIid)(injector.instance[JdbcConn])
     private lazy val alias = Alias.fetch(connection.aliasIid)(injector.instance[JdbcConn])
+    private lazy val metaLabel = rootLabel.findChild(Alias.metaLabelName)(injector.instance[JdbcConn]).head
+    private lazy val verificationsMetaLabel = metaLabel.findChild(Alias.verificationsLabelName)(injector.instance[JdbcConn]).head
 
     override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T): Box[T] = Failure("connections cannot do insert, update or delete actions on other agents")
 
-    private lazy val reachableLabels: List[InternalId] = connection.metaLabelIid :: injector.instance[JdbcConn].queryFor[InternalId](sql"""
+    private lazy val reachableLabels: List[InternalId] = connection.metaLabelIid :: verificationsMetaLabel.iid :: injector.instance[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (
      select labelIid
      from labelacl
