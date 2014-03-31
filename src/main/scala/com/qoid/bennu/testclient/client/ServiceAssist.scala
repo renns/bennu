@@ -146,21 +146,21 @@ trait ServiceAssist {
     post(ServicePath.requestVerification, parms).success
   }
 
-  def respondToVerification(notification: Notification, message: String): Boolean = {
+  def respondToVerification(notification: Notification, verificationContent: String): Boolean = {
     val parms = Map[String, JValue](
       "notificationIid" -> notification.iid,
-      "message" -> message
+      "verificationContent" -> verificationContent
     )
 
     post(ServicePath.respondToVerification, parms).success
   }
 
-  def verify(connection: Connection, content: Content, message: String): Boolean = {
+  def verify(connection: Connection, content: Content, verificationContent: String): Boolean = {
     val parms = Map[String, JValue](
       "connectionIid" -> connection.iid,
       "contentIid" -> content.iid,
       "contentData" -> content.data,
-      "message" -> message
+      "verificationContent" -> verificationContent
     )
 
     post(ServicePath.verify, parms).success

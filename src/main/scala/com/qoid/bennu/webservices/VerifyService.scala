@@ -22,7 +22,7 @@ case class VerifyService @Inject() (
   @Parm connectionIid: InternalId,
   @Parm contentIid: InternalId,
   @Parm contentData: JValue,
-  @Parm message: String
+  @Parm verificationContent: String
 ) extends Logging {
 
   def service: JValue = {
@@ -35,7 +35,7 @@ case class VerifyService @Inject() (
       connectionIid,
       contentIid,
       contentData,
-      message,
+      verificationContent,
       securityContext.agentId,
       securityContext.aliasIid
     )
@@ -51,7 +51,7 @@ object VerifyService {
     connectionIid: InternalId,
     contentIid: InternalId,
     contentData: JValue,
-    message: String,
+    verificationContent: String,
     agentId: AgentId,
     aliasIid: InternalId
   )(
@@ -65,7 +65,7 @@ object VerifyService {
       aliasIid,
       "VERIFICATION",
       agentId = agentId,
-      data = ("created" -> now) ~ ("modified" -> now) ~ ("text" -> message),
+      data = ("created" -> now) ~ ("modified" -> now) ~ ("text" -> verificationContent),
       metaData = Content.MetaData(Some(Content.MetaDataVerifiedContent(contentData, "COPY"))).toJson
     ))
 
