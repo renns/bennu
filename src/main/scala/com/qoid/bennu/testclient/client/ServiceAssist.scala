@@ -95,7 +95,7 @@ trait ServiceAssist {
       "q" -> query,
       "aliasIid" -> alias.map(_.iid),
       "local" -> local,
-      "connectionIids" -> connections.map(c => c.iid),
+      "connectionIids" -> connections.map(_.iid),
       "historical" -> historical,
       "standing" -> standing
     )
@@ -113,8 +113,7 @@ trait ServiceAssist {
   def deRegisterStandingQuery(handle: Handle): Boolean = {
     asyncCallbacks -= handle
     val parms = Map[String, JValue]("handle" -> handle)
-    val response = post(ServicePath.deRegisterStandingQuery, parms)
-    response.success
+    post(ServicePath.deRegisterStandingQuery, parms).success
   }
 
   def initiateIntroduction(aConnection: Connection, aMessage: String, bConnection: Connection, bMessage: String): Boolean = {
@@ -125,9 +124,7 @@ trait ServiceAssist {
       "bMessage" -> bMessage
     )
 
-    val response = post(ServicePath.initiateIntroduction, parms)
-
-    response.success
+    post(ServicePath.initiateIntroduction, parms).success
   }
 
   def respondToIntroduction(notification: Notification, accepted: Boolean): Boolean = {
@@ -136,8 +133,41 @@ trait ServiceAssist {
       "accepted" -> accepted
     )
 
-    val response = post(ServicePath.respondToIntroduction, parms)
+    post(ServicePath.respondToIntroduction, parms).success
+  }
 
-    response.success
+  def requestVerification(content: Content, connections: List[Connection], message: String): Boolean = {
+    val parms = Map[String, JValue](
+      "contentIid" -> content.iid,
+      "connectionIids" -> connections.map(_.iid),
+      "message" -> message
+    )
+
+    post(ServicePath.requestVerification, parms).success
+  }
+
+  def respondToVerification(notification: Notification, message: String): Boolean = {
+    val parms = Map[String, JValue](
+      "notificationIid" -> notification.iid,
+      "message" -> message
+    )
+
+    post(ServicePath.respondToVerification, parms).success
+  }
+
+  def verify(connection: Connection, content: Content, message: String): Boolean = {
+    val parms = Map[String, JValue](
+      "connectionIid" -> connection.iid,
+      "contentIid" -> content.iid,
+      "contentData" -> content.data,
+      "message" -> message
+    )
+
+    post(ServicePath.verify, parms).success
+  }
+
+  def acceptVerification(notification: Notification): Boolean = {
+    val parms = Map[String, JValue]("notificationIid" -> notification.iid)
+    post(ServicePath.acceptVerification, parms).success
   }
 }

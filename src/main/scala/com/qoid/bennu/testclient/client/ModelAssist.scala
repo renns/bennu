@@ -25,6 +25,10 @@ trait ModelAssist {
     upsert(Label(name, data = "color" -> "#7F7F7F"), Some(parentIid))
   }
 
+  def grantAccess(label: Label, connection: Connection): Unit = {
+    upsert(LabelAcl(connection.iid, label.iid))
+  }
+
   def getRootLabel(): Label = {
     val alias = getRootAlias()
     queryLocal[Label](sql"iid = ${alias.rootLabelIid}").head

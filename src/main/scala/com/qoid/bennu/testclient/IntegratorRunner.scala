@@ -21,6 +21,7 @@ object IntegratorRunner extends GuiceApp {
     IntroductionIntegrator.run() ++
     ProfilesIntegrator.run() ++
     QueryIntegrator.run() ++
-    UpsertIntegrator.run()
+    UpsertIntegrator.run() ++
+    VerificationIntegrator.run()
   }
 }
