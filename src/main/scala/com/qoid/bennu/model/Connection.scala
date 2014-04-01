@@ -39,8 +39,23 @@ object Connection extends BennuMapperCompanion[Connection] {
     instance
   }
 
+  override protected def preDelete(instance: Connection): Connection = {
+    val av = inject[AgentView]
+
+    av.select[Introduction](sql"aConnectionIid = ${instance.iid} or bConnectionIid = ${instance.iid}").foreach(av.delete[Introduction])
+    av.select[LabelAcl](sql"connectionIid = ${instance.iid}").foreach(av.delete[LabelAcl])
+    av.select[Notification](sql"fromConnectionIid = ${instance.iid}").foreach(av.delete[Notification])
+
+    instance
+  }
+
   override protected def postDelete(instance: Connection): Connection = {
+    val av = inject[AgentView]
+
     inject[DistributedManager].stopListen(instance)
+
+    av.delete[Label](av.fetch[Label](instance.metaLabelIid))
+
     instance
   }
 }

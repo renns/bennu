@@ -5,8 +5,9 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
+import java.sql.{ Connection => JdbcConn }
 import m3.Txn
-import m3.jdbc.PrimaryKey
+import m3.jdbc._
 import m3.predef._
 
 object Alias extends BennuMapperCompanion[Alias] {
@@ -51,6 +52,32 @@ object Alias extends BennuMapperCompanion[Alias] {
 
     val label = av.fetch[Label](instance.rootLabelIid)
     av.update(label.copy(name = instance.name))
+
+    instance
+  }
+
+  override protected def preDelete(instance: Alias): Alias = {
+    val av = inject[AgentView]
+
+    av.select[Connection](sql"aliasIid = ${instance.iid}").foreach(av.delete[Connection])
+    av.select[Profile](sql"aliasIid = ${instance.iid}").foreach(av.delete[Profile])
+
+    instance
+  }
+
+  override protected def postDelete(instance: Alias): Alias = {
+    val av = inject[AgentView]
+    implicit val jdbcConn = inject[JdbcConn]
+
+    val rootLabel = av.fetch[Label](instance.rootLabelIid)
+
+    av.findChildLabel(rootLabel.iid, metaLabelName).foreach { metaLabel =>
+      av.findChildLabel(metaLabel.iid, connectionsLabelName).foreach(av.delete[Label])
+      av.findChildLabel(metaLabel.iid, verificationsLabelName).foreach(av.delete[Label])
+      av.delete[Label](metaLabel)
+    }
+
+    av.delete[Label](rootLabel)
 
     instance
   }

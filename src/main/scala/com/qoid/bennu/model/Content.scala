@@ -6,9 +6,9 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
-import m3.jdbc.PrimaryKey
-import m3.predef._
 import m3.Txn
+import m3.jdbc._
+import m3.predef._
 
 object Content extends BennuMapperCompanion[Content] {
   object MetaData extends FromJsonCapable[MetaData]
@@ -38,6 +38,14 @@ object Content extends BennuMapperCompanion[Content] {
     labelIids.foreach { iid =>
       av.insert[LabeledContent](LabeledContent(instance.iid, iid, agentId = instance.agentId))
     }
+
+    instance
+  }
+
+  override protected def preDelete(instance: Content): Content = {
+    val av = inject[AgentView]
+
+    av.select[LabeledContent](sql"contentIid = ${instance.iid}").foreach(av.delete[LabeledContent])
 
     instance
   }

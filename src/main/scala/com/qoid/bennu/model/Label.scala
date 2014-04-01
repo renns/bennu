@@ -20,6 +20,16 @@ object Label extends BennuMapperCompanion[Label] {
 
     instance
   }
+
+  override protected def preDelete(instance: Label): Label = {
+    val av = inject[AgentView]
+
+    av.select[LabelAcl](sql"labelIid = ${instance.iid}").foreach(av.delete[LabelAcl])
+    av.select[LabelChild](sql"parentIid = ${instance.iid} or childIid = ${instance.iid}").foreach(av.delete[LabelChild])
+    av.select[LabeledContent](sql"labelIid = ${instance.iid}").foreach(av.delete[LabeledContent])
+
+    instance
+  }
 }
 
 case class Label(
