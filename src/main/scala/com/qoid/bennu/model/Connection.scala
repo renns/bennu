@@ -6,7 +6,6 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
-import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
@@ -17,18 +16,22 @@ object Connection extends BennuMapperCompanion[Connection] {
 
   override protected def preInsert(instance: Connection): Connection = {
     val av = inject[AgentView]
-    implicit val jdbcConn = inject[JdbcConn]
+    var newInstance = instance
 
     val alias = av.fetch[Alias](instance.aliasIid)
     val rootLabel = av.fetch[Label](alias.rootLabelIid)
-    val metaLabel = rootLabel.findChild(Alias.metaLabelName).head
-    val connectionsLabel = metaLabel.findChild(Alias.connectionsLabelName).head
 
-    Txn {
-      Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
-      val label = av.insert[Label](Label(connectionLabelName, instance.agentId, data = "color" -> connectionLabelColor))
-      instance.copy(metaLabelIid = label.iid)
+    av.findChildLabel(rootLabel.iid, Alias.metaLabelName).foreach { metaLabel =>
+      av.findChildLabel(metaLabel.iid, Alias.connectionsLabelName).foreach { connectionsLabel =>
+        Txn {
+          Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
+          val label = av.insert[Label](Label(connectionLabelName, instance.agentId, data = "color" -> connectionLabelColor))
+          newInstance = instance.copy(metaLabelIid = label.iid)
+        }
+      }
     }
+
+    newInstance
   }
 
   override protected def postInsert(instance: Connection): Connection = {

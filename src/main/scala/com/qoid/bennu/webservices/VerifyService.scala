@@ -72,8 +72,8 @@ object VerifyService {
     // Get Verifications Meta-Label
     val alias = av.fetch[Alias](aliasIid)
     val rootLabel = av.fetch[Label](alias.rootLabelIid)
-    val metaLabel = rootLabel.findChild(Alias.metaLabelName).head
-    val verificationsMetaLabel = metaLabel.findChild(Alias.verificationsLabelName).head
+    val metaLabel = av.findChildLabel(rootLabel.iid, Alias.metaLabelName).head
+    val verificationsMetaLabel = av.findChildLabel(metaLabel.iid, Alias.verificationsLabelName).head
 
     // Label verification content with the verifications meta-label
     av.insert[LabeledContent](LabeledContent(

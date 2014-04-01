@@ -22,6 +22,7 @@ ssh fabio@dev.qoid.com 'sudo stop bennu'
 
 rsync \
  	--exclude=config.json \
+ 	--exclude=.logs \
  	--exclude=db \
  	--delete \
  	--compress \
@@ -31,5 +32,7 @@ rsync \
  	--progress \
  	target/dist/ \
  	fabio@dev.qoid.com:/opt/bennu/
+
+ssh fabio@dev.qoid.com 'chmod g+w -R /opt/bennu/ ; chown -R fabio:bennu /opt/bennu/'
 
 ssh fabio@dev.qoid.com 'sudo start bennu'

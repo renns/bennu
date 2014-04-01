@@ -1,7 +1,6 @@
 package com.qoid.bennu.security
 
-import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.{LabelChild, HasInternalId, Label}
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.ast.ContentQuery
@@ -72,8 +71,22 @@ trait AgentView {
       Query.parse(queryStr).and(AgentView.notDeleted.expr)
     )
     val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString()
-    mapper.
-      select(querySql)(inject[JdbcConn])
+    mapper.select(querySql)(inject[JdbcConn])
+  }
+
+  def selectOpt[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Option[T] = {
+    select[T](queryStr).toList.headOption
+  }
+
+  def selectBox[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Box[T] = {
+    selectOpt[T](queryStr) ?~ s"no records returned from -- select * from ${mapper.tableName} where ${queryStr}"
+  }
+
+  def selectOne[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): T = {
+    selectOpt(queryStr) match {
+      case None => m3x.error(s"expected one record got zero for query on ${mapper.tableName} -- ${queryStr}")
+      case Some(t) => t
+    }
   }
 
   def fetchOpt[T <: HasInternalId](key: InternalId)(implicit mapper: BennuMapperCompanion[T]): Option[T] = {
@@ -94,6 +107,10 @@ trait AgentView {
     fetchOpt(key) ?~ s"key $key not found in ${mapper.tableName}"
   }
 
+  def findChildLabel(parentIid: InternalId, childName: String): Box[Label] = {
+    Label.selectBox(sql"name = ${childName} and iid in (select childIid from LabelChild where parentIid = ${parentIid} and deleted = false) and deleted = false")(inject[JdbcConn])
+  }
+
   /**
    * Takes a label path from the root to the label so for A->B->C this will return C's Label.
    */
@@ -102,7 +119,7 @@ trait AgentView {
     def recurse(parentLabel: Label, path: List[String]): Box[Label] = {
       path match {
         case Nil => Full(parentLabel)
-        case hd :: tl => parentLabel.findChild(hd).flatMap(ch=>recurse(ch, tl))
+        case hd :: tl => findChildLabel(parentLabel.iid, hd).flatMap(ch=>recurse(ch, tl))
       }
     }
 

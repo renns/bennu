@@ -4,7 +4,6 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
-import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
@@ -43,9 +42,4 @@ case class Label(
   ) = {
     copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
   }
-  
-  def findChild(childLabelName: String)(implicit conn: JdbcConn) = {
-    Label.selectBox(sql"""name = ${childLabelName} and iid in (select childiid from labelchild where parentiid = ${iid})""")
-  }
-  
 }

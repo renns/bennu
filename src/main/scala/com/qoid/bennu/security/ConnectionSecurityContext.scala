@@ -19,8 +19,8 @@ case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: Int
     override lazy val rootLabel = Label.fetch(alias.rootLabelIid)(injector.instance[JdbcConn])
     private lazy val connection = Connection.fetch(connectionIid)(injector.instance[JdbcConn])
     private lazy val alias = Alias.fetch(connection.aliasIid)(injector.instance[JdbcConn])
-    private lazy val metaLabel = rootLabel.findChild(Alias.metaLabelName)(injector.instance[JdbcConn]).head
-    private lazy val verificationsMetaLabel = metaLabel.findChild(Alias.verificationsLabelName)(injector.instance[JdbcConn]).head
+    private lazy val metaLabel = findChildLabel(rootLabel.iid, Alias.metaLabelName).head
+    private lazy val verificationsMetaLabel = findChildLabel(metaLabel.iid, Alias.verificationsLabelName).head
 
     override def validateInsertUpdateOrDelete[T <: HasInternalId](t: T): Box[T] = Failure("connections cannot do insert, update or delete actions on other agents")
 
