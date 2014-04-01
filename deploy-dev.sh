@@ -22,6 +22,7 @@ ssh fabio@dev.qoid.com 'sudo stop bennu'
 
 rsync \
  	--exclude=config.json \
+ 	--exclude=.logs \
  	--exclude=db \
  	--delete \
  	--compress \
