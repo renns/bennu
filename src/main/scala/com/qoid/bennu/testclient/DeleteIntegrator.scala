@@ -1,5 +1,6 @@
 package com.qoid.bennu.testclient
 
+import com.qoid.bennu.model.Label
 import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import com.qoid.bennu.testclient.client._
 import m3.guice.GuiceApp
@@ -34,7 +35,7 @@ object DeleteIntegrator extends GuiceApp {
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
       val label = client.createLabel(rootLabel.iid, "Label")
-      val deletedLabel = client.delete(label)
+      val deletedLabel = client.delete[Label](label.iid)
 
       if (deletedLabel.deleted) {
         None

@@ -57,8 +57,8 @@ object VerificationIntegrator extends GuiceApp {
       val (_, connRV) = TestAssist.createConnection(clientV, aliasV, clientR, aliasR)
 
       val label = clientC.createLabel(aliasC.rootLabelIid, "Claims")
-      clientC.grantAccess(label, connCV)
-      clientC.grantAccess(label, connCR)
+      clientC.grantAccess(connCV.iid, label.iid)
+      clientC.grantAccess(connCR.iid, label.iid)
       val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", Some(List(label.iid)))
 
       for (verificationRequestNotification <- getSQueryResult[Notification](clientV)) {
@@ -118,8 +118,8 @@ object VerificationIntegrator extends GuiceApp {
       val (_, connRV) = TestAssist.createConnection(clientV, aliasV, clientR, aliasR)
 
       val label = clientC.createLabel(aliasC.rootLabelIid, "Claims")
-      clientC.grantAccess(label, connCV)
-      clientC.grantAccess(label, connCR)
+      clientC.grantAccess(connCV.iid, label.iid)
+      clientC.grantAccess(connCR.iid, label.iid)
       val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", Some(List(label.iid)))
 
       for (verificationResponseNotification <- getSQueryResult[Notification](clientC)) {

@@ -1,11 +1,16 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.JdbcAssist
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
-import com.qoid.bennu.model.id.PeerId
+import com.qoid.bennu.model.id._
+import com.qoid.bennu.model.notification.NotificationKind
+import com.qoid.bennu.squery.StandingQueryAction
+import m3.jdbc._
 import m3.predef._
-import scala.concurrent.Promise
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 
 object TestAssist extends Logging {
 
@@ -67,6 +72,55 @@ object TestAssist extends Logging {
       p.success()
     } else {
       p.failure(new Exception(s"Response results not as expected\nReceived:\n${response.results.toJsonStr}\nExpected:\n${expectedResults.toJsonStr}"))
+    }
+  }
+
+  def doIntroduction(
+    clientI: ChannelClient,
+    clientA: ChannelClient,
+    clientB: ChannelClient,
+    connIA: Connection,
+    connIB: Connection
+  ): Future[(Connection, Connection)] = {
+
+    val pA = Promise[Connection]()
+    val pB = Promise[Connection]()
+
+    subscribeInsert[Notification](clientA, sql"kind = ${NotificationKind.IntroductionRequest.toString}") { (notification, handle) =>
+      clientA.deRegisterStandingQuery(handle)
+
+      subscribeInsert[Connection](clientA) { (connection, handle) =>
+        clientA.deRegisterStandingQuery(handle)
+        pA.success(connection)
+      }
+
+      clientA.respondToIntroduction(notification, true)
+    }
+
+    subscribeInsert[Notification](clientB, sql"kind = ${NotificationKind.IntroductionRequest.toString}") { (notification, handle) =>
+      clientB.deRegisterStandingQuery(handle)
+
+      subscribeInsert[Connection](clientB) { (connection, handle) =>
+        clientB.deRegisterStandingQuery(handle)
+        pB.success(connection)
+      }
+
+      // Put a delay to prevent race condition. This can be removed once race condition is fixed.
+      Thread.sleep(1000)
+      clientB.respondToIntroduction(notification, true)
+    }
+
+    clientI.initiateIntroduction(connIA, "Message to A", connIB, "Message to B")
+
+    for (cA <- pA.future; cB <- pB.future) yield (cA, cB)
+  }
+
+  def subscribeInsert[T <: HasInternalId : Manifest](client: ChannelClient, query: String = "")(fn: (T, Handle) => Unit): Unit = {
+    client.query[T](query, historical = false, standing = true) {
+      case QueryResponse(QueryResponseType.SQuery, handle, tpe, _, JArray(i :: Nil), _, _, Some(StandingQueryAction.Insert)) if tpe =:= JdbcAssist.findMapperByType[T].typeName =>
+        val mapper = JdbcAssist.findMapperByType[T]
+        val instance = mapper.fromJson(i)
+        fn(instance, handle)
     }
   }
 }

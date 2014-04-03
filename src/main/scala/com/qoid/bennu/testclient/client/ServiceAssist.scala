@@ -6,6 +6,7 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 
 trait ServiceAssist {
   this: ChannelClient =>
@@ -37,16 +38,14 @@ trait ServiceAssist {
     }
   }
 
-  def delete[T <: HasInternalId](instance: T): T = {
-    val parms = Map[String, JValue]("type" -> instance.mapper.typeName, "primaryKey" -> instance.iid)
+  def delete[T <: HasInternalId](iid: InternalId)(implicit mapper: BennuMapperCompanion[T]): T = {
+    val parms = Map[String, JValue]("type" -> mapper.typeName, "primaryKey" -> iid)
 
     val response = post(ServicePath.delete, parms)
 
     response.result match {
       case JNothing => throw new Exception(s"Delete didn't complete successfully")
-      case r =>
-        val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName)
-        mapper.fromJson(r).asInstanceOf[T]
+      case r => mapper.fromJson(r)
     }
   }
 
