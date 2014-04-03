@@ -1,17 +1,11 @@
 package com.qoid.bennu.squery
 
-import m3.predef._
+import com.qoid.bennu.model._
+import java.sql.{ Connection => JdbcConn }
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import m3.Txn
-import java.sql.{ Connection => JdbcConn }
-import com.qoid.bennu.model.LabelChild
-import com.qoid.bennu.model.Label
-import com.qoid.bennu.model.LabeledContent
-import com.qoid.bennu.model.LabelAcl
-import com.qoid.bennu.model.Content
+import m3.predef._
 
 object SqueryEvalThread extends Logging {
 
@@ -45,12 +39,12 @@ object SqueryEvalThread extends Logging {
     try {
       Txn {
       
-        standingQueryManager.notify(e.instance.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], e.instance, e.action)
+        standingQueryManager.notify(e.instance, e.action)
         
         cascadeToRelations(e.instance).foreach {
           case None =>
           case Some(i) =>
-            standingQueryManager.notify(i.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]], i, StandingQueryAction.Update)
+            standingQueryManager.notify(i, StandingQueryAction.Update)
         }
       
       }

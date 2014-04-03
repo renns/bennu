@@ -3,15 +3,17 @@ package com.qoid.bennu
 
 import com.qoid.bennu.model.HasInternalId
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.squery.StandingQueryAction
+import com.qoid.bennu.squery.StandingQueryManager
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
+import m3.TypeInfo
 import m3.jdbc.ColumnMapper.SingleColumnMapper
 import m3.jdbc._
 import m3.json.JsonSerializer
 import m3.predef._
-import m3.TypeInfo
 import net.liftweb.json.JNothing
 import net.liftweb.json.JValue
 import net.model3.lang.ClassX
@@ -28,11 +30,37 @@ object JdbcAssist extends Logging {
     
     val serializer = inject[JsonSerializer]
 
-    override def insert(instance: T)(implicit conn: Connection): T = postInsert(super.insert(preInsert(instance)))
-    override def update(instance: T)(implicit conn: Connection): T = postUpdate(super.update(preUpdate(instance)))
+    override def insert(instance: T)(implicit conn: Connection): T = {
+      postInsert(
+        notifyStandingQueries(
+          super.insert(
+            preInsert(instance)
+          ),
+          StandingQueryAction.Insert
+        )
+      )
+    }
+
+    override def update(instance: T)(implicit conn: Connection): T = {
+      postUpdate(
+        notifyStandingQueries(
+          super.update(
+            preUpdate(instance)
+          ),
+          StandingQueryAction.Update
+        )
+      )
+    }
 
     def softDelete(instance: T)(implicit conn: Connection): T = {
-      postDelete(super.update(preDelete(instance.copy2(deleted = true).asInstanceOf[T])))
+      postDelete(
+        super.update(
+          notifyStandingQueries(
+            preDelete(instance.copy2(deleted = true).asInstanceOf[T]),
+            StandingQueryAction.Delete
+          )
+        )
+      )
     }
 
     protected def preInsert(instance: T): T = instance
@@ -48,6 +76,16 @@ object JdbcAssist extends Logging {
     implicit def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
     
     implicit def implicitMapper = this
+
+    def notifyStandingQueries(instance: T, action: StandingQueryAction): T = {
+//      inject[Transaction].events.addListener(new Transaction.Adapter {
+//        override def commit(txn: Transaction) = {
+//          SqueryEvalThread.enqueue(action, instance)
+//        }
+//      })
+      inject[StandingQueryManager].notify(instance, action)
+      instance
+    }
   }
 
   trait BennuMappedInstance[T <: HasInternalId] extends Mapper.MappedInstance[T,InternalId] { self: T =>
@@ -94,5 +132,4 @@ object JdbcAssist extends Logging {
       ps.setString(col, s)
     }
   }
-
 }

@@ -2,7 +2,7 @@ package com.qoid.bennu.squery
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
-import com.qoid.bennu.JdbcAssist
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.MemoryCache
 import com.qoid.bennu.MemoryListCache
 import com.qoid.bennu.model._
@@ -82,10 +82,11 @@ class StandingQueryManager @Inject()(injector: ScalaInjector) {
   }
 
   def notify[T <: HasInternalId](
-    mapper: JdbcAssist.BennuMapperCompanion[T],
     instance: T,
     action: StandingQueryAction
   ): Unit = {
+    val mapper = instance.mapper.asInstanceOf[BennuMapperCompanion[HasInternalId]]
+
     for {
       handle <- agentTypeIndex.get((instance.agentId, mapper.typeName.toLowerCase))
       v <- cache.get(handle)

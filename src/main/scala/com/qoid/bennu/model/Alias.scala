@@ -62,6 +62,12 @@ object Alias extends BennuMapperCompanion[Alias] {
     av.select[Connection](sql"aliasIid = ${instance.iid}").foreach(av.delete[Connection])
     av.select[Profile](sql"aliasIid = ${instance.iid}").foreach(av.delete[Profile])
 
+    av.findChildLabel(instance.rootLabelIid, metaLabelName).foreach { metaLabel =>
+      av.findChildLabel(metaLabel.iid, connectionsLabelName).foreach(av.delete[Label])
+      av.findChildLabel(metaLabel.iid, verificationsLabelName).foreach(av.delete[Label])
+      av.delete[Label](metaLabel)
+    }
+
     instance
   }
 
@@ -69,15 +75,7 @@ object Alias extends BennuMapperCompanion[Alias] {
     val av = inject[AgentView]
     implicit val jdbcConn = inject[JdbcConn]
 
-    val rootLabel = av.fetch[Label](instance.rootLabelIid)
-
-    av.findChildLabel(rootLabel.iid, metaLabelName).foreach { metaLabel =>
-      av.findChildLabel(metaLabel.iid, connectionsLabelName).foreach(av.delete[Label])
-      av.findChildLabel(metaLabel.iid, verificationsLabelName).foreach(av.delete[Label])
-      av.delete[Label](metaLabel)
-    }
-
-    av.delete[Label](rootLabel)
+    av.delete[Label](av.fetch[Label](instance.rootLabelIid))
 
     instance
   }

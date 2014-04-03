@@ -6,6 +6,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.squery.StandingQueryAction
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
@@ -38,6 +39,8 @@ object Content extends BennuMapperCompanion[Content] {
     labelIids.foreach { iid =>
       av.insert[LabeledContent](LabeledContent(instance.iid, iid, agentId = instance.agentId))
     }
+
+    Content.notifyStandingQueries(instance, StandingQueryAction.Insert)
 
     instance
   }

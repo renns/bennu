@@ -4,6 +4,7 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.squery.StandingQueryAction
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
@@ -18,10 +19,22 @@ object Label extends BennuMapperCompanion[Label] {
       av.insert[LabelChild](LabelChild(iid, instance.iid, instance.agentId))
     }
 
+    Label.notifyStandingQueries(instance, StandingQueryAction.Insert)
+
     instance
   }
 
   override protected def preDelete(instance: Label): Label = {
+    val av = inject[AgentView]
+
+    av.select[LabelAcl](sql"labelIid = ${instance.iid}").foreach(av.delete[LabelAcl])
+    av.select[LabelChild](sql"parentIid = ${instance.iid} or childIid = ${instance.iid}").foreach(av.delete[LabelChild])
+    av.select[LabeledContent](sql"labelIid = ${instance.iid}").foreach(av.delete[LabeledContent])
+
+    instance
+  }
+
+  override protected def postDelete(instance: Label): Label = {
     val av = inject[AgentView]
 
     av.select[LabelAcl](sql"labelIid = ${instance.iid}").foreach(av.delete[LabelAcl])

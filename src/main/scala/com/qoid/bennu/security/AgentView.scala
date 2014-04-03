@@ -1,8 +1,8 @@
 package com.qoid.bennu.security
 
-import com.qoid.bennu.model.{LabelChild, HasInternalId, Label}
+import com.qoid.bennu.model.HasInternalId
+import com.qoid.bennu.model.Label
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.ast.ContentQuery
 import com.qoid.bennu.squery.ast.Query
 import com.qoid.bennu.squery.ast.Transformer
@@ -37,30 +37,21 @@ trait AgentView {
 
   def insert[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
     validateInsert(instance) match {
-      case Full(i) =>
-        val i2 = mapper.insert(i)(inject[JdbcConn])
-        i2.notifyStandingQueries(StandingQueryAction.Insert)
-        i2
+      case Full(i) => mapper.insert(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def update[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
     validateUpdate(instance) match {
-      case Full(i) =>
-        val i2 = mapper.update(i)(inject[JdbcConn])
-        i2.notifyStandingQueries(StandingQueryAction.Update)
-        i2
+      case Full(i) => mapper.update(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def delete[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
     validateDelete(instance) match {
-      case Full(i) =>
-        val i2 = mapper.softDelete(i)(inject[JdbcConn])
-        i2.notifyStandingQueries(StandingQueryAction.Delete)
-        i2
+      case Full(i) => mapper.softDelete(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
