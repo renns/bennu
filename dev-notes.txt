@@ -1,5 +1,3 @@
-
-
 == Notes (until we get a wiki) ==
 
 * qoid.com dns
@@ -11,22 +9,9 @@
 
 
 
-
-
-== Bugs ==
-
-* modifying alias doesn't update it right away
-
-
-
-
 == General Tasks ==
 
 * refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
-
-* move SecurityContext into security package 
-
-* use case, an alias based standing query where a labelchild is added after the label is created.  In this use case the label wouldn't get sent (but it should get sent once it is reachable)
 
 * Update IntroductionResponse handler in NotificationListener so that it handles race conditions
     - It should make sure that if both parties accept, connections will always be made
@@ -40,22 +25,6 @@
 * what happens when we delete certain things like an alias? (e.g. are remote connections removed? content?)
 
 
-
-
-== Internet Of Things ==
-
-  requirement - you should not be able to figure out if you are using the root/uber alias or not 
-
-* querying on the agent scrubs certain agent fields
-* remove agent id's from being surfaced sent to any clients (under the covers we have agent id's but nothing requires them).  This means the server will be responsible for injecting the agent id.  Also this would allow for our UI to work with a single agent server as well as a multi-agent server.
-
-
-
-
-
-
-
 == Things we don't handle and won't for demo but should for production ==
 
 * changing an ACL or the label tree structures updates any existing standing queries
-
