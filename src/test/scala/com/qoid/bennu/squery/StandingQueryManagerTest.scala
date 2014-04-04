@@ -5,7 +5,7 @@ import com.qoid.bennu.model._
 import m3.servlet.longpoll.ChannelId
 import org.junit.Test
 
-class StandingQueryManagerTest extends ScalaUnitTest {
+//class StandingQueryManagerTest extends ScalaUnitTest {
   //test getting empty list
 
 //  @Test
@@ -73,4 +73,4 @@ class StandingQueryManagerTest extends ScalaUnitTest {
 //
 //    assert(Nil === result2)
 //  }
-}
+//}
