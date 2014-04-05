@@ -28,7 +28,7 @@ object CreateDatabase extends App {
     
     schemaManager.createFullSchemaDdl.foreach(conn.update(_))
 
-    file("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
+    findFile("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
 
     CreateAgent(
       injector = inject[ScalaInjector],

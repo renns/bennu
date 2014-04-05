@@ -6,6 +6,10 @@
 # - Get latest code of agentui
 # - Get latest code of bennu
 
+SERVER=$1
+
+echo "deploying to $SERVER"
+
 mvn -T 4 package
 
 mkdir target/dist
@@ -18,7 +22,12 @@ cp -r target/*.jar target/dist/lib/
 cp -r target/dependency/*.jar target/dist/lib/
 cp -RH src/main/webapp target/dist
 
-ssh fabio@dev.qoid.com "sudo stop $1"
+mkdir target/dist/bin
+cp bennu.schema target/dist/bin
+cp bennu-extra-ddl.sql target/dist/bin
+cp -r src/main/scripts/ target/dist/bin/
+
+ssh fabio@dev.qoid.com "sudo stop $SERVER"
 
 rsync \
  	--exclude=config.json \
@@ -31,8 +40,8 @@ rsync \
  	--partial \
  	--progress \
  	target/dist/ \
- 	fabio@dev.qoid.com:/opt/$1/
+ 	fabio@dev.qoid.com:/opt/$SERVER/
 
-ssh fabio@dev.qoid.com "chmod g+w -R /opt/$1/ ; chown -R fabio:bennu /opt/$1/"
+ssh fabio@dev.qoid.com "sudo chmod g+rw -R /opt/$SERVER/ ; sudo chown -R fabio:bennu /opt/$SERVER/ ; sudo chmod u+rw -R /opt/$SERVER/ "
 
-ssh fabio@dev.qoid.com "sudo start $1"
+ssh fabio@dev.qoid.com "sudo start $SERVER"

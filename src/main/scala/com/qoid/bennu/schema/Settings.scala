@@ -26,10 +26,16 @@ object Settings {
     val parser = new Parser
     parser.parse(s)
   }
+  
+  def findFile(filename: String) = {
+    val prefixes = List("./", "./bin/")
+    val possibles = prefixes.map(p=>file(p + filename))
+    possibles.filter(_.exists).headOption.getOrError(s"unable to find file -- ${possibles.map(_.canonical).mkString("  ")}")
+  }
 
   lazy val conn = inject[Connection]
 
-  lazy val schemaManager = SchemaManager(conn, file("bennu.schema"))
+  lazy val schemaManager = SchemaManager(conn, findFile("bennu.schema"))
 
   def printDdl(getDdlFn: => Iterable[String]) = {
     Txn {
