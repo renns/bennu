@@ -5,6 +5,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.AuthenticationManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
@@ -43,6 +44,15 @@ object Alias extends BennuMapperCompanion[Alias] {
     val profileName = Txn.find[String](Profile.nameAttrName, false).getOrElse(instance.name)
     val profileImgSrc = Txn.find[String](Profile.imgSrcAttrName, false).getOrElse("")
     av.insert[Profile](Profile(instance.iid, profileName, profileImgSrc, instance.agentId))
+
+    //TODO: Remove once UI supports creating logins
+    Txn {
+      av.selectOpt[Agent]("").foreach {
+        _ =>
+          val authenticationMgr = inject[AuthenticationManager]
+          authenticationMgr.createLogin(instance.iid, "password")
+      }
+    }
 
     instance
   }

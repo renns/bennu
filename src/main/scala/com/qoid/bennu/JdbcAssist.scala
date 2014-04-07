@@ -101,6 +101,7 @@ object JdbcAssist extends Logging {
     model.LabelAcl,
     model.LabelChild,
     model.LabeledContent,
+    model.Login,
     model.Notification,
     model.Profile
   )

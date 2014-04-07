@@ -16,7 +16,7 @@ object HttpAssist extends HttpAssist with Logging {
   )
 
   def createAgent(agentName: String, overwrite: Boolean = true)(implicit config: HttpClientConfig): ChannelClient = {
-    val response = httpGet(s"${config.server}${ServicePath.createAgent}/$agentName/${overwrite}")
+    val response = httpGet(s"${config.server}${ServicePath.createAgent}/$agentName?overWrite=${overwrite}")
 
     parseJson(response) \ "agentName" match {
       case JString(n) => logger.debug(s"Created agent $n")

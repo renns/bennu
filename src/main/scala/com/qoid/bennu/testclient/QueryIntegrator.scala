@@ -134,7 +134,7 @@ object QueryIntegrator extends GuiceApp {
       val contentC = contents(2)
 
       val expectedResults = List(contentC.toJson)
-      client1.query[Content](s"hasLabelPath('Uber Alias','A','B','C')", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A','B','C')", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -158,7 +158,7 @@ object QueryIntegrator extends GuiceApp {
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 
       val expectedResults = List(content.toJson)
-      client1.query[Content](s"hasLabelPath('Uber Alias','A')", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client2.upsert(content, labelIids = Some(List(label2.iid)))
 
