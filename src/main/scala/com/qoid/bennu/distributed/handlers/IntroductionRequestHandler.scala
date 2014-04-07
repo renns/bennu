@@ -26,7 +26,6 @@ object IntroductionRequestHandler {
       val n = Notification(
         fromConnectionIid = connection.iid,
         kind = NotificationKind.IntroductionRequest,
-        agentId = connection.agentId,
         data = data.toJson
       )
 

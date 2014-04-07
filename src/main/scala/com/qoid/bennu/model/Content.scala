@@ -36,9 +36,7 @@ object Content extends BennuMapperCompanion[Content] {
 
     val labelIids = Txn.find[List[InternalId]](LabeledContent.labelIidsAttrName, false).getOrElse(Nil)
 
-    labelIids.foreach { iid =>
-      av.insert[LabeledContent](LabeledContent(instance.iid, iid, agentId = instance.agentId))
-    }
+    labelIids.foreach(iid => av.insert[LabeledContent](LabeledContent(instance.iid, iid)))
 
     Content.notifyStandingQueries(instance, StandingQueryAction.Insert)
 

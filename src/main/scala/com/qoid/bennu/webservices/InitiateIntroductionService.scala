@@ -47,8 +47,12 @@ case class InitiateIntroductionService @Inject()(
       Txn {
         Txn.setViaTypename[SecurityContext](securityContext)
 
-        val introduction = Introduction(aConnectionIid, IntroductionState.NotResponded, bConnectionIid, IntroductionState.NotResponded, securityContext.agentId)
-        av.insert(introduction)
+        val introduction = av.insert[Introduction](Introduction(
+          aConnectionIid,
+          IntroductionState.NotResponded,
+          bConnectionIid,
+          IntroductionState.NotResponded
+        ))
 
         distributedMgr.send(
           aConnection,

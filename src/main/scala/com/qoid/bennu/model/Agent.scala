@@ -11,7 +11,7 @@ object Agent extends BennuMapperCompanion[Agent] {
   override protected def preInsert(instance: Agent): Agent = {
     val av = inject[AgentView]
 
-    val alias = av.insert[Alias](Alias(instance.name, instance.agentId))
+    val alias = av.insert[Alias](Alias(instance.name))
 
     instance.copy(uberAliasIid = alias.iid)
   }

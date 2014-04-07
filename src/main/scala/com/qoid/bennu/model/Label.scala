@@ -16,7 +16,7 @@ object Label extends BennuMapperCompanion[Label] {
     val parentIid = Txn.find[InternalId](LabelChild.parentIidAttrName, false)
 
     parentIid.foreach { iid =>
-      av.insert[LabelChild](LabelChild(iid, instance.iid, instance.agentId))
+      av.insert[LabelChild](LabelChild(iid, instance.iid))
     }
 
     Label.notifyStandingQueries(instance, StandingQueryAction.Insert)

@@ -11,7 +11,7 @@ import m3.predef.box._
 
 case class AgentSecurityContext(injector: ScalaInjector, agentId: AgentId) extends SecurityContext { sc =>
 
-  private lazy val agent = Agent.fetch(agentId.asIid)(injector.instance[JdbcConn])
+  private lazy val agent = Agent.selectOne(sql"agentId = ${agentId}")(injector.instance[JdbcConn])
   private lazy val agentWhereClause: Query = Query.parse(sql"agentId = ${agentId}")
 
   override def aliasIid = agent.uberAliasIid

@@ -29,7 +29,7 @@ case class UpsertService @Inject()(
     val av = injector.instance[AgentView]
     implicit val jdbcConn = injector.instance[JdbcConn]
     implicit val mapper = JdbcAssist.findMapperByTypeName(tpe).asInstanceOf[BennuMapperCompanion[HasInternalId]]
-    val instance = mapper.fromJson(instanceJson).copy2(agentId = securityContext.agentId).asInstanceOf[HasInternalId]
+    val instance = mapper.fromJson(instanceJson)
 
     parentIid.foreach(Txn.set(LabelChild.parentIidAttrName, _))
     profileName.foreach(Txn.set(Profile.nameAttrName, _))
