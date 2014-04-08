@@ -41,12 +41,7 @@ class AuthenticationManager @Inject()(injector: ScalaInjector) {
     }
 
     login.flatMap { l =>
-      println("FOUND LOGIN:")
-      println(s"Hash: ${l.passwordHash}")
-      println(s"Salt: ${l.salt}")
-      println(s"Password: $password")
       val hash = generateHash(password, l.salt)
-      println(s"HASH -- $hash")
       if (hash == l.passwordHash) Some(l.aliasIid) else None
     } ?~ s"failed to authenticate $authenticationId"
   }
