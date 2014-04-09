@@ -12,7 +12,6 @@ case class Login(
   aliasIid: InternalId,
   authenticationId: AuthenticationId,
   passwordHash: String,
-  salt: String,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,

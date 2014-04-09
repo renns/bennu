@@ -103,8 +103,7 @@ create cached table login (
 	agentId varchar(32) not NULL,
 	aliasIid varchar(32) not NULL,
 	authenticationId varchar(100) not NULL,
-	passwordHash varchar(90) not NULL,
-	salt varchar(24) not NULL,
+	passwordHash char(60) not NULL,
 	data Clob not NULL,
 	deleted bit not NULL,
 	primary key(iid)

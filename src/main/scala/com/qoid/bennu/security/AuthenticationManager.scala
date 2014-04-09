@@ -2,19 +2,17 @@ package com.qoid.bennu.security
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.Config
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
-import java.security.MessageDigest
-import java.security.SecureRandom
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
-import sun.misc.BASE64Decoder
-import sun.misc.BASE64Encoder
+import org.mindrot.jbcrypt.BCrypt
 
 @Singleton
-class AuthenticationManager @Inject()(injector: ScalaInjector) {
+class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
   def createLogin(aliasIid: InternalId, password: String): Login = {
     val av = injector.instance[AgentView]
 
@@ -23,10 +21,11 @@ class AuthenticationManager @Inject()(injector: ScalaInjector) {
     val authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${alias.name.toLowerCase}")
 
     //TODO: Validate password strength
-    val salt = generateSalt()
-    val hash = generateHash(password, salt)
 
-    av.insert[Login](Login(aliasIid, authenticationId, hash, salt))
+    val salt = BCrypt.gensalt(config.bcryptSaltRounds)
+    val hash = BCrypt.hashpw(password, salt)
+
+    av.insert[Login](Login(aliasIid, authenticationId, hash))
   }
 
   def authenticate(authenticationId: AuthenticationId, password: String): Box[InternalId] = {
@@ -41,24 +40,7 @@ class AuthenticationManager @Inject()(injector: ScalaInjector) {
     }
 
     login.flatMap { l =>
-      val hash = generateHash(password, l.salt)
-      if (hash == l.passwordHash) Some(l.aliasIid) else None
+      if (BCrypt.checkpw(password, l.passwordHash)) Some(l.aliasIid) else None
     } ?~ s"failed to authenticate $authenticationId"
-  }
-
-  private def generateHash(password: String, salt: String): String = {
-    val saltBytes = new BASE64Decoder().decodeBuffer(salt)
-    val digest = MessageDigest.getInstance("SHA-512")
-    digest.reset()
-    digest.update(saltBytes)
-    val hash = digest.digest(password.getBytes("UTF-8"))
-    new BASE64Encoder().encode(hash)
-  }
-
-  private def generateSalt(): String = {
-    val sr = SecureRandom.getInstance("SHA1PRNG")
-    val salt = new Array[Byte](16)
-    sr.nextBytes(salt)
-    new BASE64Encoder().encode(salt)
   }
 }

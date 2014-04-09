@@ -8,8 +8,7 @@ types {
   Name              varchar(50);
   Url               varchar(1024);
   AuthenticationId  varchar(100);
-  PasswordHash      varchar(90);
-  Salt              varchar(24);
+  PasswordHash      char(60);
 }
 
 import CommonFields {
@@ -122,6 +121,5 @@ table login {
   aliasIid          InternalId;
   authenticationId  AuthenticationId;
   passwordHash      PasswordHash;
-  salt              Salt;
   import(CommonFields);
 }
