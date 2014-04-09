@@ -43,7 +43,8 @@ object SecurityContext {
     def get: AgentView = {
       Txn.findOrCreate[AgentView](
         classOf[AgentView].getName, 
-        createFn = provSecurityContext.get.createView
+        createFn = provSecurityContext.get.createView,
+        searchAncestors = false
       )
     }
   }
