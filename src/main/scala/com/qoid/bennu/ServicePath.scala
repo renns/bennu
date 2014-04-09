@@ -2,6 +2,8 @@ package com.qoid.bennu
 
 object ServicePath {
   val createAgent = "/api/agent/create"
+  val deleteAgent = "/api/agent/delete"
+  val importAgent = "/api/agent/import"
   val createChannel = "/api/channel/create"
   val pollChannel = "/api/channel/poll"
   val submitChannel = "/api/channel/submit"

@@ -38,6 +38,8 @@ class WebServicesModule extends M3ServletModule {
 //    filter("*.ssp", "*.html").through(classOf[ScalateFilter])
     
     serveBean[CreateAgent](ServicePath.createAgent)
+    serveBean[DeleteAgent](ServicePath.deleteAgent)
+    serveBean[ImportAgent](ServicePath.importAgent)
 
     serveBean[CreateChannel](ServicePath.createChannel)
     serveBean[ChannelPoll](ServicePath.pollChannel)

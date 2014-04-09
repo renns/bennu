@@ -18,6 +18,7 @@ object IntegratorRunner extends GuiceApp {
     AliasLoginIntegrator.run() ++
     DeleteIntegrator.run() ++
     DeRegisterIntegrator.run() ++
+    ExportAgentIntegrator.run() ++
     IntroductionIntegrator.run() ++
     ProfilesIntegrator.run() ++
     QueryIntegrator.run() ++

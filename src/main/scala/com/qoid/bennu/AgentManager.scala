@@ -2,6 +2,8 @@ package com.qoid.bennu
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security._
@@ -26,6 +28,132 @@ class AgentManager @Inject()(injector: ScalaInjector, authenticationMgr: Authent
       val agent = av.insert[Agent](Agent(name))
       authenticationMgr.createLogin(agent.uberAliasIid, password)
       agent
+    }
+  }
+
+  def deleteAgent(): Unit = {
+    injector.instance[SecurityContext] match {
+      case sc: AgentSecurityContext =>
+        JdbcAssist.allMappers.foreach {
+          mapper =>
+            injector.instance[JdbcConn].update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${sc.agentId}")
+        }
+      case _ => throw new ServiceException("Not in the context of the agent", ErrorCode.Forbidden)
+    }
+  }
+
+  def importAgent(agentData: JValue): Agent = {
+    implicit val jdbcConn = injector.instance[JdbcConn]
+
+    val agent = Agent.fromJson(agentData \ "agent")
+
+    if (Agent.select(sql"name = ${agent.name}").isEmpty) {
+      val aliases = agentData \ "aliases" match {
+        case JArray(x) => x.map(Alias.fromJson)
+        case _ => throw new ServiceException("Aliases not found", ErrorCode.ImportAgentFailure)
+      }
+
+      val connections = agentData \ "connections" match {
+        case JArray(x) => x.map(Connection.fromJson)
+        case _ => List.empty[Connection]
+      }
+
+      val contents = agentData \ "contents" match {
+        case JArray(x) => x.map(Content.fromJson)
+        case _ => List.empty[Content]
+      }
+
+      val introductions = agentData \ "introductions" match {
+        case JArray(x) => x.map(Introduction.fromJson)
+        case _ => List.empty[Introduction]
+      }
+
+      val labels = agentData \ "labels" match {
+        case JArray(x) => x.map(Label.fromJson)
+        case _ => throw new ServiceException("Labels not found", ErrorCode.ImportAgentFailure)
+      }
+
+      val labelAcls = agentData \ "labelAcls" match {
+        case JArray(x) => x.map(LabelAcl.fromJson)
+        case _ => List.empty[LabelAcl]
+      }
+
+      val labelChilds = agentData \ "labelChilds" match {
+        case JArray(x) => x.map(LabelChild.fromJson)
+        case _ => List.empty[LabelChild]
+      }
+
+      val labeledContents = agentData \ "labeledContents" match {
+        case JArray(x) => x.map(LabeledContent.fromJson)
+        case _ => List.empty[LabeledContent]
+      }
+
+      val logins = agentData \ "logins" match {
+        case JArray(x) => x.map(Login.fromJson)
+        case _ => throw new ServiceException("Logins not found", ErrorCode.ImportAgentFailure)
+      }
+
+      val notifications = agentData \ "notifications" match {
+        case JArray(x) => x.map(Notification.fromJson)
+        case _ => List.empty[Notification]
+      }
+
+      val profiles = agentData \ "profiles" match {
+        case JArray(x) => x.map(Profile.fromJson)
+        case _ => throw new ServiceException("Profiles not found", ErrorCode.ImportAgentFailure)
+      }
+
+      Agent.rawInsert(agent)
+      aliases.foreach(Alias.rawInsert)
+      connections.foreach(Connection.rawInsert)
+      contents.foreach(Content.rawInsert)
+      introductions.foreach(Introduction.rawInsert)
+      labels.foreach(Label.rawInsert)
+      labelAcls.foreach(LabelAcl.rawInsert)
+      labelChilds.foreach(LabelChild.rawInsert)
+      labeledContents.foreach(LabeledContent.rawInsert)
+      logins.foreach(Login.rawInsert)
+      notifications.foreach(Notification.rawInsert)
+      profiles.foreach(Profile.rawInsert)
+
+      agent
+    } else {
+      throw new ServiceException("Duplicate agent name", ErrorCode.AgentNameExists)
+    }
+  }
+
+  def exportAgent(): JValue = {
+    injector.instance[SecurityContext] match {
+      case _: AgentSecurityContext =>
+        val av = injector.instance[AgentView]
+
+        val agent = av.selectOne[Agent]("")
+        val aliases = av.select[Alias]("").toList
+        val connections = av.select[Connection]("").toList
+        val contents = av.select[Content]("").toList
+        val introductions = av.select[Introduction]("").toList
+        val labels = av.select[Label]("").toList
+        val labelAcls = av.select[LabelAcl]("").toList
+        val labelChilds = av.select[LabelChild]("").toList
+        val labeledContents = av.select[LabeledContent]("").toList
+        val logins = av.select[Login]("").toList
+        val notifications = av.select[Notification]("").toList
+        val profiles = av.select[Profile]("").toList
+
+        ("agent" -> agent.toJson) ~
+        ("aliases" -> aliases.map(_.toJson)) ~
+        ("connections" -> connections.map(_.toJson)) ~
+        ("contents" -> contents.map(_.toJson)) ~
+        ("introductions" -> introductions.map(_.toJson)) ~
+        ("labels" -> labels.map(_.toJson)) ~
+        ("labelAcls" -> labelAcls.map(_.toJson)) ~
+        ("labelChilds" -> labelChilds.map(_.toJson)) ~
+        ("labeledContents" -> labeledContents.map(_.toJson)) ~
+        ("logins" -> logins.map(_.toJson)) ~
+        ("notifications" -> notifications.map(_.toJson)) ~
+        ("profiles" -> profiles.map(_.toJson))
+
+      case _ => throw new ServiceException("Not in the context of the agent", ErrorCode.Forbidden)
     }
   }
 

@@ -11,6 +11,12 @@ import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 trait ServiceAssist {
   this: ChannelClient =>
 
+  def deleteAgent(exportData: Boolean): JValue = {
+    val parms = Map[String, JValue]("exportData" -> exportData)
+    val response = post(ServicePath.deleteAgent, parms)
+    if (response.success) response.result else throw new Exception("Delete Agent didn't complete successfully")
+  }
+
   def upsert[T <: HasInternalId](
     instance: T,
     parentIid: Option[InternalId] = None,
@@ -31,7 +37,7 @@ trait ServiceAssist {
     val response = post(ServicePath.upsert, parms)
 
     response.result match {
-      case JNothing => throw new Exception(s"Upsert didn't complete successfully")
+      case JNothing => throw new Exception("Upsert didn't complete successfully")
       case r =>
         val mapper = JdbcAssist.findMapperByTypeName(instance.mapper.typeName)
         mapper.fromJson(r).asInstanceOf[T]

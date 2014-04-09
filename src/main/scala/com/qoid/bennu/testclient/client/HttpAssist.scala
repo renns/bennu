@@ -1,7 +1,8 @@
 package com.qoid.bennu.testclient.client
 
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
-import m3.json.LiftJsonAssist._
 import m3.predef._
 import net.model3.lang.TimeDuration
 import org.apache.http.client.methods._
@@ -15,8 +16,15 @@ object HttpAssist extends HttpAssist with Logging {
     requestTimeout: TimeDuration = new TimeDuration("30 seconds")
   )
 
-  def createAgent(agentName: String, overwrite: Boolean = true)(implicit config: HttpClientConfig): ChannelClient = {
-    val response = httpGet(s"${config.server}${ServicePath.createAgent}/$agentName?overWrite=${overwrite}")
+  def createAgent(agentName: String)(implicit config: HttpClientConfig): ChannelClient = {
+    try {
+      val client = ChannelClientFactory.createHttpChannelClient(agentName)
+      client.deleteAgent(false)
+    } catch {
+      case _: Exception =>
+    }
+
+    val response = httpGet(s"${config.server}${ServicePath.createAgent}/$agentName")
 
     parseJson(response) \ "agentName" match {
       case JString(n) => logger.debug(s"Created agent $n")
@@ -24,6 +32,15 @@ object HttpAssist extends HttpAssist with Logging {
     }
 
     ChannelClientFactory.createHttpChannelClient(agentName)
+  }
+
+  def importAgent(agentData: JValue)(implicit config: HttpClientConfig): Unit = {
+    val response = httpPost(s"${config.server}${ServicePath.importAgent}", "agentData" -> agentData, None)
+
+    parseJson(response) match {
+      case JString("success") => logger.debug("Imported agent")
+      case _ => m3x.error(s"Invalid import agent response -- ${response}")
+    }
   }
 }
 

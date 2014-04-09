@@ -30,6 +30,8 @@ object JdbcAssist extends Logging {
     
     val serializer = inject[JsonSerializer]
 
+    def rawInsert(instance: T)(implicit conn: Connection): T = super.insert(instance)
+
     override def insert(instance: T)(implicit conn: Connection): T = {
       postInsert(
         notifyStandingQueries(
