@@ -1,8 +1,7 @@
 package com.qoid.bennu.schema
 
-import com.qoid.bennu.model._
-import com.qoid.bennu.webservices.CreateAgent
-import java.sql.Connection
+import com.qoid.bennu.AgentManager
+import java.sql.{ Connection => JdbcConn }
 import javax.sql.DataSource
 import m3.Txn
 import m3.fs._
@@ -14,6 +13,8 @@ object CreateDatabase extends App {
 
   import Settings._
 
+  val injector = inject[ScalaInjector]
+
   try {
     new Directory("./db/").deleteTree()
   } catch {
@@ -24,34 +25,21 @@ object CreateDatabase extends App {
   }
   
   Txn {
-    implicit val conn = inject[Connection]
+    implicit val jdbcConn = injector.instance[JdbcConn]
     
     schemaManager.createFullSchemaDdl.foreach(conn.update(_))
 
     findFile("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
 
-    CreateAgent(
-      injector = inject[ScalaInjector],
-      name = CreateAgent.introducerAgentName,
-      overWrite = true,
-      connectToIntroducer = false
-    ).doCreate()
+    val agentMgr = injector.instance[AgentManager]
 
-    val introducerAgent = Agent.selectOne(sql"name = ${CreateAgent.introducerAgentName}")
-    val introducerAlias = Alias.fetch(introducerAgent.uberAliasIid)
-    val introducerLabel = Label.fetch(introducerAlias.rootLabelIid)
-    val introducerProfile = Profile.selectOne(sql"aliasIid = ${introducerAlias.iid}")
-
-    // fix the name of the introducer's alias
-    introducerAlias.copy(name = CreateAgent.introducerAliasName).sqlUpdate
-    introducerLabel.copy(name = CreateAgent.introducerAliasName).sqlUpdate
-    introducerProfile.copy(name = CreateAgent.introducerAliasName).sqlUpdate
+    agentMgr.createIntroducerAgent()
 
     conn.commit()
   }
   
   Txn {
-    inject[DataSource].getConnection.update("shutdown")
+    injector.instance[DataSource].getConnection.update("shutdown")
   }
 
   System.exit(0)

@@ -25,7 +25,7 @@ object Connection extends BennuMapperCompanion[Connection] {
       av.findChildLabel(metaLabel.iid, Alias.connectionsLabelName).foreach { connectionsLabel =>
         Txn {
           Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
-          val label = av.insert[Label](Label(connectionLabelName, instance.agentId, data = "color" -> connectionLabelColor))
+          val label = av.insert[Label](Label(connectionLabelName, data = "color" -> connectionLabelColor))
           newInstance = instance.copy(metaLabelIid = label.iid)
         }
       }

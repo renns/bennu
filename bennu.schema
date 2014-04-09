@@ -1,12 +1,14 @@
 
 types {
-  Boolean       bit;
-  InternalId    varchar(32);
-  PeerId        varchar(32);
-  AgentId       varchar(32);
-  SharedId      varchar(32);
-  Name          varchar(50);
-  Url           varchar(1024);
+  Boolean           bit;
+  InternalId        varchar(32);
+  PeerId            varchar(32);
+  AgentId           varchar(32);
+  SharedId          varchar(32);
+  Name              varchar(50);
+  Url               varchar(1024);
+  AuthenticationId  varchar(100);
+  PasswordHash      char(60);
 }
 
 import CommonFields {
@@ -110,5 +112,14 @@ table profile {
   name              Name;
   imgSrc            Clob;
   sharedId          SharedId;
+  import(CommonFields);
+}
+
+table login {
+  iid               InternalId key;
+  agentId           AgentId;
+  aliasIid          InternalId;
+  authenticationId  AuthenticationId;
+  passwordHash      PasswordHash;
   import(CommonFields);
 }

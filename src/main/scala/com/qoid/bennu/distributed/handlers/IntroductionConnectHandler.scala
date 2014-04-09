@@ -24,8 +24,7 @@ object IntroductionConnectHandler extends Logging {
               av.insert(Connection(
                 aliasIid = connection.aliasIid,
                 localPeerId = introductionConnect.localPeerId,
-                remotePeerId = introductionConnect.remotePeerId,
-                agentId = connection.agentId
+                remotePeerId = introductionConnect.remotePeerId
               ))
             case _ => logger.warn(s"introduction request not accepted for introduction iid -- ${introductionConnect.introductionIid}")
           }

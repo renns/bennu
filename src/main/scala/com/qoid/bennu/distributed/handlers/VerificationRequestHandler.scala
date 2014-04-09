@@ -23,7 +23,6 @@ object VerificationRequestHandler {
       val n = Notification(
         fromConnectionIid = connection.iid,
         kind = NotificationKind.VerificationRequest,
-        agentId = connection.agentId,
         data = data.toJson
       )
 

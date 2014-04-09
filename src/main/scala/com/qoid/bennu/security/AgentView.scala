@@ -36,21 +36,21 @@ trait AgentView {
   def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query
 
   def insert[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateInsert(instance) match {
+    validateInsert(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
       case Full(i) => mapper.insert(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def update[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateUpdate(instance) match {
+    validateUpdate(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
       case Full(i) => mapper.update(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def delete[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateDelete(instance) match {
+    validateDelete(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
       case Full(i) => mapper.softDelete(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }

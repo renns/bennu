@@ -98,6 +98,17 @@ create cached table labeledContent (
 ;
 CREATE UNIQUE INDEX labeledContent_autogen_contentLabel ON labeledContent (contentIid,labelIid)
 ;
+create cached table login (
+	iid varchar(32) not NULL,
+	agentId varchar(32) not NULL,
+	aliasIid varchar(32) not NULL,
+	authenticationId varchar(100) not NULL,
+	passwordHash char(60) not NULL,
+	data Clob not NULL,
+	deleted bit not NULL,
+	primary key(iid)
+)
+;
 create cached table notification (
 	iid varchar(32) not NULL,
 	agentId varchar(32) not NULL,

@@ -36,7 +36,6 @@ case class VerifyService @Inject() (
       contentIid,
       contentData,
       verificationContent,
-      securityContext.agentId,
       securityContext.aliasIid
     )
 
@@ -52,7 +51,6 @@ object VerifyService {
     contentIid: InternalId,
     contentData: JValue,
     verificationContent: String,
-    agentId: AgentId,
     aliasIid: InternalId
   )(
     implicit jdbcConn: JdbcConn
@@ -64,7 +62,6 @@ object VerifyService {
     val verification = av.insert[Content](Content(
       aliasIid,
       "VERIFICATION",
-      agentId = agentId,
       data = ("created" -> now) ~ ("modified" -> now) ~ ("text" -> verificationContent),
       metaData = Content.MetaData(Some(Content.MetaDataVerifiedContent(contentData, "COPY"))).toJson
     ))
@@ -78,8 +75,7 @@ object VerifyService {
     // Label verification content with the verifications meta-label
     av.insert[LabeledContent](LabeledContent(
       verification.iid,
-      verificationsMetaLabel.iid,
-      agentId = agentId
+      verificationsMetaLabel.iid
     ))
 
     // Get Profile

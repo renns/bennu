@@ -8,12 +8,10 @@ import m3.jdbc.PrimaryKey
 import m3.predef._
 
 object Agent extends BennuMapperCompanion[Agent] {
-  private val uberAliasName = "Uber Alias"
-
   override protected def preInsert(instance: Agent): Agent = {
     val av = inject[AgentView]
 
-    val alias = av.insert[Alias](Alias(uberAliasName, instance.agentId))
+    val alias = av.insert[Alias](Alias(instance.name))
 
     instance.copy(uberAliasIid = alias.iid)
   }

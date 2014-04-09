@@ -5,6 +5,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
+import com.qoid.bennu.security.AuthenticationManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
@@ -21,7 +22,7 @@ object Alias extends BennuMapperCompanion[Alias] {
   override protected def preInsert(instance: Alias): Alias = {
     val av = inject[AgentView]
 
-    val label = av.insert[Label](Label(instance.name, instance.agentId, data = "color" -> aliasLabelColor))
+    val label = av.insert[Label](Label(instance.name, data = "color" -> aliasLabelColor))
 
     instance.copy(rootLabelIid = label.iid)
   }
@@ -31,18 +32,27 @@ object Alias extends BennuMapperCompanion[Alias] {
 
     Txn {
       Txn.set(LabelChild.parentIidAttrName, instance.rootLabelIid)
-      val metaLabel = av.insert[Label](Label(metaLabelName, instance.agentId, data = "color" -> metaLabelColor))
+      val metaLabel = av.insert[Label](Label(metaLabelName, data = "color" -> metaLabelColor))
 
       Txn {
         Txn.set(LabelChild.parentIidAttrName, metaLabel.iid)
-        av.insert[Label](Label(connectionsLabelName, instance.agentId, data = "color" -> metaLabelColor))
-        av.insert[Label](Label(verificationsLabelName, instance.agentId, data = "color" -> metaLabelColor))
+        av.insert[Label](Label(connectionsLabelName, data = "color" -> metaLabelColor))
+        av.insert[Label](Label(verificationsLabelName, data = "color" -> metaLabelColor))
       }
     }
 
     val profileName = Txn.find[String](Profile.nameAttrName, false).getOrElse(instance.name)
     val profileImgSrc = Txn.find[String](Profile.imgSrcAttrName, false).getOrElse("")
-    av.insert[Profile](Profile(instance.iid, profileName, profileImgSrc, instance.agentId))
+    av.insert[Profile](Profile(instance.iid, profileName, profileImgSrc))
+
+    //TODO: Remove once UI supports creating logins
+    Txn {
+      av.selectOpt[Agent]("").foreach {
+        _ =>
+          val authenticationMgr = inject[AuthenticationManager]
+          authenticationMgr.createLogin(instance.iid, "password")
+      }
+    }
 
     instance
   }

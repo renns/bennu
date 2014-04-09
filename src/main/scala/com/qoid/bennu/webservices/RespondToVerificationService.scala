@@ -36,7 +36,6 @@ case class RespondToVerificationService @Inject()(
       verificationRequest.contentIid,
       verificationRequest.contentData,
       verificationContent,
-      securityContext.agentId,
       securityContext.aliasIid
     )
 
