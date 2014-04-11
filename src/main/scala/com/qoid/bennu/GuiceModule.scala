@@ -7,6 +7,7 @@ import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.google.inject.util.Modules
 import com.qoid.bennu.distributed.MessageQueue
+import com.qoid.bennu.distributed.RabbitMessageQueue
 import com.qoid.bennu.distributed.SimpleMessageQueue
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.security.AgentView
@@ -15,6 +16,7 @@ import com.qoid.bennu.security.SecurityContext.BennuProviderChannelId
 import com.qoid.bennu.security.SecurityContext.BennuProviderOptionChannelId
 import com.qoid.bennu.security.SecurityContext.ProviderAgentView
 import com.qoid.bennu.security.SecurityContext.ProviderSecurityContext
+import com.qoid.bennu.util.ConfigAssist
 import com.qoid.bennu.util.HsqldbServerStarterUpper
 import com.qoid.bennu.webservices.WebServicesModule
 import java.sql.Connection
@@ -23,7 +25,6 @@ import m3.Logger
 import m3.guice.ScalaInjectorProvider
 import m3.jdbc.Database
 import m3.jdbc.M3ProviderDataSource
-import m3.json.ConfigAssist
 import m3.predef._
 import m3.servlet.M3ServletGuiceModule
 import m3.servlet.beans.Wrappers
@@ -124,7 +125,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     )
     val file = possibleConfigFiles.find(_.exists).getOrError(s"unable to find a config file -- ${possibleConfigFiles}")
     val json = file.readText
-    logger.debug(s"using config file ${file.getCanonicalPath} \n${json.indent("\t\t")}")
+    logger.debug(s"using config file ${file.getCanonicalPath}")
     import JsonAssist._
     ConfigAssist.parseHoconToJson(json).deserialize[Config]
   }
