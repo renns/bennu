@@ -6,6 +6,8 @@ import com.google.inject.Provider
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.google.inject.util.Modules
+import com.qoid.bennu.distributed.MessageQueue
+import com.qoid.bennu.distributed.SimpleMessageQueue
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
@@ -110,6 +112,8 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     bind[AgentView].toProvider[ProviderAgentView]
     
     bind[ChannelManager].to[JettyChannelManager]
+
+    bind[MessageQueue].to[SimpleMessageQueue]
   }
   
   @Provides

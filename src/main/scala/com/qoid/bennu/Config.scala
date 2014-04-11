@@ -1,12 +1,7 @@
 package com.qoid.bennu
 
-import scala.beans.BeanProperty
-import com.google.inject.ProvidedBy
-import com.google.inject.Provider
-import javax.inject.Inject
-import net.model3.xstream.XmlSerializableConfig
-import m3.jdbc.Database
 import m3.StringConverters
+import m3.jdbc.Database
 
 object Config {
 
@@ -18,12 +13,12 @@ object Config {
   }
   
   case class SuperUserAuthToken(value: String)
-  
 }
 
 case class Config(
   database: Database,
   superUserAuthTokens: List[Config.SuperUserAuthToken] = List(Config.SuperUserAuthToken("i_am_canadian")),
   startHsqldbTooling: Boolean = true,
-  bcryptSaltRounds: Int = 10
+  bcryptSaltRounds: Int = 10,
+  amqpUri: String = "amqp://localhost"
 )

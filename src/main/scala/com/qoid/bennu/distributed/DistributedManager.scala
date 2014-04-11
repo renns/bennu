@@ -15,7 +15,7 @@ import m3.predef._
 @Singleton
 class DistributedManager @Inject()(
   injector: ScalaInjector,
-  messageQueue: SimpleMessageQueue
+  messageQueue: MessageQueue
 ) extends Logging {
 
   def initialize(implicit jdbcConn: JdbcConn): Unit = {
