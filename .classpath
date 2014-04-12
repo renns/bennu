@@ -94,6 +94,7 @@
   <classpathentry kind="var" path="M2_REPO/org/eclipse/jetty/jetty-servlet/8.1.5.v20120716/jetty-servlet-8.1.5.v20120716.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/eclipse/jetty/jetty-security/8.1.5.v20120716/jetty-security-8.1.5.v20120716.jar"/>
   <classpathentry kind="var" path="M2_REPO/io/netty/netty-common/4.0.15.Final/netty-common-4.0.15.Final.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mindrot/jbcrypt/0.3m/jbcrypt-0.3m.jar"/>
   <classpathentry kind="src" path="src/main/scala"/>
   <classpathentry kind="src" path="src/test/scala"/>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
