@@ -63,6 +63,15 @@ object Alias extends BennuMapperCompanion[Alias] {
     val label = av.fetch[Label](instance.rootLabelIid)
     av.update(label.copy(name = instance.name))
 
+    //TODO: Remove once UI supports creating logins
+    Txn {
+      av.selectOpt[Agent]("").foreach {
+        _ =>
+          val authenticationMgr = inject[AuthenticationManager]
+          authenticationMgr.updateAuthenticationId(instance.iid)
+      }
+    }
+
     instance
   }
 

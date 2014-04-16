@@ -28,6 +28,17 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
     av.insert[Login](Login(aliasIid, authenticationId, hash))
   }
 
+  def updateAuthenticationId(aliasIid: InternalId): Unit = {
+    val av = injector.instance[AgentView]
+
+    val alias = av.fetch[Alias](aliasIid)
+    val agent = av.selectOne[Agent]("")
+
+    av.selectOpt[Login](sql"aliasIid = $aliasIid").foreach { login =>
+      av.update(login.copy(authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${alias.name.toLowerCase}")))
+    }
+  }
+
   def authenticate(authenticationId: AuthenticationId, password: String): Box[InternalId] = {
     implicit val jdbcConn = injector.instance[JdbcConn]
 
