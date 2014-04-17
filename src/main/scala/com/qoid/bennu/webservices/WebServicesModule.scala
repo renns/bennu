@@ -15,10 +15,10 @@ class WebServicesModule extends M3ServletModule {
 
   override def configureServlets = {
     
+    filter("/api/*").through(classOf[CorsFilter])
+    
     // log a curl command for each request to the api (good for dev, BAD for production)
     filter("/api/*").through(classOf[CurlFilter])
-    
-    filter("/api/*").through(classOf[CorsFilter])
     
     filter("/*").through(classOf[CompressionFilter])
     
