@@ -7,6 +7,7 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.model.notification.NotificationKind
 import com.qoid.bennu.squery.StandingQueryAction
+import com.qoid.bennu.testclient.client.HttpAssist.HttpClientConfig
 import m3.jdbc._
 import m3.predef._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,17 +17,31 @@ object TestAssist extends Logging {
 
   def createConnection(
     clientA: ChannelClient,
-    aliasA: Alias,
+    aliasAIid: InternalId,
     clientB: ChannelClient,
-    aliasB: Alias
+    aliasBIid: InternalId
   ): (Connection, Connection) = {
 
     val peerId1 = PeerId.random
     val peerId2 = PeerId.random
-    val connAB = clientA.createConnection(aliasA.iid, peerId1, peerId2)
-    val connBA = clientB.createConnection(aliasB.iid, peerId2, peerId1)
+    val connAB = clientA.createConnection(aliasAIid, peerId1, peerId2)
+    val connBA = clientB.createConnection(aliasBIid, peerId2, peerId1)
 
     (connAB, connBA)
+  }
+
+  def createAndConnectAgents(agentNames: List[String])(implicit config: HttpClientConfig): Unit = {
+    val clients = agentNames.map(HttpAssist.createAgent)
+    connectAgents(clients)
+  }
+
+  def connectAgents(clients: List[ChannelClient]): Unit = {
+    clients match {
+      case client1 :: tail =>
+        tail.foreach(client2 => TestAssist.createConnection(client1, client1.rootAliasIid, client2, client2.rootAliasIid))
+        connectAgents(tail)
+      case _ =>
+    }
   }
 
   def createSampleContent(
@@ -47,7 +62,7 @@ object TestAssist extends Logging {
         alias.iid,
         "TEXT",
         ("text" -> l.name) ~ ("booyaka" -> "wop"),
-        Some(List(l.iid))
+        List(l.iid)
       )
 
       contents = content :: contents

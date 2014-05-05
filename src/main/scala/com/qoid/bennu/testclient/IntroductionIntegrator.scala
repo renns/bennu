@@ -50,8 +50,8 @@ object IntroductionIntegrator extends GuiceApp {
       val aliasA = clientA.getRootAlias()
       val aliasB = clientB.getRootAlias()
       val aliasC = clientC.getRootAlias()
-      val (_, connCA) = TestAssist.createConnection(clientA, aliasA, clientC, aliasC)
-      val (_, connCB) = TestAssist.createConnection(clientB, aliasB, clientC, aliasC)
+      val (_, connCA) = TestAssist.createConnection(clientA, aliasA.iid, clientC, aliasC.iid)
+      val (_, connCB) = TestAssist.createConnection(clientB, aliasB.iid, clientC, aliasC.iid)
 
       getSQueryResult[Notification](clientA).onComplete {
         case Success(n) =>

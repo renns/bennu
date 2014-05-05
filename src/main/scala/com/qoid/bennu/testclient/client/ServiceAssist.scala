@@ -22,8 +22,10 @@ trait ServiceAssist {
     parentIid: Option[InternalId] = None,
     profileName: Option[String] = None,
     profileImgSrc: Option[String] = None,
-    labelIids: Option[List[InternalId]] = None
+    labelIids: List[InternalId] = Nil
   ): T = {
+
+    val labelIidsParm = if (labelIids.isEmpty) None else Some(labelIids)
 
     val parms = Map[String, JValue](
       "type" -> instance.mapper.typeName,
@@ -31,7 +33,7 @@ trait ServiceAssist {
       "parentIid" -> parentIid,
       "profileName" -> profileName,
       "profileImgSrc" -> profileImgSrc,
-      "labelIids" -> labelIids
+      "labelIids" -> labelIidsParm
     )
 
     val response = post(ServicePath.upsert, parms)
@@ -84,23 +86,23 @@ trait ServiceAssist {
 
   def query[T <: HasInternalId : Manifest](
     query: String,
-    alias: Option[Alias] = None,
+    aliasIid: Option[InternalId] = None,
     local: Boolean = true,
-    connections: List[Connection] = Nil,
+    connectionIids: List[InternalId] = Nil,
     historical: Boolean = true,
     standing: Boolean = false
   )(
-    callback: QueryResponse => Unit
-  ): InternalId = {
+    fn: QueryResponse => Unit
+  ): Handle = {
 
     val typeName = JdbcAssist.findMapperByType[T].typeName
 
     val parms = Map[String, JValue](
       "type" -> typeName.toLowerCase,
       "q" -> query,
-      "aliasIid" -> alias.map(_.iid),
+      "aliasIid" -> aliasIid,
       "local" -> local,
-      "connectionIids" -> connections.map(_.iid),
+      "connectionIids" -> connectionIids,
       "historical" -> historical,
       "standing" -> standing
     )
@@ -109,8 +111,8 @@ trait ServiceAssist {
 
     response.result match {
       case JObject(JField("handle", JString(handle)) :: _) =>
-        asyncCallbacks += Handle(handle) -> callback
-        InternalId(handle)
+        asyncCallbacks += Handle(handle) -> fn
+        Handle(handle)
       case r => throw new Exception(s"Distributed query result invalid -- $r")
     }
   }

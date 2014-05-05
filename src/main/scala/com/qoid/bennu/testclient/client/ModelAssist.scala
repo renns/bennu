@@ -31,7 +31,7 @@ trait ModelAssist {
     upsert(Connection(aliasIid, localPeerId, remotePeerId))
   }
 
-  def createContent(aliasIid: InternalId, contentType: String, data: JValue, labelIids: Option[List[InternalId]] = None): Content = {
+  def createContent(aliasIid: InternalId, contentType: String, data: JValue, labelIids: List[InternalId] = Nil): Content = {
     upsert(Content(aliasIid, contentType, data = data), labelIids = labelIids)
   }
 

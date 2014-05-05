@@ -103,13 +103,13 @@ object DeRegisterIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
-      val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
+      val (conn1, conn2) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
 
-      client1.query[Content](s"hasLabelPath('A')", local = false, connections = List(conn1), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(conn1.iid), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
 
-      client2.createContent(alias2.iid, "TEXT", ("text" -> "Content") ~ ("booyaka" -> "wop"), Some(List(label2.iid)))
+      client2.createContent(alias2.iid, "TEXT", ("text" -> "Content") ~ ("booyaka" -> "wop"), List(label2.iid))
 
       Await.result(p.future, Duration("10 seconds"))
 

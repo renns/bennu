@@ -52,14 +52,14 @@ object VerificationIntegrator extends GuiceApp {
       val aliasV = clientV.getRootAlias()
       val aliasR = clientR.getRootAlias()
 
-      val (connCV, _) = TestAssist.createConnection(clientC, aliasC, clientV, aliasV)
-      val (connCR, connRC) = TestAssist.createConnection(clientC, aliasC, clientR, aliasR)
-      val (_, connRV) = TestAssist.createConnection(clientV, aliasV, clientR, aliasR)
+      val (connCV, _) = TestAssist.createConnection(clientC, aliasC.iid, clientV, aliasV.iid)
+      val (connCR, connRC) = TestAssist.createConnection(clientC, aliasC.iid, clientR, aliasR.iid)
+      val (_, connRV) = TestAssist.createConnection(clientV, aliasV.iid, clientR, aliasR.iid)
 
       val label = clientC.createLabel(aliasC.rootLabelIid, "Claims")
       clientC.grantAccess(connCV.iid, label.iid)
       clientC.grantAccess(connCR.iid, label.iid)
-      val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", Some(List(label.iid)))
+      val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", List(label.iid))
 
       for (verificationRequestNotification <- getSQueryResult[Notification](clientV)) {
         for (verificationResponseNotification <- getSQueryResult[Notification](clientC)) {
@@ -113,14 +113,14 @@ object VerificationIntegrator extends GuiceApp {
       val aliasV = clientV.getRootAlias()
       val aliasR = clientR.getRootAlias()
 
-      val (connCV, connVC) = TestAssist.createConnection(clientC, aliasC, clientV, aliasV)
-      val (connCR, connRC) = TestAssist.createConnection(clientC, aliasC, clientR, aliasR)
-      val (_, connRV) = TestAssist.createConnection(clientV, aliasV, clientR, aliasR)
+      val (connCV, connVC) = TestAssist.createConnection(clientC, aliasC.iid, clientV, aliasV.iid)
+      val (connCR, connRC) = TestAssist.createConnection(clientC, aliasC.iid, clientR, aliasR.iid)
+      val (_, connRV) = TestAssist.createConnection(clientV, aliasV.iid, clientR, aliasR.iid)
 
       val label = clientC.createLabel(aliasC.rootLabelIid, "Claims")
       clientC.grantAccess(connCV.iid, label.iid)
       clientC.grantAccess(connCR.iid, label.iid)
-      val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", Some(List(label.iid)))
+      val content = clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", List(label.iid))
 
       for (verificationResponseNotification <- getSQueryResult[Notification](clientC)) {
         clientC.acceptVerification(verificationResponseNotification)
@@ -193,7 +193,7 @@ object VerificationIntegrator extends GuiceApp {
     val p = Promise[Content]()
 
     try {
-      client.query[Content](query, local = false, connections = List(connection)) {
+      client.query[Content](query, local = false, connectionIids = List(connection.iid)) {
         case QueryResponse(
           QueryResponseType.Query,
           _,

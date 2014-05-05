@@ -23,12 +23,13 @@ trait ChannelClient extends ServiceAssist with ModelAssist {
 
 object ChannelClientFactory extends HttpAssist with Logging {
   def createHttpChannelClient(
-    authenticationId: String
+    authenticationId: String,
+    password: String = "password"
   )(
     implicit config: HttpClientConfig
   ): HttpChannelClient = {
 
-    val response = httpGet(s"${config.server}${ServicePath.createChannel}/$authenticationId")
+    val response = httpGet(s"${config.server}${ServicePath.createChannel}/$authenticationId?password=$password")
 
     val channelId = parseJson(response) \ "channelId" match {
       case JString(id) => ChannelId(id)

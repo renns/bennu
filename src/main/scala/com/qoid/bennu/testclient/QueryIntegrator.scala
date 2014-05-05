@@ -89,7 +89,7 @@ object QueryIntegrator extends GuiceApp {
       val label = client.createLabel(subAlias.rootLabelIid, "A")
 
       val expectedResults = List(label.toJson)
-      client.query[Label](s"name = 'A'", Some(subAlias))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client.query[Label](s"name = 'A'", Some(subAlias.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -109,7 +109,7 @@ object QueryIntegrator extends GuiceApp {
       val label = Label("A")
 
       val expectedResults = List(label.toJson)
-      client.query[Label](s"name = 'A'", Some(subAlias), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client.query[Label](s"name = 'A'", Some(subAlias.iid), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client.upsert(label, Some(subAlias.rootLabelIid))
 
@@ -129,12 +129,12 @@ object QueryIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
-      val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
+      val (conn1, conn2) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val (contents, _) = TestAssist.createSampleContent(client2, alias2, Some(conn2))
       val contentC = contents(2)
 
       val expectedResults = List(contentC.toJson)
-      client1.query[Content](s"hasLabelPath('A','B','C')", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A','B','C')", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -152,15 +152,15 @@ object QueryIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
-      val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
+      val (conn1, conn2) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 
       val expectedResults = List(content.toJson)
-      client1.query[Content](s"hasLabelPath('A')", local = false, connections = List(conn1), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(conn1.iid), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
-      client2.upsert(content, labelIids = Some(List(label2.iid)))
+      client2.upsert(content, labelIids = List(label2.iid))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -178,11 +178,11 @@ object QueryIntegrator extends GuiceApp {
       val client2 = HttpAssist.createAgent("Agent2")
       val alias1 = client1.getRootAlias()
       val alias2 = client2.getRootAlias()
-      val (conn1, conn2) = TestAssist.createConnection(client1, alias1, client2, alias2)
-      val content = client2.createContent(alias2.iid, "TEXT", "text" -> "agent 2 should see this", Some(List(conn2.metaLabelIid)))
+      val (conn1, conn2) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
+      val content = client2.createContent(alias2.iid, "TEXT", "text" -> "agent 2 should see this", List(conn2.metaLabelIid))
 
       val expectedResults = List(content.toJson)
-      client1.query[Content]("hasConnectionMetaLabel()", local = false, connections = List(conn1))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content]("hasConnectionMetaLabel()", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 

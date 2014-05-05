@@ -127,7 +127,7 @@ object StandingQueryEvents extends GuiceApp {
 
     setupStandingQueries(client, responses)
 
-    client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", Some(List(rootAlias.rootLabelIid)))
+    client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", List(rootAlias.rootLabelIid))
 
     Thread.sleep(5000)
     printResponses(client, responses)
@@ -138,7 +138,7 @@ object StandingQueryEvents extends GuiceApp {
 
     val client = HttpAssist.createAgent("Agent1")
     val rootAlias = client.getRootAlias()
-    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", Some(List(rootAlias.rootLabelIid)))
+    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", List(rootAlias.rootLabelIid))
 
     setupStandingQueries(client, responses)
 
@@ -246,7 +246,7 @@ object StandingQueryEvents extends GuiceApp {
 
     val client = HttpAssist.createAgent("Agent1")
     val rootAlias = client.getRootAlias()
-    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", Some(List(rootAlias.rootLabelIid)))
+    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", List(rootAlias.rootLabelIid))
     val label = client.createLabel(rootAlias.rootLabelIid, "Label")
 
     setupStandingQueries(client, responses)
@@ -262,7 +262,7 @@ object StandingQueryEvents extends GuiceApp {
 
     val client = HttpAssist.createAgent("Agent1")
     val rootAlias = client.getRootAlias()
-    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", Some(List(rootAlias.rootLabelIid)))
+    val content = client.createContent(rootAlias.iid, "TEXT", "text" -> "Content", List(rootAlias.rootLabelIid))
     val label = client.createLabel(rootAlias.rootLabelIid, "Label")
     client.addLabelToContent(content.iid, label.iid)
 

@@ -38,7 +38,7 @@ object ExportAgentIntegrator extends GuiceApp {
     try {
       val client = HttpAssist.createAgent("Agent1")
       val alias = client.getRootAlias()
-      client.createContent(alias.iid, "TEXT", "text" -> "Content", Some(List(alias.rootLabelIid)))
+      client.createContent(alias.iid, "TEXT", "text" -> "Content", List(alias.rootLabelIid))
       client.upsert(Introduction(InternalId.random, IntroductionState.NotResponded, InternalId.random, IntroductionState.NotResponded))
       client.upsert(LabelAcl(InternalId.random, alias.rootLabelIid))
       client.upsert(Notification(InternalId.random, NotificationKind.IntroductionRequest))
