@@ -9,5 +9,6 @@
         "initialConnections": 10,
         "maxConnections": 50,
         jdbcLogging: true
-    }
+    },
+    "startHsqldbTooling": true
 }

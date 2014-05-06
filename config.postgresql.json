@@ -1,0 +1,14 @@
+// this is a hocon config file https://github.com/typesafehub/config/blob/master/HOCON.md
+{
+    "database": {
+        "jdbcUrl": "jdbc:postgresql://localhost:5432/bennu",
+        "driverClass": "org.postgresql.Driver",
+        "user": "bennu",
+        "password": "",
+        "validationQuery": "select 1+1",
+        "initialConnections": 10,
+        "maxConnections": 200,
+        "jdbcLogging": true
+    },
+    "startHsqldbTooling": false
+}

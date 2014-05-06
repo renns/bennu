@@ -1,47 +1,44 @@
 package com.qoid.bennu.schema
 
-import net.model3.newfile.File
-import m3.jdbc.schemagen.Parser
-import m3.jdbc.DataSourceFactory
-import m3.jdbc.schemagen.DatabaseDialect
-import java.sql.DriverManager
-import net.model3.logging.SimpleLoggingConfigurator
-import m3.predef._
-import net.model3.guice.LifeCycleManager
-import m3.jdbc.meta.DatabaseMeta
-import m3.jdbc.meta.DataTypes
-import m3.fs._
-import m3.jdbc.schemagen.SchemaManager
-import m3.Txn
-import m3.jdbc._
-import m3.predef._
 import java.sql.Connection
+import m3.Txn
+import m3.fs._
+import m3.jdbc._
+import m3.jdbc.schemagen.DatabaseDialect._
+import m3.jdbc.schemagen._
+import m3.predef._
+import m3.predef.box._
+import net.model3.guice.LifeCycleManager
 
 object Settings {
   
   inject[LifeCycleManager].config.fire()
   DataSourceFactory.toString
   
-  def parse(s: String) = {
+  def parse(s: String): Model = {
     val parser = new Parser
     parser.parse(s)
   }
   
-  def findFile(filename: String) = {
-    val prefixes = List("./", "./bin/")
+  def findFile(filename: String): Box[LocalFileSystem.File] = {
+    val prefixes = List("./", "./schema/", "./bin/")
     val possibles = prefixes.map(p=>file(p + filename))
-    possibles.filter(_.exists).headOption.getOrError(s"unable to find file -- ${possibles.map(_.canonical).mkString("  ")}")
+    possibles.find(_.exists) ?~ s"unable to find file -- ${possibles.map(_.canonical).mkString("  ")}"
   }
 
   lazy val conn = inject[Connection]
 
-  lazy val schemaManager = SchemaManager(conn, findFile("bennu.schema"))
+  lazy val schemaManager = SchemaManager(conn, findFile("bennu.schema").open_$)
+
+  lazy val dialect = schemaManager.dialect match {
+    case _: HsqldbDialect => "hsqldb"
+    case _: Postgres => "postgresql"
+    case _ => "unknown"
+  }
 
   def printDdl(getDdlFn: => Iterable[String]) = {
     Txn {
       println(getDdlFn.mkString("\n","\n;\n",""))
     }
   }
-
-  
 }

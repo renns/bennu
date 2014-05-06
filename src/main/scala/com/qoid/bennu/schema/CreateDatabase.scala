@@ -4,7 +4,6 @@ import com.qoid.bennu.AgentManager
 import java.sql.{ Connection => JdbcConn }
 import javax.sql.DataSource
 import m3.Txn
-import m3.fs._
 import m3.jdbc._
 import m3.predef._
 import net.model3.newfile.Directory
@@ -29,7 +28,7 @@ object CreateDatabase extends App {
     
     schemaManager.createFullSchemaDdl.foreach(conn.update(_))
 
-    findFile("bennu-extra-ddl.sql").readText.splitList(";;;").foreach(conn.update(_))
+    findFile(s"extra-ddl-${dialect}.sql").foreach(_.readText.splitList(";;;").foreach(conn.update(_)))
 
     val agentMgr = injector.instance[AgentManager]
 
