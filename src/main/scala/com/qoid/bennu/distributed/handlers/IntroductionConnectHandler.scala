@@ -15,11 +15,14 @@ object IntroductionConnectHandler extends Logging {
       Txn.setViaTypename[SecurityContext](AliasSecurityContext(injector, connection.aliasIid))
       val av = injector.instance[AgentView]
 
-      val notifications = av.select[Notification](sql"json_str(data, 'introductionIid') = ${introductionConnect.introductionIid}").toList
+      val introductionRequests = av.select[Notification](sql"kind = 'IntroductionRequest'")
+        .map(n => notification.IntroductionRequest.fromJson(n.data))
+        .filter(_.introductionIid == introductionConnect.introductionIid)
+        .toList
 
-      notifications match {
-        case n :: Nil =>
-          notification.IntroductionRequest.fromJson(n.data).accepted match {
+      introductionRequests match {
+        case ir :: Nil =>
+          ir.accepted match {
             case Some(true) =>
               av.insert(Connection(
                 aliasIid = connection.aliasIid,

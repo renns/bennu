@@ -36,6 +36,12 @@ object Settings {
     case _ => "unknown"
   }
 
+  def dropTables(): Unit = {
+    schemaManager.model.resolvedTables.values.foreach { table =>
+      conn.update(s"DROP TABLE IF EXISTS ${table.sqlName}")
+    }
+  }
+
   def printDdl(getDdlFn: => Iterable[String]) = {
     Txn {
       println(getDdlFn.mkString("\n","\n;\n",""))

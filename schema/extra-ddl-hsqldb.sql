@@ -1,3 +1,27 @@
+DROP FUNCTION json_str IF EXISTS
+
+;;;
+
+DROP FUNCTION json_bool IF EXISTS
+
+;;;
+
+DROP FUNCTION json_int IF EXISTS
+
+;;;
+
+DROP FUNCTION jsonv_str IF EXISTS
+
+;;;
+
+DROP FUNCTION jsonv_bool IF EXISTS
+
+;;;
+
+DROP FUNCTION jsonv_int IF EXISTS
+
+;;;
+
 
 CREATE FUNCTION jsonv_str(json LONGVARCHAR, path varchar(32767)) RETURNS LONGVARCHAR
    LANGUAGE JAVA DETERMINISTIC NO SQL

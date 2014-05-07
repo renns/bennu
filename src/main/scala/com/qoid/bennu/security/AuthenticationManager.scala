@@ -44,7 +44,7 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
 
     val login = Login.selectOpt(sql"authenticationId = ${authenticationId.value.toLowerCase}").orElse {
       for {
-        agent <- Agent.selectOpt(sql"LCASE(name) = ${authenticationId.value.toLowerCase}")
+        agent <- Agent.selectOpt(sql"lower(name) = ${authenticationId.value.toLowerCase}")
         alias <- Alias.fetchOpt(agent.uberAliasIid)
         login <- Login.selectOpt(sql"aliasIid = ${alias.iid}")
       } yield login
