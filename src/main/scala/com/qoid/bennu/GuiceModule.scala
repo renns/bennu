@@ -47,6 +47,7 @@ import net.model3.newfile.Directory
 import net.model3.newfile.File
 import net.model3.transaction.TransactionManager
 import net.model3.util.Versioning
+import com.google.inject.Scopes
 
 object GuiceModule {
   
@@ -103,7 +104,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     bind[ScalaInjector].toProvider[ScalaInjectorProvider]
     
-    bind[DataSource].toProvider[M3ProviderDataSource]
+    bind[DataSource].toProvider[M3ProviderDataSource].in(Scopes.SINGLETON)
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
     bind[Option[Wrappers.Request]].toProvider[ProviderOptionalRequest]
     bind[ChannelId].toProvider[BennuProviderChannelId]
