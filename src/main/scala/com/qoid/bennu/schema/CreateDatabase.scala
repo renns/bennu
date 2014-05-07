@@ -33,8 +33,6 @@ object CreateDatabase extends App {
     val agentMgr = injector.instance[AgentManager]
 
     agentMgr.createIntroducerAgent()
-
-    conn.commit()
   }
   
   Txn {

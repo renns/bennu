@@ -13,7 +13,9 @@ object SchemaGenerate extends App {
     }
   }
 
-  new File(s"./schema/create-db-${dialect}.sql").write(schemaDdl)
+  Txn {
+    new File(s"./schema/create-db-${dialect}.sql").write(schemaDdl)
+  }
 
   println()
   println(schemaDdl)

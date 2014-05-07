@@ -4,10 +4,10 @@
         "jdbcUrl": "jdbc:postgresql://localhost:5432/bennu",
         "driverClass": "org.postgresql.Driver",
         "user": "bennu",
-        "password": "",
+        "password": "bennu",
         "validationQuery": "select 1+1",
         "initialConnections": 10,
-        "maxConnections": 200,
+        "maxConnections": 10,
         "jdbcLogging": true
     },
     "startHsqldbTooling": false
