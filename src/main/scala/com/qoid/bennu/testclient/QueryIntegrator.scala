@@ -30,7 +30,8 @@ object QueryIntegrator extends GuiceApp {
       ("Query - Sub-Alias Local Standing", querySubAliasLocalStanding),
       ("Query - Remote Historical", queryRemoteHistorical),
       ("Query - Remote Standing", queryRemoteStanding),
-      ("Query - Remote Meta-Label Historical", queryRemoteMetaLabelHistorical)
+      ("Query - Remote Meta-Label Historical", queryRemoteMetaLabelHistorical),
+      ("Query - Remote Connections", queryRemoteConnectionsHistorical)
     ).map { t =>
       logger.debug(s"Test started -- ${t._1}")
       val result = t._2()
@@ -183,6 +184,27 @@ object QueryIntegrator extends GuiceApp {
 
       val expectedResults = List(content.toJson)
       client1.query[Content]("hasConnectionMetaLabel()", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
+
+      Await.result(p.future, Duration("10 seconds"))
+
+      None
+    } catch {
+      case e: Exception => Some(e)
+    }
+  }
+
+  private def queryRemoteConnectionsHistorical()(implicit config: HttpClientConfig): Option[Exception] = {
+    try {
+      val p = Promise[Unit]()
+
+      val client1 = HttpAssist.createAgent("Agent1")
+      val client2 = HttpAssist.createAgent("Agent2")
+      val alias1 = client1.getRootAlias()
+      val alias2 = client2.getRootAlias()
+      val (conn12, conn21) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
+
+      val expectedResults = List(conn21.toJson)
+      client1.query[Connection]("", local = false, connectionIids = List(conn12.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 

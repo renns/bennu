@@ -46,6 +46,7 @@ case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: Int
 
     override def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query = {
       mapper.typeName.toLowerCase match {
+        case "connection" => query.and(Query.parse(sql"""aliasIid = ${aliasIid.value}"""))
         case "labelacl" => query.and(Query.parse(sql"""iid in (${reachableLabelAcls})"""))
         case "label" => query.and(Query.parse(sql"""iid in (${reachableLabels})"""))
         case "content" =>
