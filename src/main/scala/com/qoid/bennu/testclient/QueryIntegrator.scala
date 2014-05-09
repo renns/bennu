@@ -135,7 +135,7 @@ object QueryIntegrator extends GuiceApp {
       val contentC = contents(2)
 
       val expectedResults = List(contentC.toJson)
-      client1.query[Content](s"hasLabelPath('A','B','C')", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A','B','C')", local = false, connectionIids = List(List(conn1.iid)))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -159,7 +159,7 @@ object QueryIntegrator extends GuiceApp {
       val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
 
       val expectedResults = List(content.toJson)
-      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(conn1.iid), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(List(conn1.iid)), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client2.upsert(content, labelIids = List(label2.iid))
 
@@ -183,7 +183,7 @@ object QueryIntegrator extends GuiceApp {
       val content = client2.createContent(alias2.iid, "TEXT", "text" -> "agent 2 should see this", List(conn2.metaLabelIid))
 
       val expectedResults = List(content.toJson)
-      client1.query[Content]("hasConnectionMetaLabel()", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Content]("hasConnectionMetaLabel()", local = false, connectionIids = List(List(conn1.iid)))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -204,7 +204,7 @@ object QueryIntegrator extends GuiceApp {
       val (conn12, conn21) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
 
       val expectedResults = List(conn21.toJson)
-      client1.query[Connection]("", local = false, connectionIids = List(conn12.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Connection]("", local = false, connectionIids = List(List(conn12.iid)))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 

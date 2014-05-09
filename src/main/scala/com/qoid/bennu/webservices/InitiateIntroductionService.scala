@@ -80,7 +80,16 @@ case class InitiateIntroductionService @Inject()(
   private def getProfile(av: AgentView, connection: Connection): Future[JValue] = {
     val p = Promise[JValue]()
     val handle = Handle.random
-    val request = messages.QueryRequest("profile", "", historical = true, standing = false, handle = handle)
+
+    val request = messages.QueryRequest(
+      "profile",
+      "",
+      historical = true,
+      standing = false,
+      handle = handle,
+      degreesOfSeparation = 1,
+      connectionIids = Nil
+    )
 
     queryResponseMgr.registerHandle(
       handle,

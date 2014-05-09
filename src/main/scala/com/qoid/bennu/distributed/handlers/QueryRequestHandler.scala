@@ -4,6 +4,7 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.QueryResponseManager
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.HasInternalId
@@ -15,12 +16,16 @@ import m3.predef._
 
 object QueryRequestHandler {
   def handle(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
-    if (queryRequest.historical) {
-      processHistorical(connection, queryRequest, injector)
-    }
+    if (queryRequest.connectionIids.isEmpty) {
+      if (queryRequest.historical) {
+        processHistorical(connection, queryRequest, injector)
+      }
 
-    if (queryRequest.standing) {
-      processStanding(connection, queryRequest, injector)
+      if (queryRequest.standing) {
+        processStanding(connection, queryRequest, injector)
+      }
+    } else {
+      forwardQuery(connection, queryRequest, injector)
     }
   }
 
@@ -58,5 +63,40 @@ object QueryRequestHandler {
     val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
 
     injector.instance[DistributedManager].send(connection, responseMessage)
+  }
+
+  private def forwardQuery(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
+    queryRequest.connectionIids match {
+      case iid :: iids =>
+        val av = injector.instance[AgentView]
+        val queryResponseMgr = injector.instance[QueryResponseManager]
+        val distributedMgr = injector.instance[DistributedManager]
+
+        val handle = Handle.random
+
+        queryResponseMgr.registerHandle(
+          handle,
+          distributedResponseHandler(distributedMgr, queryRequest, connection)
+        )
+
+        av.fetchOpt[Connection](iid).foreach { toConnection =>
+          val request = queryRequest.copy(handle = handle, degreesOfSeparation = queryRequest.degreesOfSeparation + 1, connectionIids = iids)
+          distributedMgr.send(toConnection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
+        }
+      case _ =>
+    }
+  }
+
+  private def distributedResponseHandler(
+    distributedMgr: DistributedManager,
+    queryRequest: QueryRequest,
+    requestConnection: Connection
+  )(
+    connection: Connection,
+    queryResponse: QueryResponse
+  ): Unit = {
+    val responseData = queryResponse.copy(handle = queryRequest.handle)
+    val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
+    distributedMgr.send(requestConnection, responseMessage)
   }
 }

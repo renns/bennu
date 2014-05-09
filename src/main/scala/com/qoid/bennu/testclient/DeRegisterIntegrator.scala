@@ -47,6 +47,7 @@ object DeRegisterIntegrator extends GuiceApp {
 
           if (label.data == JNothing) {
             client.deRegisterStandingQuery(response.handle)
+            Thread.sleep(3000)
             client.upsert(label.copy(data = JString("test")))
           } else {
             p.success()
@@ -88,6 +89,7 @@ object DeRegisterIntegrator extends GuiceApp {
 
           if (content.contentType == "TEXT") {
             client1.deRegisterStandingQuery(response.handle)
+            Thread.sleep(3000)
             client2.upsert(content.copy(contentType = "image"))
           } else {
             p.success()
@@ -107,7 +109,7 @@ object DeRegisterIntegrator extends GuiceApp {
       val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
 
-      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(conn1.iid), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
+      client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(List(conn1.iid)), historical = false, standing = true)(handleQueryResponse(_, client1, client2, p))
 
       client2.createContent(alias2.iid, "TEXT", ("text" -> "Content") ~ ("booyaka" -> "wop"), List(label2.iid))
 

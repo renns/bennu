@@ -193,7 +193,7 @@ object VerificationIntegrator extends GuiceApp {
     val p = Promise[Content]()
 
     try {
-      client.query[Content](query, local = false, connectionIids = List(connection.iid)) {
+      client.query[Content](query, local = false, connectionIids = List(List(connection.iid))) {
         case QueryResponse(
           QueryResponseType.Query,
           _,

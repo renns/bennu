@@ -40,7 +40,7 @@ case class QueryService @Inject()(
   @Parm("q") queryStr: String,
   @Parm aliasIid: Option[InternalId] = None,
   @Parm local: Boolean = true,
-  @Parm connectionIids: List[InternalId] = Nil,
+  @Parm connectionIids: List[List[InternalId]] = Nil,
   @Parm historical: Boolean = true,
   @Parm standing: Boolean = false
 ) extends Logging {
@@ -91,20 +91,22 @@ case class QueryService @Inject()(
 
   private def submitRemoteQuery(sc: SecurityContext): Unit = {
     val av = injector.instance[AgentView]
-    val request = QueryRequest(_type, queryStr, historical, standing, handle)
 
     if (standing) {
-      sQueryMgr.addConnectionIids(handle, connectionIids, sc.aliasIid)
+      sQueryMgr.addConnectionIids(handle, connectionIids.filter(_.nonEmpty).map(_.head), sc.aliasIid)
     }
 
     queryResponseMgr.registerHandle(
       handle,
-      QueryService.distributedResponseHandler(_, _, handle, _type, methodInvocation.context, channelMgr, channelId)
+      QueryService.distributedResponseHandler(handle, _type, methodInvocation.context, channelMgr, channelId)
     )
 
-    connectionIids.foreach { connectionIid =>
-      val connection = av.fetch[Connection](connectionIid)
-      distributedMgr.send(connection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
+    connectionIids.foreach {
+      case iid :: iids =>
+        val connection = av.fetch[Connection](iid)
+        val request = QueryRequest(_type, queryStr, historical, standing, handle, 1, iids)
+        distributedMgr.send(connection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
+      case _ =>
     }
   }
 }
@@ -125,13 +127,14 @@ object QueryService extends Logging {
   }
 
   def distributedResponseHandler(
-    connection: Connection,
-    message: messages.QueryResponse,
     handle: Handle,
     tpe: String,
     context: JValue,
     channelMgr: ChannelManager,
     channelId: ChannelId
+  )(
+    connection: Connection,
+    message: messages.QueryResponse
   ): Unit = {
     val responseType = if (message.standing) QueryResponseType.SQuery else QueryResponseType.Query
     val response = QueryResponse(responseType, handle, tpe, context, message.results, None, Some(connection.iid), message.action)

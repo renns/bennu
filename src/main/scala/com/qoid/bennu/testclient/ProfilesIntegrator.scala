@@ -48,7 +48,7 @@ object ProfilesIntegrator extends GuiceApp {
       val (conn1, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
 
       val expectedResults = List(profile2)
-      client1.query[Profile]("", local = false, connectionIids = List(conn1.iid))(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Profile]("", local = false, connectionIids = List(List(conn1.iid)))(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       Await.result(p.future, Duration("10 seconds"))
 
@@ -71,7 +71,7 @@ object ProfilesIntegrator extends GuiceApp {
       val (conn1, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
 
       val expectedResults = List(profile2)
-      client1.query[Profile]("", local = false, connectionIids = List(conn1.iid), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
+      client1.query[Profile]("", local = false, connectionIids = List(List(conn1.iid)), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
 
       client2.upsert(profile2)
 

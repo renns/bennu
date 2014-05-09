@@ -88,7 +88,7 @@ trait ServiceAssist {
     query: String,
     aliasIid: Option[InternalId] = None,
     local: Boolean = true,
-    connectionIids: List[InternalId] = Nil,
+    connectionIids: List[List[InternalId]] = Nil,
     historical: Boolean = true,
     standing: Boolean = false
   )(
@@ -118,7 +118,6 @@ trait ServiceAssist {
   }
 
   def deRegisterStandingQuery(handle: Handle): Boolean = {
-    asyncCallbacks -= handle
     val parms = Map[String, JValue]("handle" -> handle)
     post(ServicePath.deRegisterStandingQuery, parms).success
   }

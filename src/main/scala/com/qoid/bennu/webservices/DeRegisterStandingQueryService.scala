@@ -1,7 +1,7 @@
 package com.qoid.bennu.webservices
 
 import com.google.inject.Inject
-import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.{QueryResponseManager, DistributedManager}
 import com.qoid.bennu.distributed.messages.DeRegisterStandingQuery
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.distributed.messages.DistributedMessageKind
@@ -18,6 +18,7 @@ import scala.language.existentials
 case class DeRegisterStandingQueryService @Inject()(
   injector: ScalaInjector,
   sQueryMgr: StandingQueryManager,
+  queryResponseMgr: QueryResponseManager,
   distributedMgr: DistributedManager,
   @Parm handle: Handle
 ) extends Logging {
@@ -26,6 +27,9 @@ case class DeRegisterStandingQueryService @Inject()(
     val av = injector.instance[AgentView]
 
     sQueryMgr.remove(handle)
+    queryResponseMgr.deRegisterHandle(handle)
+
+    //TODO: De-register query response and standing queries for degrees of separation queries
 
     val connectionIids = sQueryMgr.getConnectionIids(handle)
 
