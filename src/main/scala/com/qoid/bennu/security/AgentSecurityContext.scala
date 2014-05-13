@@ -9,12 +9,12 @@ import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
 
-case class AgentSecurityContext(injector: ScalaInjector, agentId: AgentId) extends SecurityContext { sc =>
+case class AgentSecurityContext(injector: ScalaInjector, agentId: AgentId, rootAliasIid: Option[InternalId] = None) extends SecurityContext { sc =>
 
   private lazy val agent = Agent.selectOne(sql"agentId = ${agentId}")(injector.instance[JdbcConn])
   private lazy val agentWhereClause: Query = Query.parse(sql"agentId = ${agentId}")
 
-  override def aliasIid = agent.uberAliasIid
+  override def aliasIid = rootAliasIid.getOrElse(agent.uberAliasIid)
 
   override def createView = new AgentView {
     override def securityContext = sc

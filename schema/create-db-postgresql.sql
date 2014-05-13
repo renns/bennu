@@ -6,6 +6,10 @@ create table agent (
 	name varchar(50) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -16,6 +20,10 @@ create table alias (
 	name varchar(50) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -28,6 +36,10 @@ create table connection (
 	remotePeerId varchar(32) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -39,6 +51,10 @@ create table content (
 	metaData text not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -51,6 +67,10 @@ create table introduction (
 	bState varchar(50) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -61,6 +81,10 @@ create table label (
 	icon varchar(50),
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -71,6 +95,10 @@ create table labelAcl (
 	labelIid varchar(32) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -81,6 +109,10 @@ create table labelchild (
 	childIid varchar(32) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -93,6 +125,10 @@ create table labeledContent (
 	labelIid varchar(32) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -106,6 +142,10 @@ create table login (
 	passwordHash char(60) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -117,6 +157,10 @@ create table notification (
 	kind varchar(50) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )
 ;
@@ -129,5 +173,9 @@ create table profile (
 	sharedId varchar(32) not NULL,
 	data text not NULL,
 	deleted boolean not NULL,
+	created timestamp not NULL,
+	modified timestamp not NULL,
+	createdByAliasIid varchar(32) not NULL,
+	modifiedByAliasIid varchar(32) not NULL,
 	primary key(iid)
 )

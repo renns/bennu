@@ -65,7 +65,7 @@ object QueryIntegrator extends GuiceApp {
 
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
-      val label = Label("A")
+      val label = Label("A", createdByAliasIid = client.rootAliasIid, modifiedByAliasIid = client.rootAliasIid)
 
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'", historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
@@ -107,7 +107,7 @@ object QueryIntegrator extends GuiceApp {
       val client = HttpAssist.createAgent("Agent1")
       val rootLabel = client.getRootLabel()
       val subAlias = client.createAlias(rootLabel.iid, "Sub-Alias")
-      val label = Label("A")
+      val label = Label("A", createdByAliasIid = client.rootAliasIid, modifiedByAliasIid = client.rootAliasIid)
 
       val expectedResults = List(label.toJson)
       client.query[Label](s"name = 'A'", Some(subAlias.iid), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
@@ -156,7 +156,7 @@ object QueryIntegrator extends GuiceApp {
       val (conn1, conn2) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val label2 = client2.createLabel(alias2.rootLabelIid, "A")
       client2.upsert(LabelAcl(conn2.iid, label2.iid))
-      val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
+      val content = Content(alias2.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"), createdByAliasIid = alias2.iid, modifiedByAliasIid = alias2.iid)
 
       val expectedResults = List(content.toJson)
       client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(List(conn1.iid)), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))

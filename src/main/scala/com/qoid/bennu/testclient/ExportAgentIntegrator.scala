@@ -1,5 +1,6 @@
 package com.qoid.bennu.testclient
 
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
@@ -52,7 +53,11 @@ object ExportAgentIntegrator extends GuiceApp {
       val client2 = ChannelClientFactory.createHttpChannelClient("Agent1")
       val agentData2 = client2.deleteAgent(true)
 
-      if (agentData == agentData2) None else throw new Exception("Agent data after export/import doesn't match")
+      if (agentData == agentData2) {
+        None
+      } else {
+        throw new Exception(s"Response results not as expected\nReceived:\n${agentData2.toJsonStr}\nExpected:\n${agentData.toJsonStr}")
+      }
     } catch {
       case e: Exception => Some(e)
     }

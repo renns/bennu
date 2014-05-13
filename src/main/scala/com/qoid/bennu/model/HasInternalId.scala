@@ -5,6 +5,7 @@ import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
 import net.liftweb.json.JValue
+import net.model3.chrono.DateTime
 
 trait HasInternalId extends ToJsonCapable { self =>
   
@@ -14,6 +15,10 @@ trait HasInternalId extends ToJsonCapable { self =>
   val agentId: AgentId
   val data: JValue
   val deleted: Boolean
+  val created: DateTime
+  val modified: DateTime
+  val createdByAliasIid: InternalId
+  val modifiedByAliasIid: InternalId
   
   def mapper: BennuMapperCompanion[TInstance]
   
@@ -28,7 +33,11 @@ trait HasInternalId extends ToJsonCapable { self =>
   def copy2(
       iid: InternalId = self.iid, 
       agentId: AgentId = self.agentId, 
-      data: JValue = self.data, 
-      deleted: Boolean = self.deleted
+      data: JValue = self.data,
+      deleted: Boolean = self.deleted,
+      created: DateTime = self.created,
+      modified: DateTime = self.modified,
+      createdByAliasIid: InternalId = self.createdByAliasIid,
+      modifiedByAliasIid: InternalId = self.modifiedByAliasIid
   ): TInstance
 }

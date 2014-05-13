@@ -8,7 +8,7 @@
         "validationQuery": "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS LIMIT 1",
         "initialConnections": 10,
         "maxConnections": 50,
-        jdbcLogging: true
+        "jdbcLogging": true
     },
     "startHsqldbTooling": true
 }

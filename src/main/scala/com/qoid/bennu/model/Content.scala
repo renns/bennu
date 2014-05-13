@@ -10,6 +10,7 @@ import com.qoid.bennu.squery.StandingQueryAction
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
+import net.model3.chrono.DateTime
 
 object Content extends BennuMapperCompanion[Content] {
   object MetaData extends FromJsonCapable[MetaData]
@@ -59,20 +60,37 @@ case class Content(
   agentId: AgentId = AgentId(""),
   data: JValue = JNothing,
   metaData: JValue = JNothing,
-  deleted: Boolean = false
+  deleted: Boolean = false,
+  created: DateTime = new DateTime,
+  modified: DateTime = new DateTime,
+  createdByAliasIid: InternalId = InternalId(""),
+  modifiedByAliasIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Content] { self =>
   
   type TInstance = Content
   
   def mapper = Content
-  
+
   override def copy2(
-      iid: InternalId = self.iid, 
-      agentId: AgentId = self.agentId, 
-      data: JValue = self.data, 
-      deleted: Boolean = self.deleted
+    iid: InternalId = self.iid,
+    agentId: AgentId = self.agentId,
+    data: JValue = self.data,
+    deleted: Boolean = self.deleted,
+    created: DateTime = self.created,
+    modified: DateTime = self.modified,
+    createdByAliasIid: InternalId = self.createdByAliasIid,
+    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
   ) = {
-    copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
+    copy(
+      iid = iid,
+      agentId = agentId,
+      data = data,
+      deleted = deleted,
+      created = created,
+      modified = modified,
+      createdByAliasIid = createdByAliasIid,
+      modifiedByAliasIid = modifiedByAliasIid
+    )
   }
 }
 

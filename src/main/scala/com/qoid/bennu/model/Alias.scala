@@ -10,6 +10,7 @@ import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
+import net.model3.chrono.DateTime
 
 object Alias extends BennuMapperCompanion[Alias] {
   private val aliasLabelColor = "#000000"
@@ -106,19 +107,36 @@ case class Alias(
   rootLabelIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
-  deleted: Boolean = false
+  deleted: Boolean = false,
+  created: DateTime = new DateTime,
+  modified: DateTime = new DateTime,
+  createdByAliasIid: InternalId = InternalId(""),
+  modifiedByAliasIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Alias] { self =>
   
   type TInstance = Alias
   
   def mapper = Alias
-  
+
   override def copy2(
     iid: InternalId = self.iid,
     agentId: AgentId = self.agentId,
     data: JValue = self.data,
-    deleted: Boolean = self.deleted
+    deleted: Boolean = self.deleted,
+    created: DateTime = self.created,
+    modified: DateTime = self.modified,
+    createdByAliasIid: InternalId = self.createdByAliasIid,
+    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
   ) = {
-    copy(iid = iid, agentId = agentId, data = data, deleted = deleted)
+    copy(
+      iid = iid,
+      agentId = agentId,
+      data = data,
+      deleted = deleted,
+      created = created,
+      modified = modified,
+      createdByAliasIid = createdByAliasIid,
+      modifiedByAliasIid = modifiedByAliasIid
+    )
   }
 }

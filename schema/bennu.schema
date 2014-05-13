@@ -1,4 +1,3 @@
-
 types {
   Boolean           bit;
   InternalId        varchar(32);
@@ -12,15 +11,19 @@ types {
 }
 
 import CommonFields {
-  data          Clob;
-  deleted       Boolean;
+  data                  Clob;
+  deleted               Boolean;
+  created               timestamp;
+  modified              timestamp;
+  createdByAliasIid     InternalId;
+  modifiedByAliasIid    InternalId;
 }
 
 table agent {
-  iid       InternalId key;
-  agentId   AgentId;
+  iid           InternalId key;
+  agentId       AgentId;
   uberAliasIid  InternalId;
-  name      Name;
+  name          Name;
   import(CommonFields);
 }
 

@@ -78,7 +78,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val (conn23, conn32) = TestAssist.createConnection(client2, alias2.iid, client3, alias3.iid)
       val label3 = client3.createLabel(alias3.rootLabelIid, "A")
       client3.upsert(LabelAcl(conn32.iid, label3.iid))
-      val content = Content(alias3.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
+      val content = Content(alias3.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"), createdByAliasIid = alias3.iid, modifiedByAliasIid = alias3.iid)
 
       val expectedResults = List(content.toJson)
       client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(List(conn12.iid, conn23.iid)), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))
@@ -139,7 +139,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val (conn34, conn43) = TestAssist.createConnection(client3, alias3.iid, client4, alias4.iid)
       val label4 = client4.createLabel(alias4.rootLabelIid, "A")
       client4.upsert(LabelAcl(conn43.iid, label4.iid))
-      val content = Content(alias4.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"))
+      val content = Content(alias4.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"), createdByAliasIid = alias4.iid, modifiedByAliasIid = alias4.iid)
 
       val expectedResults = List(content.toJson)
       client1.query[Content](s"hasLabelPath('A')", local = false, connectionIids = List(List(conn12.iid, conn23.iid, conn34.iid)), historical = false, standing = true)(TestAssist.handleQueryResponse(_, expectedResults, p))

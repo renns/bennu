@@ -83,10 +83,23 @@ object TestAssist extends Logging {
     expectedResults: JValue,
     p: Promise[Unit]
   ): Unit = {
-    if (response.results == expectedResults) {
+
+    val rr = response.results.remove {
+      case JField("created", _) => true
+      case JField("modified", _) => true
+      case _ => false
+    }
+
+    val er = expectedResults.remove {
+      case JField("created", _) => true
+      case JField("modified", _) => true
+      case _ => false
+    }
+
+    if (rr == er) {
       p.success()
     } else {
-      p.failure(new Exception(s"Response results not as expected\nReceived:\n${response.results.toJsonStr}\nExpected:\n${expectedResults.toJsonStr}"))
+      p.failure(new Exception(s"Response results not as expected\nReceived:\n${rr.toJsonStr}\nExpected:\n${er.toJsonStr}"))
     }
   }
 

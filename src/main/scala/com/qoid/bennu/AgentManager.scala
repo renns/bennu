@@ -22,10 +22,12 @@ class AgentManager @Inject()(injector: ScalaInjector, authenticationMgr: Authent
   def createAgent(name: String, password: String): Agent = {
     Txn {
       val agentId = AgentId.random
-      Txn.setViaTypename[SecurityContext](AgentSecurityContext(injector, agentId))
+      val aliasIid = InternalId.random
+
+      Txn.setViaTypename[SecurityContext](AgentSecurityContext(injector, agentId, Some(aliasIid)))
       val av = injector.instance[AgentView]
 
-      val agent = av.insert[Agent](Agent(name))
+      val agent = av.insert[Agent](Agent(name, uberAliasIid = aliasIid))
       authenticationMgr.createLogin(agent.uberAliasIid, password)
       agent
     }

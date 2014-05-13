@@ -38,7 +38,7 @@ object UpsertIntegrator extends GuiceApp {
       val label = Label("Insert Label")
       val returnedLabel = client.upsert(label, Some(rootLabel.iid))
 
-      if (label == returnedLabel) {
+      if (label.name == returnedLabel.name) {
         None
       } else {
         Some(new Exception("Returned label doesn't match"))
@@ -57,7 +57,7 @@ object UpsertIntegrator extends GuiceApp {
       val updateLabel = newLabel.copy(name = "UpdateLabel")
       val returnedLabel = client.upsert(updateLabel)
 
-      if (updateLabel == returnedLabel) {
+      if (returnedLabel.name == updateLabel.name) {
         None
       } else {
         Some(new Exception("Returned label doesn't match"))

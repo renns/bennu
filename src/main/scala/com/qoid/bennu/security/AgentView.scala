@@ -1,18 +1,18 @@
 package com.qoid.bennu.security
 
-import com.qoid.bennu.model.HasInternalId
-import com.qoid.bennu.model.Label
+import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
+import com.qoid.bennu.ServiceException
+import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.squery.ast.ContentQuery
 import com.qoid.bennu.squery.ast.Query
 import com.qoid.bennu.squery.ast.Transformer
-import com.qoid.bennu.ErrorCode
-import com.qoid.bennu.ServiceException
 import java.sql.{ Connection => JdbcConn }
 import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
-import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
+import net.model3.chrono.DateTime
 
 object AgentView {
   val notDeleted = Query.parse("deleted = false")
@@ -36,21 +36,41 @@ trait AgentView {
   def constrict[T <: HasInternalId](mapper: BennuMapperCompanion[T], query: Query): Query
 
   def insert[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateInsert(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
+    validateInsert(
+      instance.copy2(
+        agentId = securityContext.agentId,
+        created = new DateTime,
+        modified = new DateTime,
+        createdByAliasIid = securityContext.aliasIid,
+        modifiedByAliasIid = securityContext.aliasIid
+      ).asInstanceOf[T]
+    ) match {
       case Full(i) => mapper.insert(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def update[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateUpdate(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
+    validateUpdate(
+      instance.copy2(
+        agentId = securityContext.agentId,
+        modified = new DateTime,
+        modifiedByAliasIid = securityContext.aliasIid
+      ).asInstanceOf[T]
+    ) match {
       case Full(i) => mapper.update(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
 
   def delete[T <: HasInternalId](instance: T)(implicit mapper: BennuMapperCompanion[T]): T = {
-    validateDelete(instance.copy2(agentId = securityContext.agentId).asInstanceOf[T]) match {
+    validateDelete(
+      instance.copy2(
+        agentId = securityContext.agentId,
+        modified = new DateTime,
+        modifiedByAliasIid = securityContext.aliasIid
+      ).asInstanceOf[T]
+    ) match {
       case Full(i) => mapper.softDelete(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
