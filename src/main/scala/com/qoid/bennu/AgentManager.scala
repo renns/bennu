@@ -36,9 +36,9 @@ class AgentManager @Inject()(injector: ScalaInjector, authenticationMgr: Authent
   def deleteAgent(): Unit = {
     injector.instance[SecurityContext] match {
       case sc: AgentSecurityContext =>
-        JdbcAssist.allMappers.foreach {
-          mapper =>
-            injector.instance[JdbcConn].update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${sc.agentId}")
+        JdbcAssist.allMappers.foreach { mapper =>
+          injector.instance[JdbcConn].update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${sc.agentId}")
+          injector.instance[JdbcConn].update(sql"delete from ${(mapper.tableName + "_log").rawSql} where agentId = ${sc.agentId}")
         }
       case _ => throw new ServiceException("Not in the context of the agent", ErrorCode.Forbidden)
     }
