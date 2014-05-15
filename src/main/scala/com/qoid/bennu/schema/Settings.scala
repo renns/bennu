@@ -26,11 +26,11 @@ object Settings {
     possibles.find(_.exists) ?~ s"unable to find file -- ${possibles.map(_.canonical).mkString("  ")}"
   }
 
-  lazy val conn = inject[Connection]
+  lazy implicit val conn = inject[Connection]
 
   lazy val schemaManager = SchemaManager(conn, findFile("bennu.schema").open_$)
 
-  lazy val dialect = schemaManager.dialect match {
+  lazy val dialectName = schemaManager.dialect match {
     case _: HsqldbDialect => "hsqldb"
     case _: Postgres => "postgresql"
     case _ => "unknown"

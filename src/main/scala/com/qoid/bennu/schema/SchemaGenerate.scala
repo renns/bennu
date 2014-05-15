@@ -6,15 +6,17 @@ import net.model3.newfile.File
 object SchemaGenerate extends App {
 
   import Settings._
+  import AuditAssist._
 
   lazy val schemaDdl = {
     Txn {
-      schemaManager.createFullSchemaDdl.mkString("\n","\n;\n","")
+      val ddl = schemaManager.createFullSchemaDdl ++ createFullAuditSchemaDdl ++ createAuditTriggerDdl
+      ddl.mkString("\n","\n;\n","")
     }
   }
 
   Txn {
-    new File(s"./schema/create-db-${dialect}.sql").write(schemaDdl)
+    new File(s"./schema/create-db-${dialectName}.sql").write(schemaDdl)
   }
 
   println()
