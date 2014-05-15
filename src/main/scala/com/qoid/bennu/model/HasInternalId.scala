@@ -14,7 +14,6 @@ trait HasInternalId extends ToJsonCapable { self =>
   val iid: InternalId
   val agentId: AgentId
   val data: JValue
-  val deleted: Boolean
   val created: DateTime
   val modified: DateTime
   val createdByAliasIid: InternalId
@@ -34,7 +33,6 @@ trait HasInternalId extends ToJsonCapable { self =>
       iid: InternalId = self.iid, 
       agentId: AgentId = self.agentId, 
       data: JValue = self.data,
-      deleted: Boolean = self.deleted,
       created: DateTime = self.created,
       modified: DateTime = self.modified,
       createdByAliasIid: InternalId = self.createdByAliasIid,

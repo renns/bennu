@@ -19,7 +19,7 @@ class DistributedManager @Inject()(
 ) extends Logging {
 
   def initialize(implicit jdbcConn: JdbcConn): Unit = {
-    listen(Connection.select("deleted = false").toList)
+    listen(Connection.select("1 = 1").toList)
   }
 
   def listen(connection: Connection): Unit = listen(List(connection))

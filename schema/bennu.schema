@@ -12,7 +12,6 @@ types {
 
 import CommonFields {
   data                  Clob;
-  deleted               Boolean;
   created               timestamp;
   modified              timestamp;
   createdByAliasIid     InternalId;

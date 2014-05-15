@@ -38,7 +38,7 @@ object ContentQuery {
     val labelIid = av.resolveConnectionMetaLabel()
 
     val whereClause = labelIid match {
-      case Full(iid) => Chord(s"labelIid = '${iid.value}' and deleted = false")
+      case Full(iid) => Chord(s"labelIid = '${iid.value}'")
       case _ => Chord("1 <> 1")
     }
 
@@ -53,7 +53,7 @@ object ContentQuery {
     
     val whereClause = ancestry match {
       case Nil => Chord("1 <> 1")
-      case l => "labelIid in (" ~ l.map("'" ~ _.value ~ "'").mkChord(",") ~ ") and deleted = false"
+      case l => "labelIid in (" ~ l.map("'" ~ _.value ~ "'").mkChord(",") ~ ")"
     }
 
     "iid in (select contentIid from labeledcontent where " ~ whereClause ~ ")"

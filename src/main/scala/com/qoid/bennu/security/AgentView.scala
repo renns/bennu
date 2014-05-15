@@ -14,10 +14,6 @@ import m3.predef._
 import m3.predef.box._
 import net.model3.chrono.DateTime
 
-object AgentView {
-  val notDeleted = Query.parse("deleted = false")
-}
-
 trait AgentView {
 
   def validateInsert[T <: HasInternalId](t: T): Box[T] = validateInsertUpdateOrDelete(t)
@@ -71,7 +67,7 @@ trait AgentView {
         modifiedByAliasIid = securityContext.aliasIid
       ).asInstanceOf[T]
     ) match {
-      case Full(i) => mapper.softDelete(i)(inject[JdbcConn])
+      case Full(i) => mapper.delete(i)(inject[JdbcConn])
       case _ => throw ServiceException("Security validation failed", ErrorCode.SecurityValidationFailed)
     }
   }
@@ -79,7 +75,7 @@ trait AgentView {
   def select[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Iterator[T] = {
     val query = constrict(
       mapper,
-      Query.parse(queryStr).and(AgentView.notDeleted.expr)
+      Query.parse(queryStr)
     )
     val querySql = Transformer.queryToSql(query, ContentQuery.transformer).toString()
     mapper.select(querySql)(inject[JdbcConn])
@@ -119,7 +115,7 @@ trait AgentView {
   }
 
   def findChildLabel(parentIid: InternalId, childName: String): Box[Label] = {
-    Label.selectBox(sql"name = ${childName} and iid in (select childIid from LabelChild where parentIid = ${parentIid} and deleted = false) and deleted = false")(inject[JdbcConn])
+    Label.selectBox(sql"name = ${childName} and iid in (select childIid from LabelChild where parentIid = ${parentIid})")(inject[JdbcConn])
   }
 
   /**

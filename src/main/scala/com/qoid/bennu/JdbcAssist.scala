@@ -54,12 +54,14 @@ object JdbcAssist extends Logging {
       )
     }
 
-    def softDelete(instance: T)(implicit conn: Connection): T = {
+    override def delete(instance: T)(implicit conn: Connection): T = {
       postDelete(
-        super.update(
-          notifyStandingQueries(
-            preDelete(instance.copy2(deleted = true).asInstanceOf[T]),
-            StandingQueryAction.Delete
+        super.delete(
+          super.update(
+            notifyStandingQueries(
+              preDelete(instance),
+              StandingQueryAction.Delete
+            )
           )
         )
       )
