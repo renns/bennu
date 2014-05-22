@@ -87,7 +87,7 @@ case class InitiateIntroductionService @Inject()(
       historical = true,
       standing = false,
       handle = handle,
-      degreesOfSeparation = 1,
+      degreesOfVisibility = 1,
       connectionIids = Nil
     )
 

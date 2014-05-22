@@ -80,7 +80,7 @@ object QueryRequestHandler {
         )
 
         av.fetchOpt[Connection](iid).foreach { toConnection =>
-          val request = queryRequest.copy(handle = handle, degreesOfSeparation = queryRequest.degreesOfSeparation + 1, connectionIids = iids)
+          val request = queryRequest.copy(handle = handle, degreesOfVisibility = queryRequest.degreesOfVisibility + 1, connectionIids = iids)
           distributedMgr.send(toConnection, DistributedMessage(DistributedMessageKind.QueryRequest, 1, request.toJson))
         }
       case _ =>

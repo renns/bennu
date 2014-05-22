@@ -29,7 +29,7 @@ case class DeRegisterStandingQueryService @Inject()(
     sQueryMgr.remove(handle)
     queryResponseMgr.deRegisterHandle(handle)
 
-    //TODO: De-register query response and standing queries for degrees of separation queries
+    //TODO: De-register query response and standing queries for degrees of visibility queries
 
     val connectionIids = sQueryMgr.getConnectionIids(handle)
 
