@@ -70,21 +70,22 @@ table labeledContent {
 }
 
 table connection {
-  iid           InternalId key;
-  agentId       AgentId;
-  metaLabelIid  InternalId;  
-  aliasIid      InternalId;
-  localPeerId   PeerId;
-  remotePeerId  PeerId;
+  iid                           InternalId key;
+  agentId                       AgentId;
+  metaLabelIid                  InternalId;
+  aliasIid                      InternalId;
+  localPeerId                   PeerId;
+  remotePeerId                  PeerId;
+  allowedDegreesOfVisibility    int;
   import(CommonFields);
 }
 
 table notification {
-  iid           InternalId key;
-  agentId       AgentId;
-  consumed      Boolean;
-  fromConnectionIid  InternalId;  
-  kind          varchar(50);
+  iid                   InternalId key;
+  agentId               AgentId;
+  consumed              Boolean;
+  fromConnectionIid     InternalId;
+  kind                  varchar(50);
   import(CommonFields);
 }
 

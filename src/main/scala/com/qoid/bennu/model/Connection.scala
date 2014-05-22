@@ -65,6 +65,7 @@ case class Connection(
   aliasIid: InternalId,
   localPeerId: PeerId,
   remotePeerId: PeerId,
+  allowedDegreesOfVisibility: Integer = 1,
   agentId: AgentId = AgentId(""),
   metaLabelIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,

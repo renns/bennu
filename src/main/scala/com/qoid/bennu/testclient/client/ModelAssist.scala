@@ -31,6 +31,11 @@ trait ModelAssist {
     upsert(Connection(aliasIid, localPeerId, remotePeerId))
   }
 
+  def updateConnection(iid: InternalId, allowedDegreesOfVisibility: Integer): Unit = {
+    val connection = queryLocal[Connection](sql"iid = $iid").head
+    upsert(connection.copy(allowedDegreesOfVisibility = allowedDegreesOfVisibility))
+  }
+
   def createContent(aliasIid: InternalId, contentType: String, data: JValue, labelIids: List[InternalId] = Nil): Content = {
     upsert(Content(aliasIid, contentType, data = data), labelIids = labelIids)
   }

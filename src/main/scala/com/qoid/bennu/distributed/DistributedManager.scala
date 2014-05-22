@@ -6,6 +6,8 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.handlers._
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.ConnectionSecurityContext
 import com.qoid.bennu.security.SecurityContext
 import java.sql.{ Connection => JdbcConn }
@@ -56,14 +58,17 @@ class DistributedManager @Inject()(
     }
   }
 
-  def messageHandler(connection: Connection)(message: DistributedMessage): Unit = {
-    logger.debug(
-      s"received message (${connection.localPeerId.value} <- ${connection.remotePeerId.value}}):" +
-        message.toJson.toJsonStr
-    )
-
+  def messageHandler(connectionIid: InternalId)(message: DistributedMessage): Unit = {
     Txn {
-      Txn.setViaTypename[SecurityContext](ConnectionSecurityContext(injector, connection.iid))
+      Txn.setViaTypename[SecurityContext](ConnectionSecurityContext(injector, connectionIid))
+
+      val av = injector.instance[AgentView]
+      val connection = av.fetch[Connection](connectionIid)
+
+      logger.debug(
+        s"received message (${connection.localPeerId.value} <- ${connection.remotePeerId.value}}):" +
+          message.toJson.toJsonStr
+      )
 
       (message.kind, message.version) match {
         case (DistributedMessageKind.QueryRequest, 1) =>

@@ -6,7 +6,7 @@ import com.qoid.bennu.Config
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.model.Connection
-import com.qoid.bennu.model.id.PeerId
+import com.qoid.bennu.model.id._
 import com.rabbitmq.client._
 import m3.LockFreeMap
 
@@ -20,11 +20,11 @@ class RabbitMessageQueue @Inject()(config: Config) extends MessageQueue {
 
   private val persistentJson: AMQP.BasicProperties = new AMQP.BasicProperties("application/json", null, null, 2, 0, null, null, null, null, null, null, null, null, null)
 
-  override def subscribe(connections: List[Connection], fn: Connection => DistributedMessage => Unit): Unit = {
+  override def subscribe(connections: List[Connection], fn: InternalId => DistributedMessage => Unit): Unit = {
     connections.foreach {
       connection =>
         val (queue, channel) = createChannel(connection.remotePeerId, connection.localPeerId)
-        val consumer = new RabbitMessageQueue.Consumer(channel, fn(connection))
+        val consumer = new RabbitMessageQueue.Consumer(channel, fn(connection.iid))
         channel.basicConsume(queue, true, consumer)
         consumers.put((connection.remotePeerId, connection.localPeerId), consumer)
     }

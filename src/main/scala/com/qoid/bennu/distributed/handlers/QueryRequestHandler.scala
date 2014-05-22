@@ -1,7 +1,6 @@
 package com.qoid.bennu.distributed.handlers
 
 import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.QueryResponseManager
@@ -30,9 +29,14 @@ object QueryRequestHandler {
   }
 
   private def processHistorical(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
-    val av = injector.instance[AgentView]
-    val mapper = findMapperByTypeName(queryRequest.tpe)
-    val results = JArray(av.select(queryRequest.query)(mapper).map(_.toJson).toList)
+    val results = if (queryRequest.degreesOfVisibility <= connection.allowedDegreesOfVisibility) {
+      val av = injector.instance[AgentView]
+      val mapper = findMapperByTypeName(queryRequest.tpe)
+      av.select(queryRequest.query)(mapper).map(_.toJson).toList
+    } else {
+      Nil
+    }
+
     val responseData = QueryResponse(queryRequest.handle, results)
     val responseMessage = DistributedMessage(DistributedMessageKind.QueryResponse, 1, responseData.toJson)
 
@@ -40,16 +44,18 @@ object QueryRequestHandler {
   }
 
   private def processStanding(connection: Connection, queryRequest: QueryRequest, injector: ScalaInjector): Unit = {
-    val sQueryMgr = injector.instance[StandingQueryManager]
+    if (queryRequest.degreesOfVisibility <= connection.allowedDegreesOfVisibility) {
+      val sQueryMgr = injector.instance[StandingQueryManager]
 
-    sQueryMgr.addRemote(
-      connection.agentId,
-      connection.iid,
-      queryRequest.handle,
-      queryRequest.tpe,
-      queryRequest.query,
-      sQueryResponseHandler(_, _, connection, queryRequest.handle, injector)
-    )
+      sQueryMgr.addRemote(
+        connection.agentId,
+        connection.iid,
+        queryRequest.handle,
+        queryRequest.tpe,
+        queryRequest.query,
+        sQueryResponseHandler(_, _, connection, queryRequest.handle, injector)
+      )
+    }
   }
 
   private def sQueryResponseHandler(

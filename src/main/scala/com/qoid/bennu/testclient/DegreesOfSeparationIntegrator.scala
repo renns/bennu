@@ -50,6 +50,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val alias3 = client3.getRootAlias()
       val (conn12, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val (conn23, conn32) = TestAssist.createConnection(client2, alias2.iid, client3, alias3.iid)
+      client3.updateConnection(conn32.iid, 2)
       val (contents, _) = TestAssist.createSampleContent(client3, alias3, Some(conn32))
       val contentC = contents(2)
 
@@ -76,6 +77,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val alias3 = client3.getRootAlias()
       val (conn12, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val (conn23, conn32) = TestAssist.createConnection(client2, alias2.iid, client3, alias3.iid)
+      client3.updateConnection(conn32.iid, 2)
       val label3 = client3.createLabel(alias3.rootLabelIid, "A")
       client3.upsert(LabelAcl(conn32.iid, label3.iid))
       val content = Content(alias3.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"), createdByAliasIid = alias3.iid, modifiedByAliasIid = alias3.iid)
@@ -108,6 +110,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val (conn12, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val (conn23, _) = TestAssist.createConnection(client2, alias2.iid, client3, alias3.iid)
       val (conn34, conn43) = TestAssist.createConnection(client3, alias3.iid, client4, alias4.iid)
+      client4.updateConnection(conn43.iid, 3)
       val (contents, _) = TestAssist.createSampleContent(client4, alias4, Some(conn43))
       val contentC = contents(2)
 
@@ -137,6 +140,7 @@ object DegreesOfSeparationIntegrator extends GuiceApp {
       val (conn12, _) = TestAssist.createConnection(client1, alias1.iid, client2, alias2.iid)
       val (conn23, _) = TestAssist.createConnection(client2, alias2.iid, client3, alias3.iid)
       val (conn34, conn43) = TestAssist.createConnection(client3, alias3.iid, client4, alias4.iid)
+      client4.updateConnection(conn43.iid, 3)
       val label4 = client4.createLabel(alias4.rootLabelIid, "A")
       client4.upsert(LabelAcl(conn43.iid, label4.iid))
       val content = Content(alias4.iid, "text", data = ("text" ->  "Content") ~ ("booyaka" -> "wop"), createdByAliasIid = alias4.iid, modifiedByAliasIid = alias4.iid)
