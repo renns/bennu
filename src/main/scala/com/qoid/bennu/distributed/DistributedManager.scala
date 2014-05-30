@@ -54,7 +54,11 @@ class DistributedManager @Inject()(
           message.toJson.toJsonStr
       )
 
-      messageQueue.enqueue(connection, message)
+      try {
+        messageQueue.enqueue(connection, message)
+      } catch {
+        case e: Exception => logger.warn(e)
+      }
     }
   }
 

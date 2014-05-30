@@ -15,6 +15,7 @@ case class Introduction(
   aState: IntroductionState,
   bConnectionIid: InternalId,
   bState: IntroductionState,
+  recordVersion: Int = 1,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,

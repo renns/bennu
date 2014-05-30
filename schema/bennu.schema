@@ -105,6 +105,7 @@ table introduction {
   aState            varchar(50);
   bConnectionIid    InternalId;
   bState            varchar(50);
+  recordVersion     int;
   import(CommonFields);
 }
 

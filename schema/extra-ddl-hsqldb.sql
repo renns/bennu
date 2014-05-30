@@ -1,59 +1,12 @@
-DROP FUNCTION json_str IF EXISTS
+CREATE TRIGGER introduction_update_concurrency BEFORE UPDATE ON introduction
+REFERENCING NEW ROW AS NEW OLD ROW AS OLD
+FOR EACH ROW
+BEGIN ATOMIC
+    IF OLD.recordVersion <> NEW.recordVersion THEN
+        SIGNAL SQLSTATE '45000';
+    END IF;
+
+    SET NEW.recordVersion = NEW.recordVersion + 1;
+END;
 
 ;;;
-
-DROP FUNCTION json_bool IF EXISTS
-
-;;;
-
-DROP FUNCTION json_int IF EXISTS
-
-;;;
-
-DROP FUNCTION jsonv_str IF EXISTS
-
-;;;
-
-DROP FUNCTION jsonv_bool IF EXISTS
-
-;;;
-
-DROP FUNCTION jsonv_int IF EXISTS
-
-;;;
-
-
-CREATE FUNCTION jsonv_str(json LONGVARCHAR, path varchar(32767)) RETURNS LONGVARCHAR
-   LANGUAGE JAVA DETERMINISTIC NO SQL
-   EXTERNAL NAME 'CLASSPATH:com.qoid.bennu.util.HsqldbAssist.json_str'
-
-;;;
-
-CREATE FUNCTION jsonv_bool(json LONGVARCHAR, path varchar(32767)) RETURNS BOOLEAN
-   LANGUAGE JAVA DETERMINISTIC NO SQL
-   EXTERNAL NAME 'CLASSPATH:com.qoid.bennu.util.HsqldbAssist.json_bool'
-
-;;;
-
-CREATE FUNCTION jsonv_int(json LONGVARCHAR, path varchar(32767)) RETURNS INTEGER
-   LANGUAGE JAVA DETERMINISTIC NO SQL
-   EXTERNAL NAME 'CLASSPATH:com.qoid.bennu.util.HsqldbAssist.json_int'
-
-;;;
-
-CREATE FUNCTION json_str (json CLOB, path varchar(32767)) RETURNS LONGVARCHAR
-   RETURN jsonv_str(cast(json as LONGVARCHAR), path)
-
-;;;
-
-CREATE FUNCTION json_bool (json CLOB, path varchar(32767)) RETURNS LONGVARCHAR
-   RETURN jsonv_bool(cast(json as LONGVARCHAR), path)
-
-;;;
-
-CREATE FUNCTION json_int (json CLOB, path varchar(32767)) RETURNS LONGVARCHAR
-   RETURN jsonv_int(cast(json as LONGVARCHAR), path)
-
-;;;
-
-

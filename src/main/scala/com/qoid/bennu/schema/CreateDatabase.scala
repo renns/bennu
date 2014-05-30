@@ -19,7 +19,7 @@ object CreateDatabase extends App {
     val ddl = schemaManager.createFullSchemaDdl ++ createFullAuditSchemaDdl ++ createAuditTriggerDdl
     ddl.foreach(conn.update(_))
 
-    //findFile(s"extra-ddl-${dialectName}.sql").foreach(_.readText.splitList(";;;").foreach(conn.update(_)))
+    findFile(s"extra-ddl-${dialectName}.sql").foreach(_.readText.splitList(";;;").foreach(conn.update(_)))
 
     val agentMgr = injector.instance[AgentManager]
 

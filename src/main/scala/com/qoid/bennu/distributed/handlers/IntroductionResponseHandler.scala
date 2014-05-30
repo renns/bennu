@@ -17,14 +17,13 @@ object IntroductionResponseHandler extends Logging {
       Txn.setViaTypename[SecurityContext](AliasSecurityContext(injector, connection.aliasIid))
       val av = injector.instance[AgentView]
 
-      // TODO: We need to prevent a race condition if A and B respond at the same time
       val introduction = av.fetch[Introduction](introductionResponse.introductionIid)
 
       val updatedIntroduction = connection.iid match {
         case introduction.aConnectionIid =>
-          av.update(introduction.copy(aState = calculateState(introductionResponse.accepted)))
+          updateWithRetry(av, introduction, Some(calculateState(introductionResponse.accepted)), None)
         case introduction.bConnectionIid =>
-          av.update(introduction.copy(bState = calculateState(introductionResponse.accepted)))
+          updateWithRetry(av, introduction, None, Some(calculateState(introductionResponse.accepted)))
         case _ => m3x.error("IntroductionResponseHandler -- Connection iid doesn't match introduction")
       }
 
@@ -34,6 +33,29 @@ object IntroductionResponseHandler extends Logging {
       ) {
         connect(updatedIntroduction, av, injector.instance[DistributedManager])
       }
+    }
+  }
+
+  private def updateWithRetry(
+    av: AgentView,
+    introduction: Introduction,
+    aState: Option[IntroductionState],
+    bState: Option[IntroductionState]
+  ): Introduction = {
+    try {
+      val i = introduction.copy(
+        aState = aState.getOrElse(introduction.aState),
+        bState = bState.getOrElse(introduction.bState)
+      )
+      av.update(i)
+    } catch {
+      case _: Exception =>
+        val i0 = av.fetch[Introduction](introduction.iid)
+        val i1 = i0.copy(
+          aState = aState.getOrElse(i0.aState),
+          bState = bState.getOrElse(i0.bState)
+        )
+        av.update(i1)
     }
   }
 
