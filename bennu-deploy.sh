@@ -10,7 +10,7 @@ SERVER=$1
 
 echo "deploying to $SERVER"
 
-mvn -T 4 package
+mvn -T 4 package -DskipTests
 
 mkdir target/dist
 rm -rf target/dist/*
@@ -23,9 +23,8 @@ cp -r target/dependency/*.jar target/dist/lib/
 cp -RH src/main/webapp target/dist
 
 mkdir target/dist/bin
-cp bennu.schema target/dist/bin
-cp bennu-extra-ddl.sql target/dist/bin
-cp -r src/main/scripts/ target/dist/bin/
+cp schema/* target/dist/bin
+cp src/main/scripts/* target/dist/bin
 
 ssh fabio@dev.qoid.com "sudo stop $SERVER"
 
