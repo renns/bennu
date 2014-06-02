@@ -46,6 +46,16 @@ object Alias extends BennuMapperCompanion[Alias] {
     val profileImgSrc = Txn.find[String](Profile.imgSrcAttrName, false).getOrElse("")
     av.insert[Profile](Profile(instance.iid, profileName, profileImgSrc))
 
+    // Create connection to security context's alias
+    if (av.securityContext.aliasIid != instance.iid) {
+      Txn {
+        val peerId1 = PeerId.random
+        val peerId2 = PeerId.random
+        av.insert[Connection](Connection(instance.iid, peerId1, peerId2))
+        av.insert[Connection](Connection(av.securityContext.aliasIid, peerId2, peerId1))
+      }
+    }
+
     //TODO: Remove once UI supports creating logins
     Txn {
       av.selectOpt[Agent]("").foreach {

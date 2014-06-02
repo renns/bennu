@@ -145,7 +145,7 @@ class QuerySpec extends Specification {
 
         val results = Async.await(client1.queryRemote[Connection]("", List(conn12.iid)))
 
-        results.size must_== 2
+        results.size must_== 3
       }
     }.await(60)
   }
