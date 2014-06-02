@@ -29,6 +29,6 @@ class IntroductionSpec extends Specification {
 
         (conn12.localPeerId must_== conn21.remotePeerId) and (conn12.remotePeerId must_== conn21.localPeerId)
       }
-    }.await(30)
+    }.await(60)
   }
 }

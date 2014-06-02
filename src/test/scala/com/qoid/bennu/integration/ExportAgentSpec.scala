@@ -47,7 +47,7 @@ class ExportAgentSpec extends Specification {
 
           agentData2 must_== agentData
       }
-    }.await(30)
+    }.await(60)
   }
 
   private def canLogin(agentName: String): Future[Boolean] = {

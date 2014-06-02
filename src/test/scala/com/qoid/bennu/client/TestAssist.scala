@@ -22,21 +22,12 @@ object TestAssist extends Logging {
       val client1 = await(HttpAssist.createAgent())
       val t = await(body(client1))
 
-      // Delete connection on introducer side
-//      val introducerConnection = await(client1.getIntroducerConnection())
-//      async {
-//        val introducerClient = await(ChannelClientFactory.createHttpChannelClient("introducer"))
-//        val connections = await(introducerClient.queryLocal[Connection](sql"localPeerId = ${introducerConnection.remotePeerId} and remotePeerId = ${introducerConnection.localPeerId}"))
-//        connections.foreach(c => introducerClient.delete[Connection](c.iid))
-//        introducerClient.close()
-//      }
-
       // Delete agent
-//      async {
-//        val agentClient = await(ChannelClientFactory.createHttpChannelClient(client1.agentName))
-//        agentClient.deleteAgent()
-//        agentClient.close()
-//      }
+      async {
+        val agentClient = await(ChannelClientFactory.createHttpChannelClient(client1.agentName))
+        agentClient.deleteAgent()
+        agentClient.close()
+      }
 
       client1.close()
       t
@@ -99,31 +90,6 @@ object TestAssist extends Logging {
       await(client.createContent(alias.iid, "TEXT", "text" -> labelName, List(label.iid)))
     }
   }
-
-//  def handleQueryResponse(
-//    response: QueryResponse,
-//    expectedResults: JValue,
-//    p: Promise[Unit]
-//  ): Unit = {
-//
-//    val rr = response.results.remove {
-//      case JField("created", _) => true
-//      case JField("modified", _) => true
-//      case _ => false
-//    }
-//
-//    val er = expectedResults.remove {
-//      case JField("created", _) => true
-//      case JField("modified", _) => true
-//      case _ => false
-//    }
-//
-//    if (rr == er) {
-//      p.success()
-//    } else {
-//      p.failure(new Exception(s"Response results not as expected\nReceived:\n${rr.toJsonStr}\nExpected:\n${er.toJsonStr}"))
-//    }
-//  }
 
   // Multiple introduce calls should not be run in parallel because it listens for any new
   // connections being created. If multiple are run in parallel, one instance may get the

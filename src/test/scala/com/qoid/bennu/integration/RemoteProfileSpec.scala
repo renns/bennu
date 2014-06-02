@@ -34,7 +34,7 @@ class RemoteProfileSpec extends Specification {
 
         (results.size must_== 1) and compareProfiles(results.head, profile2)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryStanding(): Result = {
@@ -53,7 +53,7 @@ class RemoteProfileSpec extends Specification {
 
         compareProfiles(result, profile2)
       }
-    }.await(30)
+    }.await(60)
   }
 
   private def compareProfiles(p1: Profile, p2: Profile): Result = {

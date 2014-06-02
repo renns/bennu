@@ -27,6 +27,6 @@ class DeleteSpec extends Specification {
 
         deletedLabel.name must_== label.name
       }
-    }.await(30)
+    }.await(60)
   }
 }

@@ -41,7 +41,7 @@ class DegreesOfVisibilitySpec extends Specification {
 
         (results.size must_== 1) and (results.head.data must_== content.data)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def degrees2Standing(): Result = {
@@ -64,7 +64,7 @@ class DegreesOfVisibilitySpec extends Specification {
 
         result.data must_== content.data
       }
-    }.await(30)
+    }.await(60)
   }
 
   def degrees3Historical(): Result = {
@@ -89,7 +89,7 @@ class DegreesOfVisibilitySpec extends Specification {
 
         (results.size must_== 1) and (results.head.data must_== content.data)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def degrees3Standing(): Result = {
@@ -115,6 +115,6 @@ class DegreesOfVisibilitySpec extends Specification {
 
         result.data must_== content.data
       }
-    }.await(30)
+    }.await(60)
   }
 }

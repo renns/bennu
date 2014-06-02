@@ -68,7 +68,7 @@ class VerificationSpec extends Specification {
           case _ => Specs2Failure("Claim meta-data incorrect")
         }
       }
-    }.await(30)
+    }.await(60)
   }
 
   def verify(): Result = {
@@ -112,6 +112,6 @@ class VerificationSpec extends Specification {
           case _ => Specs2Failure("Claim meta-data incorrect")
         }
       }
-    }.await(30)
+    }.await(60)
   }
 }

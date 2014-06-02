@@ -36,7 +36,7 @@ class QuerySpec extends Specification {
 
         (results.size must_== 1) and (results.head.name must_== label.name)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryLocalStanding(): Result = {
@@ -50,7 +50,7 @@ class QuerySpec extends Specification {
 
         result.name must_== label.name
       }
-    }.await(30)
+    }.await(60)
   }
 
   def querySubAliasLocalHistorical(): Result = {
@@ -63,7 +63,7 @@ class QuerySpec extends Specification {
 
         (results.size must_== 1) and (results.head.name must_== label.name)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def querySubAliasLocalStanding(): Result = {
@@ -78,7 +78,7 @@ class QuerySpec extends Specification {
 
         result.name must_== label.name
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryRemoteHistorical(): Result = {
@@ -95,7 +95,7 @@ class QuerySpec extends Specification {
 
         (results.size must_== 1) and (results.head.data must_== content.data)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryRemoteStanding(): Result = {
@@ -113,7 +113,7 @@ class QuerySpec extends Specification {
 
         result.data must_== content.data
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryRemoteMetaLabelHistorical(): Result = {
@@ -131,7 +131,7 @@ class QuerySpec extends Specification {
 
         (results.size must_== 1) and (results.head.data must_== content.data)
       }
-    }.await(30)
+    }.await(60)
   }
 
   def queryRemoteConnectionsHistorical(): Result = {
@@ -147,6 +147,6 @@ class QuerySpec extends Specification {
 
         results.size must_== 2
       }
-    }.await(30)
+    }.await(60)
   }
 }

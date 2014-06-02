@@ -27,7 +27,7 @@ class UpsertSpec extends Specification {
 
         label.name must_== labelName
       }
-    }.await(30)
+    }.await(60)
   }
 
   def updateLabel(): Result = {
@@ -40,6 +40,6 @@ class UpsertSpec extends Specification {
 
         updatedLabel.name must_== labelName
       }
-    }.await(30)
+    }.await(60)
   }
 }

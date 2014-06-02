@@ -25,6 +25,6 @@ class AliasLoginSpec extends Specification {
 
         alias.name must_== aliasName
       }
-    }.await(30)
+    }.await(60)
   }
 }
