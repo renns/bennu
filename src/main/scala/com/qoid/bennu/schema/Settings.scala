@@ -42,6 +42,14 @@ object Settings {
     }
   }
 
+  def shutdownDatabase(): Unit = {
+    schemaManager.dialect match {
+      case _: HsqldbDialect => inject[Connection].update("shutdown")
+      case _: Postgres =>
+      case _ => m3x.error("Unsupported database dialect")
+    }
+  }
+
   def printDdl(getDdlFn: => Iterable[String]) = {
     Txn {
       println(getDdlFn.mkString("\n","\n;\n",""))
