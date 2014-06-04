@@ -1,6 +1,7 @@
 package com.qoid.bennu.squery.ast
 
 import m3.predef._
+import net.model3.chrono.{DateFormatter, DateTime}
 
 object Node {
 
@@ -14,14 +15,15 @@ object Node {
       case Identifier(p) => p.mkChord(".")
       case StringLit(s) => "\"" ~ s ~ "\""
       case NullLit => "null"
-      case NumericLit(n) => n.toString
+      case NumericLit(n) => n.toString()
+      case BooleanLit(b) => b.toString
       case Parens(e) => "(" ~ p(e) ~ ")"
       case op: Op => p(op.left) ~*~ op.op.symbol ~*~ p(op.right)
       case fn: FunctionCall => fn.name ~ "(" ~ fn.parms.map(p).mkChord(",") ~ ")"
     }
     
     query.expr match {
-      case Some(node) => p(node).toString
+      case Some(node) => p(node).toString()
       case _ => ""
     }    
   }
@@ -67,6 +69,7 @@ sealed trait Literal extends Node {
 
 case class StringLit(value: String) extends Literal
 case class NumericLit(value: BigDecimal) extends Literal
+case class BooleanLit(value: Boolean) extends Literal
 case object NullLit extends Literal {
   def value = null
 }
@@ -117,31 +120,39 @@ object operators {
   val lessThan = BooleanOperator("<") {
     case (VNum(l), VNum(r)) => VBool(l < r)
     case (VStr(l), VStr(r)) => VBool(l < r)
+    case (VDate(l), VStr(r)) => VBool(l < parseDateTime(r))
   }
   
   val lessThanOrEqual = BooleanOperator("<=") {
     case (VNum(l), VNum(r)) => VBool(l <= r)
     case (VStr(l), VStr(r)) => VBool(l <= r)
+    case (VDate(l), VStr(r)) => VBool(l <= parseDateTime(r))
   }
   
   val greaterThan = BooleanOperator(">") {
     case (VNum(l), VNum(r)) => VBool(l > r)
     case (VStr(l), VStr(r)) => VBool(l > r)
+    case (VDate(l), VStr(r)) => VBool(l > parseDateTime(r))
   }
   
   val greaterThanOrEqual = BooleanOperator(">=") {
     case (VNum(l), VNum(r)) => VBool(l >= r)
     case (VStr(l), VStr(r)) => VBool(l >= r)
+    case (VDate(l), VStr(r)) => VBool(l >= parseDateTime(r))
   }
   
   val equal = BooleanOperator("=") {
     case (VNum(l), VNum(r)) => VBool(l == r)
+    case (VBool(l), VBool(r)) => VBool(l == r)
     case (VStr(l), VStr(r)) => VBool(l == r)
+    case (VDate(l), VStr(r)) => VBool(l == parseDateTime(r))
   }
   
   val notEqual = BooleanOperator("<>") {
     case (VNum(l), VNum(r)) => VBool(l != r)
+    case (VBool(l), VBool(r)) => VBool(l != r)
     case (VStr(l), VStr(r)) => VBool(l != r)
+    case (VDate(l), VStr(r)) => VBool(l != parseDateTime(r))
   }
   
   val and = BooleanOperator("and") {
@@ -151,6 +162,7 @@ object operators {
   val or = BooleanOperator("or") {
     case (VBool(l), VBool(r)) => VBool(l || r)
   }
-  
+
+  private def parseDateTime(dateString: String): DateTime = new DateFormatter("yyyy-MM-dd HH:mm:ss.SSS").parse(dateString)
 }
 

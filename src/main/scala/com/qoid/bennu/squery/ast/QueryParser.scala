@@ -38,7 +38,7 @@ class QueryParser extends JavaTokenParsers {
   
   def inClause = identifier ~ k("in") ~ "(" ~ repsep(literal, ",") ~ ")" ^^ { case expr ~ _ ~ _ ~ values ~ _ => InClause(expr, values) }
   
-  def factor: Parser[Node] = inClause | functionCall | identifier | stringLit | numericLit | parens 
+  def factor: Parser[Node] = inClause | functionCall | booleanLit | identifier | stringLit | numericLit | parens
   
   def functionCall = ident ~ "(" ~ repsep(expr, ",") ~ ")" ^^ {
     case name ~ _ ~ parms ~ _ => FunctionCall(name, parms)
@@ -48,9 +48,15 @@ class QueryParser extends JavaTokenParsers {
   
   def identifier = ident ~ rep("." ~> ident) ^^ { case l ~ r => Identifier(l::r) }
   
-  def literal = nullLit | stringLit | numericLit
+  def literal = nullLit | stringLit | numericLit | booleanLit
   
   def nullLit = k("null") ^^ (_=>NullLit)
+
+  def booleanLit = trueLit | falseLit
+
+  def trueLit = k("true") ^^ (_=>BooleanLit(true))
+
+  def falseLit = k("false") ^^ (_=>BooleanLit(false))
   
   def stringLit = stringLiteral ^^ StringLit
   
