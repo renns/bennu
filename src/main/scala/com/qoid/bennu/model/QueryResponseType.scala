@@ -1,10 +1,13 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.Enum
+import com.qoid.bennu.EnumCompanion
 
-sealed trait QueryResponseType
+sealed trait QueryResponseType extends Enum[QueryResponseType] {
+  override val companion = QueryResponseType
+}
 
-object QueryResponseType extends Enum[QueryResponseType] {
+object QueryResponseType extends EnumCompanion[QueryResponseType] {
   case object SQuery extends QueryResponseType
   case object Query extends QueryResponseType
 

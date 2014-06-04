@@ -1,10 +1,13 @@
 package com.qoid.bennu.distributed.messages
 
 import com.qoid.bennu.Enum
+import com.qoid.bennu.EnumCompanion
 
-sealed trait DistributedMessageKind
+sealed trait DistributedMessageKind extends Enum[DistributedMessageKind] {
+  override val companion = DistributedMessageKind
+}
 
-object DistributedMessageKind extends Enum[DistributedMessageKind] {
+object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object QueryRequest extends DistributedMessageKind
   case object QueryResponse extends DistributedMessageKind
   case object DeRegisterStandingQuery extends DistributedMessageKind

@@ -4,7 +4,11 @@ import m3.StringConverters.Converter
 import m3.StringConverters.HasStringConverter
 import m3.predef._
 
-trait Enum[A] extends HasStringConverter {
+trait Enum[A] {
+  val companion: EnumCompanion[A]
+}
+
+trait EnumCompanion[A] extends HasStringConverter {
   val values: Set[A]
 
   override val stringConverter = new Converter[A] {

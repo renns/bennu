@@ -1,8 +1,10 @@
 package com.qoid.bennu
 
-sealed trait ErrorCode
+sealed trait ErrorCode extends Enum[ErrorCode] {
+  override val companion = ErrorCode
+}
 
-object ErrorCode extends Enum[ErrorCode] {
+object ErrorCode extends EnumCompanion[ErrorCode] {
   case object SecurityValidationFailed extends ErrorCode
   case object Forbidden extends ErrorCode
   case object Timeout extends ErrorCode

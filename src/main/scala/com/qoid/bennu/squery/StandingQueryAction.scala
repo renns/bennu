@@ -1,10 +1,13 @@
 package com.qoid.bennu.squery
 
 import com.qoid.bennu.Enum
+import com.qoid.bennu.EnumCompanion
 
-sealed trait StandingQueryAction
+sealed trait StandingQueryAction extends Enum[StandingQueryAction] {
+  override val companion = StandingQueryAction
+}
 
-object StandingQueryAction extends Enum[StandingQueryAction] {
+object StandingQueryAction extends EnumCompanion[StandingQueryAction] {
   case object Insert extends StandingQueryAction
   case object Update extends StandingQueryAction
   case object Delete extends StandingQueryAction
