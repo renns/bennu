@@ -14,6 +14,6 @@ case class QueryRequest(
   historical: Boolean,
   standing: Boolean,
   handle: Handle,
-  degreesOfVisibility: Integer,
+  degreesOfVisibility: Int,
   connectionIids: List[InternalId]
 ) extends ToJsonCapable

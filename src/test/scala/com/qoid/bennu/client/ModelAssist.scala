@@ -41,7 +41,7 @@ trait ModelAssist {
     }
   }
 
-  def updateConnection(iid: InternalId, allowedDegreesOfVisibility: Integer): Future[Connection] = {
+  def updateConnection(iid: InternalId, allowedDegreesOfVisibility: Int): Future[Connection] = {
     async {
       val connection = await(queryLocal[Connection](sql"iid = $iid")).head
       await(upsert(connection.copy(allowedDegreesOfVisibility = allowedDegreesOfVisibility)))
