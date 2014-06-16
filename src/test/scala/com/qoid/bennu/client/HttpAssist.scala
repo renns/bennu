@@ -43,7 +43,8 @@ trait HttpAssist { self: Logging =>
 
   private lazy val httpClient = {
     val clientBuilder = HttpClients.custom()
-    clientBuilder.setMaxConnPerRoute(20)
+    clientBuilder.setMaxConnPerRoute(1000)
+    clientBuilder.setMaxConnTotal(1000)
     clientBuilder.build()
   }
 
