@@ -5,12 +5,12 @@ import com.google.inject.Provider
 import com.google.inject.Singleton
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.session.Session
+import com.qoid.bennu.session.SessionManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
 import m3.predef._
-import m3.predef.box._
-import m3.servlet.ForbiddenException
 import m3.servlet.beans.Wrappers
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.GuiceProviders.ProviderOptionalChannelId
@@ -19,17 +19,26 @@ import net.model3.transaction.Transaction
 object SecurityContext {
 
   @Singleton
+  class ProviderSession @Inject() (
+    provChannelId: Provider[ChannelId],
+    sessionMgr: SessionManager
+  ) extends Provider[Session] {
+
+    def get: Session = {
+      sessionMgr.getSession(provChannelId.get())
+    }
+  }
+
+  @Singleton
   class ProviderSecurityContext @Inject() (
-    provChannelId: Provider[Option[ChannelId]],
+    provSession: Provider[Session],
     provTxn: Provider[Transaction]
   ) extends Provider[SecurityContext] {
 
     val attrName = classOf[SecurityContext].getName
     def get: SecurityContext = {
       provTxn.get.getAttribute[SecurityContext](attrName, true) match {
-        case null =>
-          val channelId = provChannelId.get
-          channelId.flatMap(chId => ChannelMap(chId)).getOrElse(throw new ForbiddenException(s"unable to find security context -- ${channelId}"))
+        case null => provSession.get().securityContext
         case sc => sc
       }
     }

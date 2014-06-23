@@ -7,8 +7,6 @@ import m3.servlet.M3ServletModule
 import m3.servlet.RootServletFilter
 import m3.servlet.TransactionFilter
 import m3.servlet.compression.CompressionFilter
-import m3.servlet.longpoll.webservice.ChannelPoll
-import m3.servlet.longpoll.webservice.SubmitChannelRequests
 import m3.servlet.upload.FileUploadFilter
 
 class WebServicesModule extends M3ServletModule {
@@ -41,8 +39,11 @@ class WebServicesModule extends M3ServletModule {
     serveBean[DeleteAgent](ServicePath.deleteAgent)
     serveBean[ImportAgent](ServicePath.importAgent)
 
-    serveBean[CreateChannel](ServicePath.createChannel)
-    serveBean[ChannelPoll](ServicePath.pollChannel)
+    serveBean[Login](ServicePath.login)
+    serveBean[Logout](ServicePath.logout)
+
+    serveBean[Login](ServicePath.createChannel) //TODO: Remove (deprecated)
+    serveBean[PollChannel](ServicePath.pollChannel)
     serveBean[SubmitChannelRequests](ServicePath.submitChannel)
 
     serveBean[UpsertService](ServicePath.upsert)

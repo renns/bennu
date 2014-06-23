@@ -8,9 +8,6 @@ import net.model3.guice.bootstrap.ApplicationName
 import com.google.inject.Provides
 import m3.Logger
 import m3.jdbc.Database
-import m3.predef._
-import m3.servlet.longpoll.ChannelManager
-import m3.servlet.longpoll.MockChannelManager
 
 object GuiceTestModule {
   
@@ -31,7 +28,6 @@ class GuiceTestModule extends ScalaModule with Provider[Module] {
   def configure = {
     
     bind[ApplicationName].toInstance(new ApplicationName("tests"))
-    bind[ChannelManager].to[MockChannelManager]
 
   }
     

@@ -1,6 +1,7 @@
 package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model.id.InternalId
 import m3.predef._
@@ -22,7 +23,8 @@ object ChannelClientFactory extends HttpAssist with Logging {
     async {
       val authenticationId = agentName + aliasName.map("." + _).mkString("")
 
-      val response = await(httpGet(s"${config.server}${ServicePath.createChannel}/$authenticationId?password=$password"))
+      val loginBody = ("authenticationId" -> authenticationId) ~ ("password" -> password)
+      val response = await(httpPost(s"${config.server}${ServicePath.login}", loginBody, None))
 
       val channelId = parseJson(response) \ "channelId" match {
         case JString(id) => ChannelId(id)

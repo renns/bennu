@@ -20,5 +20,6 @@ case class Config(
   superUserAuthTokens: List[Config.SuperUserAuthToken] = List(Config.SuperUserAuthToken("i_am_canadian")),
   startHsqldbTooling: Boolean = true,
   bcryptSaltRounds: Int = 10,
-  amqpUri: String = "amqp://localhost"
+  amqpUri: String = "amqp://localhost",
+  sessionTimeoutSeconds: Int = 600
 )

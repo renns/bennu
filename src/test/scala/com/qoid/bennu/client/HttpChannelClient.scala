@@ -55,6 +55,7 @@ case class HttpChannelClient(
   }
 
   override def close(): Unit = {
+    logout()
     closed = true
   }
 

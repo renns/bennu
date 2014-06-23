@@ -16,7 +16,8 @@ object HttpAssist extends HttpAssist with Logging {
     async {
       val agentName = InternalId.uidGenerator.create(32)
 
-      val response = await(httpGet(s"${config.server}${ServicePath.createAgent}/$agentName"))
+      val createAgentBody = "name" -> agentName
+      val response = await(httpPost(s"${config.server}${ServicePath.createAgent}", createAgentBody, None))
 
       parseJson(response) \ "agentName" match {
         case JString(n) => logger.debug(s"Created agent $n")

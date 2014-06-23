@@ -14,6 +14,10 @@ import scala.concurrent._
 trait ServiceAssist {
   this: ChannelClient =>
 
+  def logout(): Unit = {
+    post(ServicePath.logout, Map.empty[String, JValue])
+  }
+
   def deleteAgent(exportData: Boolean = false): Future[JValue] = {
     async {
       val parms = Map[String, JValue]("exportData" -> exportData)

@@ -4,18 +4,16 @@ import com.google.inject.Inject
 import com.google.inject.Module
 import com.google.inject.Provider
 import com.google.inject.Provides
+import com.google.inject.Scopes
 import com.google.inject.Singleton
 import com.google.inject.util.Modules
 import com.qoid.bennu.distributed.MessageQueue
-import com.qoid.bennu.distributed.RabbitMessageQueue
 import com.qoid.bennu.distributed.SimpleMessageQueue
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.SecurityContext
-import com.qoid.bennu.security.SecurityContext.BennuProviderChannelId
-import com.qoid.bennu.security.SecurityContext.BennuProviderOptionChannelId
-import com.qoid.bennu.security.SecurityContext.ProviderAgentView
-import com.qoid.bennu.security.SecurityContext.ProviderSecurityContext
+import com.qoid.bennu.security.SecurityContext._
+import com.qoid.bennu.session.Session
 import com.qoid.bennu.util.ConfigAssist
 import com.qoid.bennu.util.HsqldbServerStarterUpper
 import com.qoid.bennu.webservices.WebServicesModule
@@ -30,8 +28,6 @@ import m3.servlet.M3ServletGuiceModule
 import m3.servlet.beans.Wrappers
 import m3.servlet.beans.guice.ProviderOptionalRequest
 import m3.servlet.longpoll.ChannelId
-import m3.servlet.longpoll.ChannelManager
-import m3.servlet.longpoll.JettyChannelManager
 import net.codingwell.scalaguice.ScalaModule
 import net.model3.collections.PropertiesX
 import net.model3.guice.LifeCycleListeners
@@ -47,7 +43,6 @@ import net.model3.newfile.Directory
 import net.model3.newfile.File
 import net.model3.transaction.TransactionManager
 import net.model3.util.Versioning
-import com.google.inject.Scopes
 
 object GuiceModule {
   
@@ -106,14 +101,14 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     
     bind[DataSource].toProvider[M3ProviderDataSource].in(Scopes.SINGLETON)
     bind[Connection].toProvider[ProviderJdbcConnectionViaTxn]
+
     bind[Option[Wrappers.Request]].toProvider[ProviderOptionalRequest]
+
     bind[ChannelId].toProvider[BennuProviderChannelId]
     bind[Option[ChannelId]].toProvider[BennuProviderOptionChannelId]
-
+    bind[Session].toProvider[ProviderSession]
     bind[SecurityContext].toProvider[ProviderSecurityContext]
     bind[AgentView].toProvider[ProviderAgentView]
-    
-    bind[ChannelManager].to[JettyChannelManager]
 
     bind[MessageQueue].to[SimpleMessageQueue]
   }

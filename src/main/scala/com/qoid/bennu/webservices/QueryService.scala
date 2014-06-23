@@ -15,6 +15,7 @@ import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.AliasSecurityContext
 import com.qoid.bennu.security.SecurityContext
+import com.qoid.bennu.session.Session
 import com.qoid.bennu.squery.StandingQueryAction
 import com.qoid.bennu.squery.StandingQueryManager
 import java.sql.{ Connection => JdbcConn }
@@ -22,8 +23,6 @@ import m3.Txn
 import m3.predef._
 import m3.servlet.beans.MultiRequestHandler.MethodInvocation
 import m3.servlet.beans.Parm
-import m3.servlet.longpoll.ChannelId
-import m3.servlet.longpoll.ChannelManager
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.future
 
@@ -32,9 +31,8 @@ case class QueryService @Inject()(
   distributedMgr: DistributedManager,
   sQueryMgr: StandingQueryManager,
   queryResponseMgr: QueryResponseManager,
-  channelMgr: ChannelManager,
+  session: Session,
   securityContext: SecurityContext,
-  channelId: ChannelId,
   methodInvocation: MethodInvocation,
   @Parm("type") _type: String,
   @Parm("q") queryStr: String,
@@ -72,7 +70,7 @@ case class QueryService @Inject()(
           implicit val mapper = findMapperByTypeName(_type)
           val results = av.select(queryStr).toList
           val response = QueryResponse(QueryResponseType.Query, handle, _type, methodInvocation.context, results.map(_.toJson), Some(sc.aliasIid))
-          channelMgr.channel(channelId).put(response.toJson)
+          session.channel.put(response.toJson)
         }
       }
     }
@@ -84,7 +82,7 @@ case class QueryService @Inject()(
         handle,
         _type,
         queryStr,
-        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, methodInvocation.context, channelMgr, channelId)
+        QueryService.sQueryResponseHandler(_, _, sc.aliasIid, handle, _type, methodInvocation.context, session)
       )
     }
   }
@@ -98,7 +96,7 @@ case class QueryService @Inject()(
 
     queryResponseMgr.registerHandle(
       handle,
-      QueryService.distributedResponseHandler(handle, _type, methodInvocation.context, channelMgr, channelId)
+      QueryService.distributedResponseHandler(handle, _type, methodInvocation.context, session)
     )
 
     connectionIids.foreach {
@@ -119,25 +117,23 @@ object QueryService extends Logging {
     handle: Handle,
     tpe: String,
     context: JValue,
-    channelMgr: ChannelManager,
-    channelId: ChannelId
+    session: Session
   ): Unit = {
     val response = QueryResponse(QueryResponseType.SQuery, handle, tpe, context, List(instance.toJson), Some(aliasIid), None, Some(action))
-    channelMgr.channel(channelId).put(response.toJson)
+    session.channel.put(response.toJson)
   }
 
   def distributedResponseHandler(
     handle: Handle,
     tpe: String,
     context: JValue,
-    channelMgr: ChannelManager,
-    channelId: ChannelId
+    session: Session
   )(
     connection: Connection,
     message: messages.QueryResponse
   ): Unit = {
     val responseType = if (message.standing) QueryResponseType.SQuery else QueryResponseType.Query
     val response = QueryResponse(responseType, handle, tpe, context, message.results, None, Some(connection.iid), message.action)
-    channelMgr.channel(channelId).put(response.toJson)
+    session.channel.put(response.toJson)
   }
 }

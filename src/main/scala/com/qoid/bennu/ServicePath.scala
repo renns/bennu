@@ -4,7 +4,9 @@ object ServicePath {
   val createAgent = "/api/agent/create"
   val deleteAgent = "/api/agent/delete"
   val importAgent = "/api/agent/import"
-  val createChannel = "/api/channel/create"
+  val login = "/api/login"
+  val logout = "/api/logout"
+  val createChannel = "/api/channel/create" //TODO: Remove (deprecated)
   val pollChannel = "/api/channel/poll"
   val submitChannel = "/api/channel/submit"
   val upsert = "/api/upsert"
