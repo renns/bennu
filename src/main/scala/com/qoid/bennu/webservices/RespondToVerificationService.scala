@@ -27,6 +27,7 @@ case class RespondToVerificationService @Inject()(
     implicit val jdbcConn = injector.instance[JdbcConn]
 
     val notification = av.fetch[Notification](notificationIid)
+    val connection = av.fetch[Connection](notification.fromConnectionIid)
     val verificationRequest = VerificationRequest.fromJson(notification.data)
 
     VerifyService.verify(
@@ -36,7 +37,7 @@ case class RespondToVerificationService @Inject()(
       verificationRequest.contentIid,
       verificationRequest.contentData,
       verificationContent,
-      securityContext.aliasIid
+      connection.aliasIid
     )
 
     av.update[Notification](notification.copy(consumed = true))
