@@ -12,7 +12,7 @@ object Agent extends BennuMapperCompanion[Agent] {
   override protected def preInsert(instance: Agent): Agent = {
     val av = inject[AgentView]
 
-    av.insert[Alias](Alias(instance.name, iid = av.securityContext.aliasIid))
+    av.insert[Alias](Alias(instance.name, iid = av.securityContext.aliasIid, connectionIid = av.securityContext.connectionIid))
 
     instance
   }
@@ -26,8 +26,8 @@ case class Agent(
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
-  createdByAliasIid: InternalId = InternalId(""),
-  modifiedByAliasIid: InternalId = InternalId("")
+  createdByConnectionIid: InternalId = InternalId(""),
+  modifiedByConnectionIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Agent] { self =>
   
   type TInstance = Agent
@@ -40,8 +40,8 @@ case class Agent(
     data: JValue = self.data,
     created: DateTime = self.created,
     modified: DateTime = self.modified,
-    createdByAliasIid: InternalId = self.createdByAliasIid,
-    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
+    createdByConnectionIid: InternalId = self.createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
   ) = {
     copy(
       iid = iid,
@@ -49,8 +49,8 @@ case class Agent(
       data = data,
       created = created,
       modified = modified,
-      createdByAliasIid = createdByAliasIid,
-      modifiedByAliasIid = modifiedByAliasIid
+      createdByConnectionIid = createdByConnectionIid,
+      modifiedByConnectionIid = modifiedByConnectionIid
     )
   }
 }

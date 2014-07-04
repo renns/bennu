@@ -60,7 +60,6 @@ object VerifyService {
 
     // Insert verification content
     val verification = av.insert[Content](Content(
-      aliasIid,
       "VERIFICATION",
       data = ("created" -> now) ~ ("modified" -> now) ~ ("text" -> verificationContent),
       metaData = Content.MetaData(Some(Content.MetaDataVerifiedContent(contentData, "COPY"))).toJson

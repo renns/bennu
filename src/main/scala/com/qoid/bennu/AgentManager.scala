@@ -23,8 +23,9 @@ class AgentManager @Inject()(injector: ScalaInjector, authenticationMgr: Authent
     Txn {
       val agentId = AgentId.random
       val aliasIid = InternalId.random
+      val connectionIid = InternalId.random
 
-      Txn.setViaTypename[SecurityContext](AgentSecurityContext(injector, agentId, Some(aliasIid)))
+      Txn.setViaTypename[SecurityContext](AgentSecurityContext(injector, agentId, Some(aliasIid), Some(connectionIid)))
       val av = injector.instance[AgentView]
 
       val agent = av.insert[Agent](Agent(name, uberAliasIid = aliasIid))

@@ -37,8 +37,8 @@ trait AgentView {
         agentId = securityContext.agentId,
         created = new DateTime,
         modified = new DateTime,
-        createdByAliasIid = securityContext.aliasIid,
-        modifiedByAliasIid = securityContext.aliasIid
+        createdByConnectionIid = securityContext.connectionIid,
+        modifiedByConnectionIid = securityContext.connectionIid
       ).asInstanceOf[T]
     ) match {
       case Full(i) => mapper.insert(i)(inject[JdbcConn])
@@ -51,7 +51,7 @@ trait AgentView {
       instance.copy2(
         agentId = securityContext.agentId,
         modified = new DateTime,
-        modifiedByAliasIid = securityContext.aliasIid
+        modifiedByConnectionIid = securityContext.connectionIid
       ).asInstanceOf[T]
     ) match {
       case Full(i) => mapper.update(i)(inject[JdbcConn])
@@ -64,7 +64,7 @@ trait AgentView {
       instance.copy2(
         agentId = securityContext.agentId,
         modified = new DateTime,
-        modifiedByAliasIid = securityContext.aliasIid
+        modifiedByConnectionIid = securityContext.connectionIid
       ).asInstanceOf[T]
     ) match {
       case Full(i) => mapper.delete(i)(inject[JdbcConn])

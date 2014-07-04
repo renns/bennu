@@ -87,7 +87,7 @@ object TestAssist extends Logging {
       val alias = await(client.getRootAlias())
       val label = await(client.createLabel(alias.rootLabelIid, labelName))
       await(Future.sequence(aclConnectionIid.toList.map(iid => client.grantAccess(iid, label.iid))))
-      await(client.createContent(alias.iid, "TEXT", "text" -> labelName, List(label.iid)))
+      await(client.createContent("TEXT", "text" -> labelName, List(label.iid)))
     }
   }
 

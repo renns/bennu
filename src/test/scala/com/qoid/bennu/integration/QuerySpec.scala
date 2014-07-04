@@ -125,8 +125,7 @@ class QuerySpec extends Specification {
         Async.await(fAutoAccept2)
         val (conn12, conn21) = Async.await(TestAssist.introduce(client1, client2))
 
-        val alias = Async.await(client2.getRootAlias())
-        val content = Async.await(client2.createContent(alias.iid, "TEXT", "text" -> "A", List(conn21.metaLabelIid)))
+        val content = Async.await(client2.createContent("TEXT", "text" -> "A", List(conn21.metaLabelIid)))
         val results = Async.await(client1.queryRemote[Content]("hasConnectionMetaLabel()", List(conn12.iid)))
 
         (results.size must_== 1) and (results.head.data must_== content.data)
@@ -145,7 +144,7 @@ class QuerySpec extends Specification {
 
         val results = Async.await(client1.queryRemote[Connection]("", List(conn12.iid)))
 
-        results.size must_== 3
+        results.size must_== 4
       }
     }.await(60)
   }

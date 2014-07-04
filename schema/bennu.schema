@@ -11,11 +11,11 @@ types {
 }
 
 import CommonFields {
-  data                  Clob;
-  created               timestamp;
-  modified              timestamp;
-  createdByAliasIid     InternalId;
-  modifiedByAliasIid    InternalId;
+  data                      Clob;
+  created                   timestamp;
+  modified                  timestamp;
+  createdByConnectionIid    InternalId;
+  modifiedByConnectionIid   InternalId;
 }
 
 table agent {
@@ -47,6 +47,7 @@ table alias {
   iid           InternalId key;
   agentId       AgentId;
   rootLabelIid  Label;
+  connectionIid InternalId;
   name          Name;
   import(CommonFields);
 }
@@ -54,7 +55,6 @@ table alias {
 table content {
   iid           InternalId key;
   agentId       AgentId;
-  aliasIid		InternalId;
   contentType   varchar(32);
   metaData      Clob;
   import(CommonFields);

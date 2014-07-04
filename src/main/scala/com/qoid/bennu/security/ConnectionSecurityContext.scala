@@ -9,15 +9,15 @@ import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
 
-case class ConnectionSecurityContext(injector: ScalaInjector, connectionIid: InternalId) extends SecurityContext { sc =>
+case class ConnectionSecurityContext(injector: ScalaInjector, override val connectionIid: InternalId) extends SecurityContext { sc =>
+  private lazy val connection = Connection.fetch(connectionIid)(injector.instance[JdbcConn])
 
-  override lazy val agentId = Connection.fetch(connectionIid)(injector.instance[JdbcConn]).agentId
-  override lazy val aliasIid = Connection.fetch(connectionIid)(injector.instance[JdbcConn]).aliasIid
+  override def agentId = connection.agentId
+  override def aliasIid = connection.aliasIid
 
   override def createView = new AgentView {
     override def securityContext = sc
     override lazy val rootLabel = Label.fetch(alias.rootLabelIid)(injector.instance[JdbcConn])
-    private lazy val connection = Connection.fetch(connectionIid)(injector.instance[JdbcConn])
     private lazy val alias = Alias.fetch(connection.aliasIid)(injector.instance[JdbcConn])
     private lazy val metaLabel = findChildLabel(rootLabel.iid, Alias.metaLabelName).head
     private lazy val verificationsMetaLabel = findChildLabel(metaLabel.iid, Alias.verificationsLabelName).head

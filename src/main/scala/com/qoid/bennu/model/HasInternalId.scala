@@ -16,8 +16,8 @@ trait HasInternalId extends ToJsonCapable { self =>
   val data: JValue
   val created: DateTime
   val modified: DateTime
-  val createdByAliasIid: InternalId
-  val modifiedByAliasIid: InternalId
+  val createdByConnectionIid: InternalId
+  val modifiedByConnectionIid: InternalId
   
   def mapper: BennuMapperCompanion[TInstance]
   
@@ -35,7 +35,7 @@ trait HasInternalId extends ToJsonCapable { self =>
       data: JValue = self.data,
       created: DateTime = self.created,
       modified: DateTime = self.modified,
-      createdByAliasIid: InternalId = self.createdByAliasIid,
-      modifiedByAliasIid: InternalId = self.modifiedByAliasIid
+      createdByConnectionIid: InternalId = self.createdByConnectionIid,
+      modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
   ): TInstance
 }

@@ -102,5 +102,6 @@ object SecurityContext {
 trait SecurityContext {
   def agentId: AgentId
   def aliasIid: InternalId
+  def connectionIid: InternalId
   def createView: AgentView
 }

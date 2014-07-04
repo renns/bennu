@@ -19,15 +19,18 @@ object Connection extends BennuMapperCompanion[Connection] {
     val av = inject[AgentView]
     var newInstance = instance
 
-    val alias = av.fetch[Alias](instance.aliasIid)
-    val rootLabel = av.fetch[Label](alias.rootLabelIid)
+    val aliasOpt = av.fetchOpt[Alias](instance.aliasIid)
 
-    av.findChildLabel(rootLabel.iid, Alias.metaLabelName).foreach { metaLabel =>
-      av.findChildLabel(metaLabel.iid, Alias.connectionsLabelName).foreach { connectionsLabel =>
-        Txn {
-          Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
-          val label = av.insert[Label](Label(connectionLabelName, data = "color" -> connectionLabelColor))
-          newInstance = instance.copy(metaLabelIid = label.iid)
+    aliasOpt.foreach { alias =>
+      val rootLabel = av.fetch[Label](alias.rootLabelIid)
+
+      av.findChildLabel(rootLabel.iid, Alias.metaLabelName).foreach { metaLabel =>
+        av.findChildLabel(metaLabel.iid, Alias.connectionsLabelName).foreach { connectionsLabel =>
+          Txn {
+            Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
+            val label = av.insert[Label](Label(connectionLabelName, data = "color" -> connectionLabelColor))
+            newInstance = instance.copy(metaLabelIid = label.iid)
+          }
         }
       }
     }
@@ -72,8 +75,8 @@ case class Connection(
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
-  createdByAliasIid: InternalId = InternalId(""),
-  modifiedByAliasIid: InternalId = InternalId("")
+  createdByConnectionIid: InternalId = InternalId(""),
+  modifiedByConnectionIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Connection] { self =>
   
   type TInstance = Connection
@@ -86,8 +89,8 @@ case class Connection(
     data: JValue = self.data,
     created: DateTime = self.created,
     modified: DateTime = self.modified,
-    createdByAliasIid: InternalId = self.createdByAliasIid,
-    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
+    createdByConnectionIid: InternalId = self.createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
   ) = {
     copy(
       iid = iid,
@@ -95,8 +98,8 @@ case class Connection(
       data = data,
       created = created,
       modified = modified,
-      createdByAliasIid = createdByAliasIid,
-      modifiedByAliasIid = modifiedByAliasIid
+      createdByConnectionIid = createdByConnectionIid,
+      modifiedByConnectionIid = modifiedByConnectionIid
     )
   }
 }

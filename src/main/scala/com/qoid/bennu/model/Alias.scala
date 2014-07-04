@@ -23,9 +23,17 @@ object Alias extends BennuMapperCompanion[Alias] {
   override protected def preInsert(instance: Alias): Alias = {
     val av = inject[AgentView]
 
+    val connectionIid = instance.connectionIid match {
+      case InternalId("") => InternalId.random
+      case _ => instance.connectionIid
+    }
+
+    val peerId = PeerId.random
+    val connection = av.insert[Connection](Connection(instance.iid, peerId, peerId, iid = connectionIid))
+
     val label = av.insert[Label](Label(instance.name, data = "color" -> aliasLabelColor))
 
-    instance.copy(rootLabelIid = label.iid)
+    instance.copy(rootLabelIid = label.iid, connectionIid = connection.iid)
   }
 
   override protected def postInsert(instance: Alias): Alias = {
@@ -117,10 +125,11 @@ case class Alias(
   rootLabelIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
+  connectionIid: InternalId = InternalId(""),
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
-  createdByAliasIid: InternalId = InternalId(""),
-  modifiedByAliasIid: InternalId = InternalId("")
+  createdByConnectionIid: InternalId = InternalId(""),
+  modifiedByConnectionIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Alias] { self =>
   
   type TInstance = Alias
@@ -133,8 +142,8 @@ case class Alias(
     data: JValue = self.data,
     created: DateTime = self.created,
     modified: DateTime = self.modified,
-    createdByAliasIid: InternalId = self.createdByAliasIid,
-    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
+    createdByConnectionIid: InternalId = self.createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
   ) = {
     copy(
       iid = iid,
@@ -142,8 +151,8 @@ case class Alias(
       data = data,
       created = created,
       modified = modified,
-      createdByAliasIid = createdByAliasIid,
-      modifiedByAliasIid = modifiedByAliasIid
+      createdByConnectionIid = createdByConnectionIid,
+      modifiedByConnectionIid = modifiedByConnectionIid
     )
   }
 }

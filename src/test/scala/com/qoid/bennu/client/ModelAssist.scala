@@ -49,12 +49,11 @@ trait ModelAssist {
   }
 
   def createContent(
-    aliasIid: InternalId,
     contentType: String,
     data: JValue,
     labelIids: List[InternalId] = Nil
   ): Future[Content] = {
-    upsert(Content(aliasIid, contentType, data = data), labelIids = labelIids)
+    upsert(Content(contentType, data = data), labelIids = labelIids)
   }
 
   def updateContent(iid: InternalId, data: JValue): Future[Content] = {

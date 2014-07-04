@@ -11,7 +11,10 @@ import m3.predef.box._
 
 case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) extends SecurityContext { sc =>
 
-  override lazy val agentId = Alias.fetch(aliasIid)(injector.instance[JdbcConn]).agentId
+  private lazy val alias = Alias.fetch(aliasIid)(injector.instance[JdbcConn])
+
+  override def agentId = alias.agentId
+  override def connectionIid = alias.connectionIid
 
   override def createView = new AgentView {
     override def securityContext = sc
@@ -21,8 +24,6 @@ case class AliasSecurityContext(injector: ScalaInjector, aliasIid: InternalId) e
       if ( agentId == t.agentId ) Full(t)
       else Failure(s"agent id of the object being validated ${t.agentId} is not the same as current agent in the security context")
     }
-
-    private lazy val alias = Alias.fetch(aliasIid)(injector.instance[JdbcConn])
 
     private lazy val labelTreeLabelIids = injector.instance[JdbcConn].queryFor[InternalId](sql"""
   with recursive reachable_labels as (

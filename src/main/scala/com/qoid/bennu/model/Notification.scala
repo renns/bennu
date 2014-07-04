@@ -19,8 +19,8 @@ case class Notification(
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
-  createdByAliasIid: InternalId = InternalId(""),
-  modifiedByAliasIid: InternalId = InternalId("")
+  createdByConnectionIid: InternalId = InternalId(""),
+  modifiedByConnectionIid: InternalId = InternalId("")
 ) extends HasInternalId with BennuMappedInstance[Notification] {
   self =>
   
@@ -34,8 +34,8 @@ case class Notification(
     data: JValue = self.data,
     created: DateTime = self.created,
     modified: DateTime = self.modified,
-    createdByAliasIid: InternalId = self.createdByAliasIid,
-    modifiedByAliasIid: InternalId = self.modifiedByAliasIid
+    createdByConnectionIid: InternalId = self.createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
   ) = {
     copy(
       iid = iid,
@@ -43,8 +43,8 @@ case class Notification(
       data = data,
       created = created,
       modified = modified,
-      createdByAliasIid = createdByAliasIid,
-      modifiedByAliasIid = modifiedByAliasIid
+      createdByConnectionIid = createdByConnectionIid,
+      modifiedByConnectionIid = modifiedByConnectionIid
     )
   }
 }

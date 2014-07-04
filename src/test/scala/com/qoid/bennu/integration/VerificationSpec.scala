@@ -40,7 +40,7 @@ class VerificationSpec extends Specification {
         val labelC = Async.await(clientC.createLabel(aliasC.rootLabelIid, "Claims"))
         Async.await(clientC.grantAccess(connCV.iid, labelC.iid))
         Async.await(clientC.grantAccess(connCR.iid, labelC.iid))
-        val content = Async.await(clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", List(labelC.iid)))
+        val content = Async.await(clientC.createContent("TEXT", "text" -> "This test will pass.", List(labelC.iid)))
 
         val fVerificationRequestNotification = TestAssist.getStandingQueryResult[Notification](clientV, StandingQueryAction.Insert)
         clientC.requestVerification(content, List(connCV), "Please verify")
@@ -88,7 +88,7 @@ class VerificationSpec extends Specification {
         val labelC = Async.await(clientC.createLabel(aliasC.rootLabelIid, "Claims"))
         Async.await(clientC.grantAccess(connCV.iid, labelC.iid))
         Async.await(clientC.grantAccess(connCR.iid, labelC.iid))
-        val content = Async.await(clientC.createContent(aliasC.iid, "TEXT", "text" -> "This test will pass.", List(labelC.iid)))
+        val content = Async.await(clientC.createContent("TEXT", "text" -> "This test will pass.", List(labelC.iid)))
 
         val fVerificationResponseNotification = TestAssist.getStandingQueryResult[Notification](clientC, StandingQueryAction.Insert)
         clientV.verify(connVC, content, "Claim verified")
