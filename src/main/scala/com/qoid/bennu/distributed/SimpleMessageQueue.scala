@@ -3,8 +3,12 @@ package com.qoid.bennu.distributed
 import com.google.inject.Singleton
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.model.Connection
-import com.qoid.bennu.model.id._
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.PeerId
 import m3.LockFreeMap
+
+import scala.async.Async._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class SimpleMessageQueue extends MessageQueue {
@@ -19,6 +23,10 @@ class SimpleMessageQueue extends MessageQueue {
   }
 
   override def enqueue(connection: Connection, message: DistributedMessage): Unit = {
-    map.get((connection.localPeerId, connection.remotePeerId)).foreach(_(message))
+    map.get((connection.localPeerId, connection.remotePeerId)).foreach { fn =>
+      async {
+        fn(message)
+      }
+    }
   }
 }

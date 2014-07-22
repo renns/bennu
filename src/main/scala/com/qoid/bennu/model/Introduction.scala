@@ -1,14 +1,17 @@
 package com.qoid.bennu.model
 
-import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.model.id._
+import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.mapper.BennuMappedInstance
+import com.qoid.bennu.mapper.BennuMapperCompanion
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.introduction.IntroductionState
-import m3.jdbc.PrimaryKey
+import m3.jdbc._
+import net.liftweb.json._
 import net.model3.chrono.DateTime
 
-object Introduction extends BennuMapperCompanion[Introduction] {
-}
+object Introduction extends BennuMapperCompanion[Introduction] with FromJsonCapable[Introduction]
 
 case class Introduction(
   aConnectionIid: InternalId,
@@ -23,25 +26,17 @@ case class Introduction(
   modified: DateTime = new DateTime,
   createdByConnectionIid: InternalId = InternalId(""),
   modifiedByConnectionIid: InternalId = InternalId("")
-) extends HasInternalId with BennuMappedInstance[Introduction] { self =>
-
-  type TInstance = Introduction
-
-  def mapper = Introduction
+) extends BennuMappedInstance[Introduction] with ToJsonCapable {
 
   override def copy2(
-    iid: InternalId = self.iid,
-    agentId: AgentId = self.agentId,
-    data: JValue = self.data,
-    created: DateTime = self.created,
-    modified: DateTime = self.modified,
-    createdByConnectionIid: InternalId = self.createdByConnectionIid,
-    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
+    agentId: AgentId = agentId,
+    created: DateTime = created,
+    modified: DateTime = modified,
+    createdByConnectionIid: InternalId = createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = modifiedByConnectionIid
   ) = {
     copy(
-      iid = iid,
       agentId = agentId,
-      data = data,
       created = created,
       modified = modified,
       createdByConnectionIid = createdByConnectionIid,

@@ -1,17 +1,20 @@
 package com.qoid.bennu.model
 
-import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.model.id._
+import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.mapper.BennuMappedInstance
+import com.qoid.bennu.mapper.BennuMapperCompanion
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.notification.NotificationKind
 import m3.jdbc._
+import net.liftweb.json._
 import net.model3.chrono.DateTime
 
-object Notification extends BennuMapperCompanion[Notification] {
-}
+object Notification extends BennuMapperCompanion[Notification] with FromJsonCapable[Notification]
 
 case class Notification(
-  fromConnectionIid: InternalId,
+  connectionIid: InternalId,
   kind: NotificationKind,
   consumed: Boolean = false,
   agentId: AgentId = AgentId(""),
@@ -21,26 +24,17 @@ case class Notification(
   modified: DateTime = new DateTime,
   createdByConnectionIid: InternalId = InternalId(""),
   modifiedByConnectionIid: InternalId = InternalId("")
-) extends HasInternalId with BennuMappedInstance[Notification] {
-  self =>
-  
-  type TInstance = Notification
-  
-  def mapper = Notification
+) extends BennuMappedInstance[Notification] with ToJsonCapable {
 
   override def copy2(
-    iid: InternalId = self.iid,
-    agentId: AgentId = self.agentId,
-    data: JValue = self.data,
-    created: DateTime = self.created,
-    modified: DateTime = self.modified,
-    createdByConnectionIid: InternalId = self.createdByConnectionIid,
-    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
+    agentId: AgentId = agentId,
+    created: DateTime = created,
+    modified: DateTime = modified,
+    createdByConnectionIid: InternalId = createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = modifiedByConnectionIid
   ) = {
     copy(
-      iid = iid,
       agentId = agentId,
-      data = data,
       created = created,
       modified = modified,
       createdByConnectionIid = createdByConnectionIid,

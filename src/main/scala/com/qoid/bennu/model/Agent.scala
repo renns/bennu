@@ -1,52 +1,38 @@
 package com.qoid.bennu.model
 
-import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.model.id._
-import com.qoid.bennu.security.AgentView
-import m3.jdbc.PrimaryKey
-import m3.predef._
+import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.mapper.BennuMappedInstance
+import com.qoid.bennu.mapper.BennuMapperCompanion
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
+import m3.jdbc._
+import net.liftweb.json._
 import net.model3.chrono.DateTime
 
-object Agent extends BennuMapperCompanion[Agent] {
-  override protected def preInsert(instance: Agent): Agent = {
-    val av = inject[AgentView]
-
-    av.insert[Alias](Alias(instance.name, iid = av.securityContext.aliasIid, connectionIid = av.securityContext.connectionIid))
-
-    instance
-  }
-}
+object Agent extends BennuMapperCompanion[Agent] with FromJsonCapable[Agent]
 
 case class Agent(
   name: String,
+  aliasIid: InternalId,
   agentId: AgentId = AgentId(""),
-  uberAliasIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
   createdByConnectionIid: InternalId = InternalId(""),
   modifiedByConnectionIid: InternalId = InternalId("")
-) extends HasInternalId with BennuMappedInstance[Agent] { self =>
-  
-  type TInstance = Agent
-  
-  def mapper = Agent
+) extends BennuMappedInstance[Agent] with ToJsonCapable {
 
   override def copy2(
-    iid: InternalId = self.iid,
-    agentId: AgentId = self.agentId,
-    data: JValue = self.data,
-    created: DateTime = self.created,
-    modified: DateTime = self.modified,
-    createdByConnectionIid: InternalId = self.createdByConnectionIid,
-    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
+    agentId: AgentId = agentId,
+    created: DateTime = created,
+    modified: DateTime = modified,
+    createdByConnectionIid: InternalId = createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = modifiedByConnectionIid
   ) = {
     copy(
-      iid = iid,
       agentId = agentId,
-      data = data,
       created = created,
       modified = modified,
       createdByConnectionIid = createdByConnectionIid,

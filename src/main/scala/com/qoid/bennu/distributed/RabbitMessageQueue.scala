@@ -6,14 +6,20 @@ import com.qoid.bennu.Config
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.model.Connection
-import com.qoid.bennu.model.id._
-import com.rabbitmq.client._
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.PeerId
+import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.ConnectionFactory
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
 import m3.LockFreeMap
 
 @Singleton
 class RabbitMessageQueue @Inject()(config: Config) extends MessageQueue {
   private val factory = new ConnectionFactory()
   factory.setUri(config.amqpUri)
+
   private val rabbitConnection = factory.newConnection()
 
   private val consumers = new LockFreeMap[(PeerId, PeerId), DefaultConsumer]

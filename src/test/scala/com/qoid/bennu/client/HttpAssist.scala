@@ -12,32 +12,33 @@ import scala.async.Async._
 import scala.concurrent._
 
 object HttpAssist extends HttpAssist with Logging {
-  def createAgent()(implicit config: HttpClientConfig, ec: ExecutionContext): Future[ChannelClient] = {
-    async {
-      val agentName = InternalId.uidGenerator.create(32)
+//  def createAgent()(implicit config: HttpClientConfig, ec: ExecutionContext): Future[ChannelClient] = {
+//    async {
+//      val agentName = InternalId.uidGenerator.create(32)
+//      val password = "test"
+//
+//      val createAgentBody = ("name" -> agentName) ~ ("password" -> password)
+//      val response = await(httpPost(s"${config.server}${ServicePath.createAgent}", createAgentBody, None))
+//
+//      parseJson(response) \ "authenticationId" match {
+//        case JString(authenticationId) => logger.debug(s"Created agent with login $authenticationId")
+//        case _ => m3x.error(s"Invalid create agent response -- ${response}")
+//      }
+//
+//      await(ChannelClientFactory.createHttpChannelClient(agentName, None, password))
+//    }
+//  }
 
-      val createAgentBody = "name" -> agentName
-      val response = await(httpPost(s"${config.server}${ServicePath.createAgent}", createAgentBody, None))
-
-      parseJson(response) \ "agentName" match {
-        case JString(n) => logger.debug(s"Created agent $n")
-        case _ => m3x.error(s"Invalid create agent response -- ${response}")
-      }
-
-      await(ChannelClientFactory.createHttpChannelClient(agentName, Some("Anonymous")))
-    }
-  }
-
-  def importAgent(agentData: JValue)(implicit config: HttpClientConfig, ec: ExecutionContext): Future[Unit] = {
-    async {
-      val response = await(httpPost(s"${config.server}${ServicePath.importAgent}", "agentData" -> agentData, None))
-
-      parseJson(response) match {
-        case JString("success") => logger.debug("Imported agent")
-        case _ => m3x.error(s"Invalid import agent response -- ${response}")
-      }
-    }
-  }
+//  def importAgent(agentData: JValue)(implicit config: HttpClientConfig, ec: ExecutionContext): Future[Unit] = {
+//    async {
+//      val response = await(httpPost(s"${config.server}${ServicePath.importAgent}", "agentData" -> agentData, None))
+//
+//      parseJson(response) match {
+//        case JString("success") => logger.debug("Imported agent")
+//        case _ => m3x.error(s"Invalid import agent response -- ${response}")
+//      }
+//    }
+//  }
 }
 
 trait HttpAssist { self: Logging =>
@@ -49,14 +50,14 @@ trait HttpAssist { self: Logging =>
     clientBuilder.build()
   }
 
-  protected def httpGet(path: String): Future[String] = {
+  def httpGet(path: String): Future[String] = {
     executeHttpRequest(new HttpGet(path))
   }
 
-  protected def httpPost(path: String, body: JValue, cookie: Option[String]): Future[String] = {
+  def httpPost(path: String, body: JValue, cookie: Option[String]): Future[String] = {
     val httpPost = new HttpPost(path)
 
-    logger.debug(s"sending to ${path} \n  ---> \n${body.toJsonStr.indent("        ")}")
+    logger.debug(s"sending to ${path}\n  --->\n${body.toJsonStr.indent("        ")}")
 
     cookie.foreach(httpPost.setHeader("Cookie", _))
     httpPost.setHeader("Content-Type", "application/json")

@@ -8,9 +8,11 @@ types {
   Url               varchar(1024);
   AuthenticationId  varchar(100);
   PasswordHash      char(60);
+  Role              varchar(50);
 }
 
 import CommonFields {
+  agentId                   AgentId;
   data                      Clob;
   created                   timestamp;
   modified                  timestamp;
@@ -20,23 +22,19 @@ import CommonFields {
 
 table agent {
   iid           InternalId key;
-  agentId       AgentId;
-  uberAliasIid  InternalId;
+  aliasIid      Alias;
   name          Name;
   import(CommonFields);
 }
 
 table label {
   iid       InternalId key;
-  agentId   AgentId;
   name      Name;
-  icon      varchar(50) nullable;
   import(CommonFields);
 }
 
 table labelchild {
   iid         InternalId key;
-  agentId     AgentId;
   parentIid   Label;
   childIid    Label;
   import(CommonFields);
@@ -45,16 +43,13 @@ table labelchild {
 
 table alias {
   iid           InternalId key;
-  agentId       AgentId;
-  rootLabelIid  Label;
-  connectionIid InternalId;
-  name          Name;
+  labelIid      Label;
+  connectionIid Connection;
   import(CommonFields);
 }
 
 table content {
   iid           InternalId key;
-  agentId       AgentId;
   contentType   varchar(32);
   metaData      Clob;
   import(CommonFields);
@@ -62,7 +57,6 @@ table content {
 
 table labeledContent {
   iid          InternalId key;
-  agentId      AgentId;
   contentIid   Content;
   labelIid     Label;
   import(CommonFields);
@@ -70,40 +64,36 @@ table labeledContent {
 }
 
 table connection {
-  iid                           InternalId key;
-  agentId                       AgentId;
-  metaLabelIid                  InternalId;
-  aliasIid                      InternalId;
-  localPeerId                   PeerId;
-  remotePeerId                  PeerId;
-  allowedDegreesOfVisibility    int;
+  iid               InternalId key;
+  labelIid          Label;
+  aliasIid          Label;
+  localPeerId       PeerId;
+  remotePeerId      PeerId;
   import(CommonFields);
 }
 
 table notification {
   iid                   InternalId key;
-  agentId               AgentId;
   consumed              Boolean;
-  fromConnectionIid     InternalId;
+  connectionIid         Connection;
   kind                  varchar(50);
   import(CommonFields);
 }
 
-
 table labelAcl {
-  iid           InternalId key;
-  agentId       AgentId;
-  connectionIid Connection;
-  labelIid      Label;
+  iid                       InternalId key;
+  connectionIid             Connection;
+  labelIid                  Label;
+  role                      Role;
+  maxDegreesOfVisibility    int;
   import(CommonFields);
 }
 
 table introduction {
   iid               InternalId key;
-  agentId           AgentId;
-  aConnectionIid    InternalId;
+  aConnectionIid    Connection;
   aState            varchar(50);
-  bConnectionIid    InternalId;
+  bConnectionIid    Connection;
   bState            varchar(50);
   recordVersion     int;
   import(CommonFields);
@@ -111,8 +101,7 @@ table introduction {
 
 table profile {
   iid               InternalId key;
-  agentId           AgentId;
-  aliasIid          InternalId;
+  aliasIid          Alias;
   name              Name;
   imgSrc            Clob;
   sharedId          SharedId;
@@ -121,8 +110,7 @@ table profile {
 
 table login {
   iid               InternalId key;
-  agentId           AgentId;
-  aliasIid          InternalId;
+  aliasIid          Alias;
   authenticationId  AuthenticationId;
   passwordHash      PasswordHash;
   import(CommonFields);

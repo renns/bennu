@@ -1,18 +1,23 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.FromJsonCapable
-import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
-import com.qoid.bennu.model.id._
-import com.qoid.bennu.security.AgentView
-import com.qoid.bennu.squery.StandingQueryAction
-import m3.Txn
+import com.qoid.bennu.mapper.BennuMappedInstance
+import com.qoid.bennu.mapper.BennuMapperCompanion
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SharedId
+import com.qoid.bennu.query.ast.ContentQuery
+import com.qoid.bennu.query.ast.Node
+import m3.Chord
 import m3.jdbc._
-import m3.predef._
+import net.liftweb.json._
 import net.model3.chrono.DateTime
 
-object Content extends BennuMapperCompanion[Content] {
+object Content extends BennuMapperCompanion[Content] with FromJsonCapable[Content] {
+
+  override protected val queryTransformer: PartialFunction[Node, Chord] = ContentQuery.transformer
+
   object MetaData extends FromJsonCapable[MetaData]
 
   case class MetaData(
@@ -31,26 +36,6 @@ object Content extends BennuMapperCompanion[Content] {
     hash: JValue,
     hashAlgorithm: String
   )
-
-  override protected def postInsert(instance: Content): Content = {
-    val av = inject[AgentView]
-
-    val labelIids = Txn.find[List[InternalId]](LabeledContent.labelIidsAttrName, false).getOrElse(Nil)
-
-    labelIids.foreach(iid => av.insert[LabeledContent](LabeledContent(instance.iid, iid)))
-
-    Content.notifyStandingQueries(instance, StandingQueryAction.Insert)
-
-    instance
-  }
-
-  override protected def preDelete(instance: Content): Content = {
-    val av = inject[AgentView]
-
-    av.select[LabeledContent](sql"contentIid = ${instance.iid}").foreach(av.delete[LabeledContent])
-
-    instance
-  }
 }
 
 case class Content(
@@ -63,25 +48,17 @@ case class Content(
   modified: DateTime = new DateTime,
   createdByConnectionIid: InternalId = InternalId(""),
   modifiedByConnectionIid: InternalId = InternalId("")
-) extends HasInternalId with BennuMappedInstance[Content] { self =>
-  
-  type TInstance = Content
-  
-  def mapper = Content
+) extends BennuMappedInstance[Content] with ToJsonCapable {
 
   override def copy2(
-    iid: InternalId = self.iid,
-    agentId: AgentId = self.agentId,
-    data: JValue = self.data,
-    created: DateTime = self.created,
-    modified: DateTime = self.modified,
-    createdByConnectionIid: InternalId = self.createdByConnectionIid,
-    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
+    agentId: AgentId = agentId,
+    created: DateTime = created,
+    modified: DateTime = modified,
+    createdByConnectionIid: InternalId = createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = modifiedByConnectionIid
   ) = {
     copy(
-      iid = iid,
       agentId = agentId,
-      data = data,
       created = created,
       modified = modified,
       createdByConnectionIid = createdByConnectionIid,

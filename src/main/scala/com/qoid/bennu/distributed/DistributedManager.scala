@@ -3,15 +3,11 @@ package com.qoid.bennu.distributed
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.distributed.handlers._
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.security.ConnectionSecurityContext
-import com.qoid.bennu.security.SecurityContext
-import java.sql.{ Connection => JdbcConn }
-import m3.Txn
+import com.qoid.bennu.security.SystemSecurityContext
 import m3.predef._
 
 @Singleton
@@ -20,8 +16,12 @@ class DistributedManager @Inject()(
   messageQueue: MessageQueue
 ) extends Logging {
 
-  def initialize(implicit jdbcConn: JdbcConn): Unit = {
-    listen(Connection.select("1 = 1").toList)
+  def initialize(): Unit = {
+    val connections = SystemSecurityContext {
+      Connection.selectAll.toList
+    }
+
+    listen(connections)
   }
 
   def listen(connection: Connection): Unit = listen(List(connection))
@@ -44,56 +44,48 @@ class DistributedManager @Inject()(
     messageQueue.unsubscribe(connection)
   }
 
-  def send(connection: Connection, message: DistributedMessage): Unit = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    import scala.concurrent.future
+  def send(message: DistributedMessage): Unit = {
+    if (!sendMessage(message)) {
+      logger.warn("no connection iids in message")
+    }
+  }
 
-    future {
+  private def messageHandler(connectionIid: InternalId)(message: DistributedMessage): Unit = {
+    val message2 = message.copy(replyRoute = connectionIid :: message.replyRoute)
+
+    SystemSecurityContext {
+      val connection = Connection.fetch(connectionIid)
+
       logger.debug(
-        s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}}):" +
-          message.toJson.toJsonStr
+        s"received message (${connection.remotePeerId.value} -> ${connection.localPeerId.value}):" +
+          message2.toJson.toJsonStr
       )
+    }
 
-      try {
-        messageQueue.enqueue(connection, message)
-      } catch {
-        case e: Exception => logger.warn(e)
+    if (!sendMessage(message2)) {
+      ConnectionSecurityContext(connectionIid, injector) {
+        message2.kind.handle(message2, injector)
       }
     }
   }
 
-  def messageHandler(connectionIid: InternalId)(message: DistributedMessage): Unit = {
-    Txn {
-      Txn.setViaTypename[SecurityContext](ConnectionSecurityContext(injector, connectionIid))
+  private def sendMessage(message: DistributedMessage): Boolean = {
+    message.route match {
+      case connectionIid :: connectionIids =>
+        SystemSecurityContext {
+          val connection = Connection.fetch(connectionIid)
 
-      val av = injector.instance[AgentView]
-      val connection = av.fetch[Connection](connectionIid)
+          logger.debug(
+            s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
+              message.toJson.toJsonStr
+          )
 
-      logger.debug(
-        s"received message (${connection.localPeerId.value} <- ${connection.remotePeerId.value}}):" +
-          message.toJson.toJsonStr
-      )
+          messageQueue.enqueue(connection, message.copy(route = connectionIids))
+        }
 
-      (message.kind, message.version) match {
-        case (DistributedMessageKind.QueryRequest, 1) =>
-          QueryRequestHandler.handle(connection, QueryRequest.fromJson(message.data), injector)
-        case (DistributedMessageKind.QueryResponse, 1) =>
-          QueryResponseHandler.handle(connection, QueryResponse.fromJson(message.data), injector)
-        case (DistributedMessageKind.DeRegisterStandingQuery, 1) =>
-          DeRegisterStandingQueryHandler.handle(connection, DeRegisterStandingQuery.fromJson(message.data), injector)
-        case (DistributedMessageKind.IntroductionRequest, 1) =>
-          IntroductionRequestHandler.handle(connection, IntroductionRequest.fromJson(message.data), injector)
-        case (DistributedMessageKind.IntroductionResponse, 1) =>
-          IntroductionResponseHandler.handle(connection, IntroductionResponse.fromJson(message.data), injector)
-        case (DistributedMessageKind.IntroductionConnect, 1) =>
-          IntroductionConnectHandler.handle(connection, IntroductionConnect.fromJson(message.data), injector)
-        case (DistributedMessageKind.VerificationRequest, 1) =>
-          VerificationRequestHandler.handle(connection, VerificationRequest.fromJson(message.data), injector)
-        case (DistributedMessageKind.VerificationResponse, 1) =>
-          VerificationResponseHandler.handle(connection, VerificationResponse.fromJson(message.data), injector)
-        case _ =>
-          logger.warn(s"unhandled distributed message -- ${message.kind},${message.version}")
-      }
+        true
+
+      case _ => false
     }
   }
 }

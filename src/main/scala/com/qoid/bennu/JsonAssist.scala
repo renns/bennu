@@ -1,7 +1,8 @@
 package com.qoid.bennu
 
-import m3.{TypeInfo, DefaultStringConverters}
 import m3.json._
+import m3.DefaultStringConverters
+import m3.TypeInfo
 import net.liftweb.json.JValue
 
 object JsonAssist extends LiftJsonAssist {
@@ -10,6 +11,7 @@ object JsonAssist extends LiftJsonAssist {
   
   implicit lazy val serializer = new DefaultJsonSerializer(handlers)
 
+  def toJson(a: Any): JValue = serializer.toJsonTi(a, TypeInfo(a.getClass))
 }
 
 trait ToJsonCapable {

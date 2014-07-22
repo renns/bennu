@@ -12,11 +12,11 @@ object JsonDslDemo {
   
   val agent = Agent(
     agentId = agentId,
-    uberAliasIid = InternalId.random,
+    aliasIid = InternalId.random,
     name = "bob"
   )
   
-  val jv2 = ("a" -> agent) ~ ("b" -> List(agentId, agentId))
+  val jv2 = ("a" -> agent.toJson) ~ ("b" -> List(agentId, agentId))
   
 }
 

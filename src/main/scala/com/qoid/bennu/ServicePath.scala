@@ -1,7 +1,7 @@
 package com.qoid.bennu
 
 object ServicePath {
-  val createAgent = "/api/agent/create"
+  val createAgent = "/api/v1/agent/create"
   val deleteAgent = "/api/agent/delete"
   val importAgent = "/api/agent/import"
   val login = "/api/login"

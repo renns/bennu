@@ -1,66 +1,29 @@
 package com.qoid.bennu.model
 
-import com.qoid.bennu.JdbcAssist._
-import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.distributed.DistributedManager
-import com.qoid.bennu.model.id._
-import com.qoid.bennu.security.AgentView
-import m3.Txn
+import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.mapper.BennuMappedInstance
+import com.qoid.bennu.mapper.BennuMapperCompanion
+import com.qoid.bennu.model.id.AgentId
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.PeerId
+import com.qoid.bennu.security.AgentAclManager
 import m3.jdbc._
-import m3.predef._
+import m3.predef.inject
+import net.liftweb.json._
 import net.model3.chrono.DateTime
 
-object Connection extends BennuMapperCompanion[Connection] {
-  private val connectionLabelName = "connection"
-  private val connectionLabelColor = "#7FBA00"
-
-  override protected def preInsert(instance: Connection): Connection = {
-    val av = inject[AgentView]
-    var newInstance = instance
-
-    val aliasOpt = av.fetchOpt[Alias](instance.aliasIid)
-
-    aliasOpt.foreach { alias =>
-      val rootLabel = av.fetch[Label](alias.rootLabelIid)
-
-      av.findChildLabel(rootLabel.iid, Alias.metaLabelName).foreach { metaLabel =>
-        av.findChildLabel(metaLabel.iid, Alias.connectionsLabelName).foreach { connectionsLabel =>
-          Txn {
-            Txn.set(LabelChild.parentIidAttrName, connectionsLabel.iid)
-            val label = av.insert[Label](Label(connectionLabelName, data = "color" -> connectionLabelColor))
-            newInstance = instance.copy(metaLabelIid = label.iid)
-          }
-        }
-      }
-    }
-
-    newInstance
+object Connection extends BennuMapperCompanion[Connection] with FromJsonCapable[Connection] {
+  override def insert(instance: Connection): Connection = {
+    val instance2 = super.insert(instance)
+    inject[AgentAclManager].invalidateConnections()
+    instance2
   }
 
-  override protected def postInsert(instance: Connection): Connection = {
-    inject[DistributedManager].listen(instance)
-    instance
-  }
-
-  override protected def preDelete(instance: Connection): Connection = {
-    val av = inject[AgentView]
-
-    av.select[Introduction](sql"aConnectionIid = ${instance.iid} or bConnectionIid = ${instance.iid}").foreach(av.delete[Introduction])
-    av.select[LabelAcl](sql"connectionIid = ${instance.iid}").foreach(av.delete[LabelAcl])
-    av.select[Notification](sql"fromConnectionIid = ${instance.iid}").foreach(av.delete[Notification])
-
-    instance
-  }
-
-  override protected def postDelete(instance: Connection): Connection = {
-    val av = inject[AgentView]
-
-    inject[DistributedManager].stopListen(instance)
-
-    av.delete[Label](av.fetch[Label](instance.metaLabelIid))
-
-    instance
+  override def delete(instance: Connection): Connection = {
+    val instance2 = super.delete(instance)
+    inject[AgentAclManager].invalidateConnections()
+    instance2
   }
 }
 
@@ -68,34 +31,25 @@ case class Connection(
   aliasIid: InternalId,
   localPeerId: PeerId,
   remotePeerId: PeerId,
-  allowedDegreesOfVisibility: Int = 1,
+  labelIid: InternalId,
   agentId: AgentId = AgentId(""),
-  metaLabelIid: InternalId = InternalId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
   createdByConnectionIid: InternalId = InternalId(""),
   modifiedByConnectionIid: InternalId = InternalId("")
-) extends HasInternalId with BennuMappedInstance[Connection] { self =>
+) extends BennuMappedInstance[Connection] with ToJsonCapable {
   
-  type TInstance = Connection
-  
-  def mapper = Connection
-
   override def copy2(
-    iid: InternalId = self.iid,
-    agentId: AgentId = self.agentId,
-    data: JValue = self.data,
-    created: DateTime = self.created,
-    modified: DateTime = self.modified,
-    createdByConnectionIid: InternalId = self.createdByConnectionIid,
-    modifiedByConnectionIid: InternalId = self.modifiedByConnectionIid
+    agentId: AgentId = agentId,
+    created: DateTime = created,
+    modified: DateTime = modified,
+    createdByConnectionIid: InternalId = createdByConnectionIid,
+    modifiedByConnectionIid: InternalId = modifiedByConnectionIid
   ) = {
     copy(
-      iid = iid,
       agentId = agentId,
-      data = data,
       created = created,
       modified = modified,
       createdByConnectionIid = createdByConnectionIid,

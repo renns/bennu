@@ -1,48 +1,34 @@
 package com.qoid.bennu.session
 
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.model.id.DistributedMessageId
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.security.AliasSecurityContext
 import com.qoid.bennu.security.SecurityContext
+import com.qoid.bennu.query.QueryManager
 import m3.LockFreeMap
 import m3.predef._
-import m3.predef.box._
 import m3.servlet.longpoll.ChannelId
 import m3.servlet.longpoll.JettyChannelManager.JettyContinuationChannel
 
-class Session(injector: ScalaInjector, val aliasIid: InternalId) extends Logging {
-  private val data = LockFreeMap[String, Any]()
+class Session(injector: ScalaInjector, val securityContext: SecurityContext) extends Logging {
+  private val standingQueries = LockFreeMap.empty[JValue, (DistributedMessageId, List[InternalId])]
 
   val channel: JettyContinuationChannel = createChannel()
-  val securityContext: SecurityContext = AliasSecurityContext(injector, aliasIid)
 
-  //TODO: store reference to standing queries
-
-  def put[T : Manifest](key: String, value: T): Box[T] = {
-    data.put(key, value) match {
-      case Some(v: T) => Full(v)
-      case Some(v) => Failure(s"session data not specified type -- expected: ${manifest[T].runtimeClass.getName} -- actual: ${v.getClass.getName}")
-      case _ => Empty
-    }
+  def addStandingQuery(context: JValue, messageId: DistributedMessageId, route: List[InternalId]): Unit = {
+    standingQueries.put(context, (messageId, route))
   }
 
-  def get[T : Manifest](key: String): Box[T] = {
-    data.get(key) match {
-      case Some(v: T) => Full(v)
-      case Some(v) => Failure(s"session data not specified type -- expected: ${manifest[T].runtimeClass.getName} -- actual: ${v.getClass.getName}")
-      case _ => Empty
-    }
-  }
+  def cancelStandingQuery(context: JValue): Unit = {
+    val queryMgr = injector.instance[QueryManager]
 
-  def remove[T : Manifest](key: String): Box[T] = {
-    data.remove(key) match {
-      case Some(v: T) => Full(v)
-      case Some(v) => Failure(s"session data not specified type -- expected: ${manifest[T].runtimeClass.getName} -- actual: ${v.getClass.getName}")
-      case _ => Empty
+    for ((messageId, route) <- standingQueries.remove(context)) {
+      queryMgr.cancelQuery(messageId, route)
     }
   }
 
   def close(): Unit = {
-    //cancel any queries, etc
+    standingQueries.keys.foreach(cancelStandingQuery)
   }
 
   private def createChannel(): JettyContinuationChannel = {

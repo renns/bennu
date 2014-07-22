@@ -2,56 +2,72 @@ package com.qoid.bennu.security
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.BennuException
 import com.qoid.bennu.Config
-import com.qoid.bennu.model._
-import com.qoid.bennu.model.id._
-import java.sql.{ Connection => JdbcConn }
+import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.model.Agent
+import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.Login
+import com.qoid.bennu.model.id.AuthenticationId
+import com.qoid.bennu.model.id.InternalId
 import m3.jdbc._
 import m3.predef._
-import m3.predef.box._
 import org.mindrot.jbcrypt.BCrypt
 
 @Singleton
 class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
-  def createLogin(aliasIid: InternalId, password: String): Login = {
-    val av = injector.instance[AgentView]
-
-    val alias = av.fetch[Alias](aliasIid)
-    val agent = av.selectOne[Agent]("")
-    val authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${alias.name.toLowerCase}")
+  def validatePassword(password: String): Unit = {
+    if (password.isEmpty) {
+      throw new BennuException(ErrorCode.passwordInvalid)
+    }
 
     //TODO: Validate password strength
+  }
+
+  def createLogin(aliasIid: InternalId, password: String): Login = {
+    validatePassword(password)
+
+    val alias = Alias.fetch(aliasIid)
+    val label = Label.fetch(alias.labelIid)
+    val agent = Agent.selectOne("")
+    val authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${label.name.toLowerCase}")
 
     val salt = BCrypt.gensalt(config.bcryptSaltRounds)
     val hash = BCrypt.hashpw(password, salt)
 
-    av.insert[Login](Login(aliasIid, authenticationId, hash))
+    Login.insert(Login(aliasIid, authenticationId, hash))
   }
 
   def updateAuthenticationId(aliasIid: InternalId): Unit = {
-    val av = injector.instance[AgentView]
+    val alias = Alias.fetch(aliasIid)
+    val label = Label.fetch(alias.labelIid)
+    val agent = Agent.selectOne("")
 
-    val alias = av.fetch[Alias](aliasIid)
-    val agent = av.selectOne[Agent]("")
-
-    av.selectOpt[Login](sql"aliasIid = $aliasIid").foreach { login =>
-      av.update(login.copy(authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${alias.name.toLowerCase}")))
+    Login.selectOpt(sql"aliasIid = $aliasIid").foreach { login =>
+      Login.update(login.copy(authenticationId = AuthenticationId(s"${agent.name.toLowerCase}.${label.name.toLowerCase}")))
     }
   }
 
-  def authenticate(authenticationId: AuthenticationId, password: String): Box[InternalId] = {
-    implicit val jdbcConn = injector.instance[JdbcConn]
+  def authenticate(authenticationId: AuthenticationId, password: String): InternalId = {
+    SystemSecurityContext {
+      val loginOpt = Login.selectOpt(sql"authenticationId = ${authenticationId.value.toLowerCase}").orElse {
+        for {
+          agent <- Agent.selectOpt(sql"lower(name) = ${authenticationId.value.toLowerCase}")
+          alias <- Alias.fetchOpt(agent.aliasIid)
+          login <- Login.selectOpt(sql"aliasIid = ${alias.iid}")
+        } yield login
+      }
 
-    val login = Login.selectOpt(sql"authenticationId = ${authenticationId.value.toLowerCase}").orElse {
-      for {
-        agent <- Agent.selectOpt(sql"lower(name) = ${authenticationId.value.toLowerCase}")
-        alias <- Alias.fetchOpt(agent.uberAliasIid)
-        login <- Login.selectOpt(sql"aliasIid = ${alias.iid}")
-      } yield login
+      loginOpt match {
+        case Some(login) =>
+          if (BCrypt.checkpw(password, login.passwordHash)) {
+            Alias.fetch(login.aliasIid).connectionIid
+          } else {
+            throw new BennuException(ErrorCode.authenticationFailed)
+          }
+        case _ => throw new BennuException(ErrorCode.authenticationFailed)
+      }
     }
-
-    login.flatMap { l =>
-      if (BCrypt.checkpw(password, l.passwordHash)) Some(l.aliasIid) else None
-    } ?~ s"failed to authenticate $authenticationId"
   }
 }
