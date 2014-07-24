@@ -1,8 +1,7 @@
 package com.qoid.bennu.webservices
 
 import com.qoid.bennu.ServicePath
-import com.qoid.bennu.webservices.v1.CreateAgent
-import com.qoid.bennu.webservices.v1.Query
+import com.qoid.bennu.webservices.v1
 import m3.servlet.CorsFilter
 import m3.servlet.CurlFilter
 import m3.servlet.M3ServletModule
@@ -35,26 +34,40 @@ class WebServicesModule extends M3ServletModule {
     filter("/*").through(classOf[TransactionFilter])
 
     // we use scalate for our templating needs think (jsp - java) + scala = scalate -- http://scalate.fusesource.org/
-//    filter("*.ssp", "*.html").through(classOf[ScalateFilter])
+    //filter("*.ssp", "*.html").through(classOf[ScalateFilter])
 
-    serveBean[CreateAgent](ServicePath.createAgent)
+    // Agent
+    serveBean[v1.CreateAgent](ServicePath.createAgent)
 //    serveBean[DeleteAgent](ServicePath.deleteAgent)
 //    serveBean[ImportAgent](ServicePath.importAgent)
-//
-//    serveBean[Login](ServicePath.login)
-//    serveBean[Logout](ServicePath.logout)
-//
-//    serveBean[PollChannel](ServicePath.pollChannel)
-//    serveBean[SubmitChannelRequests](ServicePath.submitChannel)
-//
-//    serveBean[UpsertService](ServicePath.upsert)
-//    serveBean[DeleteService](ServicePath.delete)
 
-    serveBean[Query](ServicePath.query)
+    // Session
+    serveBean[v1.Login](ServicePath.login)
+    serveBean[v1.Logout](ServicePath.logout)
 
+    // Channel
+    serveBean[v1.PollChannel](ServicePath.pollChannel)
+    serveBean[v1.SubmitChannelRequests](ServicePath.submitChannelRequests)
+
+    // Query
+    serveBean[v1.Query](ServicePath.query)
+//    serveBean[CancelQuery](ServicePath.cancelQuery)
+
+    // Alias
+
+    // Connection
+
+    // Content
+
+    // Label
+
+    // Notification
+
+    // Introduction
 //    serveBean[InitiateIntroductionService](ServicePath.initiateIntroduction)
 //    serveBean[RespondToIntroductionService](ServicePath.respondToIntroduction)
-//
+
+    // Verification
 //    serveBean[RequestVerificationService](ServicePath.requestVerification)
 //    serveBean[RespondToVerificationService](ServicePath.respondToVerification)
 //    serveBean[VerifyService](ServicePath.verify)

@@ -6,6 +6,7 @@ import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.LabelAcl
+import com.qoid.bennu.model.Login
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.query.ast.Query
@@ -31,6 +32,7 @@ class SystemSecurityContext extends SecurityContext {
       case Alias => query
       case Connection => query
       case LabelAcl => query
+      case Login => query
       case _ => query.and(Query.parse("1 <> 1"))
     }
   }

@@ -1,48 +1,15 @@
 package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
-import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.ServicePath
-import com.qoid.bennu.model.id.InternalId
 import m3.predef._
+import m3.servlet.longpoll.ChannelId
 import org.apache.http.client.methods._
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClients
-import scala.async.Async._
+
 import scala.concurrent._
 
-object HttpAssist extends HttpAssist with Logging {
-//  def createAgent()(implicit config: HttpClientConfig, ec: ExecutionContext): Future[ChannelClient] = {
-//    async {
-//      val agentName = InternalId.uidGenerator.create(32)
-//      val password = "test"
-//
-//      val createAgentBody = ("name" -> agentName) ~ ("password" -> password)
-//      val response = await(httpPost(s"${config.server}${ServicePath.createAgent}", createAgentBody, None))
-//
-//      parseJson(response) \ "authenticationId" match {
-//        case JString(authenticationId) => logger.debug(s"Created agent with login $authenticationId")
-//        case _ => m3x.error(s"Invalid create agent response -- ${response}")
-//      }
-//
-//      await(ChannelClientFactory.createHttpChannelClient(agentName, None, password))
-//    }
-//  }
-
-//  def importAgent(agentData: JValue)(implicit config: HttpClientConfig, ec: ExecutionContext): Future[Unit] = {
-//    async {
-//      val response = await(httpPost(s"${config.server}${ServicePath.importAgent}", "agentData" -> agentData, None))
-//
-//      parseJson(response) match {
-//        case JString("success") => logger.debug("Imported agent")
-//        case _ => m3x.error(s"Invalid import agent response -- ${response}")
-//      }
-//    }
-//  }
-}
-
-trait HttpAssist { self: Logging =>
-
+object HttpAssist extends Logging {
   private lazy val httpClient = {
     val clientBuilder = HttpClients.custom()
     clientBuilder.setMaxConnPerRoute(1000)
@@ -50,16 +17,16 @@ trait HttpAssist { self: Logging =>
     clientBuilder.build()
   }
 
-  def httpGet(path: String): Future[String] = {
-    executeHttpRequest(new HttpGet(path))
-  }
+  def httpPost(path: String, body: JValue): Future[String] = httpPost(path, body, None)
 
-  def httpPost(path: String, body: JValue, cookie: Option[String]): Future[String] = {
+  def httpPost(path: String, body: JValue, channelId: ChannelId): Future[String] = httpPost(path, body, Some(channelId))
+
+  private def httpPost(path: String, body: JValue, channelId: Option[ChannelId]): Future[String] = {
     val httpPost = new HttpPost(path)
 
-    logger.debug(s"sending to ${path}\n  --->\n${body.toJsonStr.indent("        ")}")
+    logger.debug(s"sending to ${path}\n--->\n${body.toJsonStr.indent("  ")}")
 
-    cookie.foreach(httpPost.setHeader("Cookie", _))
+    channelId.foreach { id => httpPost.setHeader("Cookie", s"channelId=${id.value}") }
     httpPost.setHeader("Content-Type", "application/json")
     httpPost.setEntity(new StringEntity(body.toJsonStr))
 
@@ -73,7 +40,9 @@ trait HttpAssist { self: Logging =>
       val response = httpClient.execute(request)
 
       if (response.getStatusLine.getStatusCode == 200) {
-        p.success(response.getEntity.getContent.readString)
+        val responseBody = response.getEntity.getContent.readString
+        logger.debug(s"received from ${request.getURI.toString}\n<---\n${responseBody.indent("  ")}")
+        p.success(responseBody)
       } else {
         p.failure(new Exception(s"Error calling '${request.getURI.toString}' -- ${response.getStatusLine.toString}"))
       }

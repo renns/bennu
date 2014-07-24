@@ -1,22 +1,40 @@
 package com.qoid.bennu
 
 object ServicePath {
+  // Agent
   val createAgent = "/api/v1/agent/create"
-  val deleteAgent = "/api/agent/delete"
-  val importAgent = "/api/agent/import"
-  val login = "/api/login"
-  val logout = "/api/logout"
-  val createChannel = "/api/channel/create" //TODO: Remove (deprecated)
-  val pollChannel = "/api/channel/poll"
-  val submitChannel = "/api/channel/submit"
-  val upsert = "/api/upsert"
-  val delete = "/api/delete"
-  val query = "/api/query"
-  val deRegisterStandingQuery = "/api/query/deregister"
-  val initiateIntroduction = "/api/introduction/initiate"
-  val respondToIntroduction = "/api/introduction/respond"
-  val requestVerification = "/api/verification/request"
-  val respondToVerification = "/api/verification/respond"
-  val verify = "/api/verification/verify"
-  val acceptVerification = "/api/verification/accept"
+//  val deleteAgent = "/api/v1/agent/delete"
+  val importAgent = "/api/v1/agent/import"
+
+  // Session
+  val login = "/api/v1/login"
+  val logout = "/api/v1/logout"
+
+  // Channel
+  val pollChannel = "/api/v1/channel/poll"
+  val submitChannelRequests = "/api/v1/channel/submit"
+
+  // Query
+  val query = "/api/v1/query"
+//  val cancelQuery = "/api/v1/query/cancel"
+
+  // Alias
+
+  // Connection
+
+  // Content
+
+  // Label
+
+  // Notification
+
+  // Introduction
+//  val initiateIntroduction = "/api/v1/introduction/initiate"
+//  val respondToIntroduction = "/api/v1/introduction/respond"
+
+  // Verification
+//  val requestVerification = "/api/v1/verification/request"
+//  val respondToVerification = "/api/v1/verification/respond"
+//  val verify = "/api/verification/v1/verify"
+//  val acceptVerification = "/api/v1/verification/accept"
 }

@@ -115,13 +115,9 @@ object GuiceModule {
   ) extends Provider[Option[ChannelId]] {
 
     def get = {
-      provHttpReq.
-        get.
-        flatMap { req =>
-        req.parmValue("_channel").
-          orElse(req.cookieValue("channel")).
-          map(ChannelId.apply)
-      }.
+      provHttpReq.get().
+        flatMap(_.cookieValue("channelId")).
+        map(ChannelId.apply).
         orElse(provChannelId.get())
     }
   }

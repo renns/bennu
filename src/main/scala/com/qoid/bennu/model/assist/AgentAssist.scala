@@ -10,7 +10,6 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.model._
-import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.id.PeerId
 import com.qoid.bennu.security.AgentSecurityContext
@@ -36,7 +35,7 @@ class AgentAssist @Inject()(
   private val introducerPassword = "introducer"
 
   def validateAgentName(name: String): Unit = {
-    if (name.isEmpty) {
+    if (name.isEmpty || name.contains(".")) {
       throw new BennuException(ErrorCode.nameInvalid)
     }
 

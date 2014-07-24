@@ -11,5 +11,8 @@ object ErrorCode {
   val historicalStandingInvalid = "historicalStandingInvalid"
   val permissionDenied = "permissionDenied"
   val importAgentFailed = "importAgentFailed"
+  val authenticationIdInvalid = "authenticationIdInvalid"
   val authenticationFailed = "authenticationFailed"
+  val timeoutMillisInvalid = "timeoutMillisInvalid"
+  val byteCountInvalid = "byteCountInvalid"
 }

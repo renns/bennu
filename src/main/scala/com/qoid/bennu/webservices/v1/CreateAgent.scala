@@ -21,6 +21,9 @@ import net.liftweb.json._
 * - name: String
 * - password: String
 *
+* Response Values:
+* - authenticationId: String
+*
 * Error Codes:
 * - nameInvalid
 * - nameDuplicate
