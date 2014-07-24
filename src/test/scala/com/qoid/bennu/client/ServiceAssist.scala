@@ -1,22 +1,27 @@
-//package com.qoid.bennu.client
-//
+package com.qoid.bennu.client
+
+import com.qoid.bennu.ServicePath
+import net.liftweb.json._
+
+import scala.concurrent.Future
+
 //import com.qoid.bennu.JsonAssist._
 //import com.qoid.bennu.JsonAssist.jsondsl._
-//import com.qoid.bennu.ServicePath
 //import com.qoid.bennu.model._
 //import com.qoid.bennu.model.id._
 //import com.qoid.bennu.query.QueryResponseType
 //import com.qoid.bennu.query.StandingQueryAction
 //import scala.async.Async._
 //import scala.concurrent._
-//
-//trait ServiceAssist {
-//  this: ChannelClient =>
-//
-//  def logout(): Unit = {
-//    post(ServicePath.logout, Map.empty[String, JValue])
-//  }
-//
+
+trait ServiceAssist {
+  this: ChannelClient =>
+
+  def logout(): Future[Unit] = {
+    post(ServicePath.logout, Map.empty[String, JValue]).map(_ => ())
+  }
+}
+
 //  def deleteAgent(exportData: Boolean = false): Future[JValue] = {
 //    async {
 //      val parms = Map[String, JValue]("exportData" -> exportData)
