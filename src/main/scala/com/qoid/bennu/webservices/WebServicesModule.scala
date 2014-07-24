@@ -1,7 +1,6 @@
 package com.qoid.bennu.webservices
 
 import com.qoid.bennu.ServicePath
-import com.qoid.bennu.webservices.v1
 import m3.servlet.CorsFilter
 import m3.servlet.CurlFilter
 import m3.servlet.M3ServletModule
@@ -12,7 +11,7 @@ import m3.servlet.upload.FileUploadFilter
 
 class WebServicesModule extends M3ServletModule {
 
-  override def configureServlets = {
+  override def configureServlets() = {
 
     filter("/api/*").through(classOf[CorsFilter])
 
@@ -21,7 +20,7 @@ class WebServicesModule extends M3ServletModule {
 
     filter("/*").through(classOf[CompressionFilter])
 
-    // support multipart content types
+    // support multi-part content types
     filter("/*").through(classOf[FileUploadFilter])
 
     // log uncaught exceptions with some intelligence about how jetty works
