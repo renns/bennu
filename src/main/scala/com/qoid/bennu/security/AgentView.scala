@@ -86,12 +86,12 @@ trait AgentView {
   }
 
   def selectBox[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): Box[T] = {
-    selectOpt[T](queryStr) ?~ s"no records returned from -- select * from ${mapper.tableName} where ${queryStr}"
+    selectOpt[T](queryStr) ?~ s"no records returned from -- select * from ${mapper.asMapperInternal.sqlSafeTableName} where ${queryStr}"
   }
 
   def selectOne[T <: HasInternalId](queryStr: String)(implicit mapper: BennuMapperCompanion[T]): T = {
     selectOpt(queryStr) match {
-      case None => m3x.error(s"expected one record got zero for query on ${mapper.tableName} -- ${queryStr}")
+      case None => m3x.error(s"expected one record got zero for query on ${mapper.asMapperInternal.sqlSafeTableName} -- ${queryStr}")
       case Some(t) => t
     }
   }
@@ -105,13 +105,13 @@ trait AgentView {
 
   def fetch[T <: HasInternalId](key: InternalId)(implicit mapper: BennuMapperCompanion[T]): T = {
     fetchOpt(key) match {
-      case None => sys.error(s"key $key not found in ${mapper.tableName}")
+      case None => sys.error(s"key $key not found in ${mapper.asMapperInternal.sqlSafeTableName}")
       case Some(x) => x
     }
   }
 
   def fetchBox[T <: HasInternalId](key: InternalId)(implicit mapper: BennuMapperCompanion[T]): Box[T] = {
-    fetchOpt(key) ?~ s"key $key not found in ${mapper.tableName}"
+    fetchOpt(key) ?~ s"key $key not found in ${mapper.asMapperInternal.sqlSafeTableName}"
   }
 
   def findChildLabel(parentIid: InternalId, childName: String): Box[Label] = {

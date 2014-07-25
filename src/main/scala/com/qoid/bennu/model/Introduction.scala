@@ -4,7 +4,7 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.model.introduction.IntroductionState
-import m3.jdbc.PrimaryKey
+import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object Introduction extends BennuMapperCompanion[Introduction] {

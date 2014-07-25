@@ -1,8 +1,9 @@
 package com.qoid.bennu
 
-import m3.{TypeInfo, DefaultStringConverters}
+import m3.DefaultStringConverters
+import m3.TypeInfo
+import m3.json.LiftJsonAssist._
 import m3.json._
-import net.liftweb.json.JValue
 
 object JsonAssist extends LiftJsonAssist {
 

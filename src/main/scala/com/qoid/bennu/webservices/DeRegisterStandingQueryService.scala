@@ -12,7 +12,7 @@ import com.qoid.bennu.squery._
 import m3.jdbc._
 import m3.predef._
 import m3.servlet.beans.Parm
-import net.liftweb.json._
+import m3.json.LiftJsonAssist._
 import scala.language.existentials
 
 case class DeRegisterStandingQueryService @Inject()(

@@ -8,6 +8,7 @@ import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
 import m3.Txn
 import m3.jdbc._
+import m3.jdbc.mapper.PrimaryKey
 import m3.predef._
 import net.model3.chrono.DateTime
 

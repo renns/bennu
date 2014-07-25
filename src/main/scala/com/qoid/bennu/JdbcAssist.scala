@@ -10,23 +10,23 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import m3.TypeInfo
-import m3.jdbc.ColumnMapper.SingleColumnMapper
-import m3.jdbc._
+import m3.jdbc.mapper.ColumnMapper
+import m3.jdbc.mapper.ColumnMapper.SingleColumnMapper
+import m3.jdbc.mapper.Mapper
 import m3.json.JsonSerializer
 import m3.predef._
-import net.liftweb.json.JNothing
-import net.liftweb.json.JValue
+import m3.json.LiftJsonAssist._
 import net.model3.lang.ClassX
 import scala.language.implicitConversions
 
 object JdbcAssist extends Logging {
 
-  implicit val columnMapper = new ColumnMapper.DefaultColumnMapperFactory(jvalueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
+  lazy val columnMapper = new ColumnMapper.DefaultColumnMapperFactory(jvalueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
 
 
   trait BennuMapperCompanion[T <: HasInternalId] extends Mapper.MapperCompanion[T,InternalId] { mapper =>
     
-    lazy val typeName = ClassX.getShortName(clazz) 
+    lazy val typeName = ClassX.getShortName(asMapperInternal.clazz)
     
     val serializer = inject[JsonSerializer]
 
@@ -75,7 +75,7 @@ object JdbcAssist extends Logging {
     protected def postUpdate(instance: T): T = instance
     protected def postDelete(instance: T): T = instance
 
-    def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.clazz))
+    def fromJson(jv: JValue): T = serializer.fromJsonTi(jv, TypeInfo(mapper.asMapperInternal.clazz))
 
     implicit def toJson(t: T): JValue = serializer.toJsonTi(t, TypeInfo(t.getClass))
     

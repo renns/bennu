@@ -9,6 +9,7 @@ import com.qoid.bennu.security.AuthenticationManager
 import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.jdbc._
+import m3.jdbc.mapper.PrimaryKey
 import m3.predef._
 import net.model3.chrono.DateTime
 

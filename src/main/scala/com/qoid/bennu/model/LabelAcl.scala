@@ -3,7 +3,7 @@ package com.qoid.bennu.model
 import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
-import m3.jdbc.PrimaryKey
+import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object LabelAcl extends BennuMapperCompanion[LabelAcl] {

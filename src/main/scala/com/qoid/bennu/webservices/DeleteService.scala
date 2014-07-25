@@ -8,7 +8,7 @@ import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentView
 import m3.predef._
 import m3.servlet.beans.Parm
-import net.liftweb.json._
+import m3.json.LiftJsonAssist._
 
 case class DeleteService @Inject() (
   injector: ScalaInjector,

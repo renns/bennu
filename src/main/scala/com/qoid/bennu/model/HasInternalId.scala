@@ -4,7 +4,7 @@ import com.qoid.bennu.JdbcAssist.BennuMapperCompanion
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
-import net.liftweb.json.JValue
+import m3.json.LiftJsonAssist._
 import net.model3.chrono.DateTime
 
 trait HasInternalId extends ToJsonCapable { self =>

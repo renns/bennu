@@ -5,7 +5,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.security.AgentView
 import com.qoid.bennu.squery.StandingQueryAction
-import m3.jdbc.PrimaryKey
+import m3.jdbc.mapper.PrimaryKey
 import m3.predef._
 import net.model3.chrono.DateTime
 

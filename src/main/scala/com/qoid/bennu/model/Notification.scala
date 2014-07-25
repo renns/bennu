@@ -4,7 +4,7 @@ import com.qoid.bennu.JdbcAssist._
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.id._
 import com.qoid.bennu.model.notification.NotificationKind
-import m3.jdbc._
+import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object Notification extends BennuMapperCompanion[Notification] {

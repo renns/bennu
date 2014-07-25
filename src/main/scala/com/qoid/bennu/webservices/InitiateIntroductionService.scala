@@ -13,7 +13,7 @@ import java.sql.{ Connection => JdbcConn }
 import m3.Txn
 import m3.predef._
 import m3.servlet.beans.Parm
-import net.liftweb.json._
+import m3.json.LiftJsonAssist._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
