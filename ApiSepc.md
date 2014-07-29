@@ -31,7 +31,7 @@
 **Response Parameters:**
 
 * channelId: String
-* connectionIid: String
+* connectionIid: String - The logged in alias's connectionId.  To get the alias object, you must query for it, using the connctionIid.
 
 ### Logout
 
