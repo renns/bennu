@@ -9,8 +9,5 @@ target
 .idea
 
 .cache
-.settings
-.classpath
-.project
 
 db
