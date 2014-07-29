@@ -21,8 +21,6 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
     if (password.isEmpty) {
       throw new BennuException(ErrorCode.passwordInvalid)
     }
-
-    //TODO: Validate password strength
   }
 
   def createLogin(aliasIid: InternalId, password: String): Login = {

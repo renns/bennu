@@ -25,6 +25,7 @@ object ServicePath {
   // Content
 
   // Label
+  val createLabel = "/api/v1/label/create"
 
   // Notification
 

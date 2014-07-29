@@ -12,6 +12,10 @@ sealed trait DistributedMessageKind extends Enum[DistributedMessageKind] {
 
 object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
 
+  case object Error extends DistributedMessageKind {
+    override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.Error.handle
+  }
+
   case object QueryRequest extends DistributedMessageKind {
     override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.QueryRequest.handle
   }
@@ -24,6 +28,14 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.StandingQueryResponse.handle
   }
 
+  case object CreateLabelRequest extends DistributedMessageKind {
+    override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.CreateLabelRequest.handle
+  }
+
+  case object CreateLabelResponse extends DistributedMessageKind {
+    override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.CreateLabelResponse.handle
+  }
+
   case object IntroductionRequest extends DistributedMessageKind
   case object IntroductionResponse extends DistributedMessageKind
   case object IntroductionConnect extends DistributedMessageKind
@@ -31,9 +43,12 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object VerificationResponse extends DistributedMessageKind
 
   override val values: Set[DistributedMessageKind] = Set(
+    Error,
     QueryRequest,
     QueryResponse,
     StandingQueryResponse,
+    CreateLabelRequest,
+    CreateLabelResponse,
     IntroductionRequest,
     IntroductionResponse,
     IntroductionConnect,

@@ -51,14 +51,10 @@ class AgentAclManager(agentId: AgentId, injector: ScalaInjector) {
     getAcls.exists(_.role == role)
   }
 
-  //TODO: call from Grant Access, Revoke Access
   def invalidateAcls(): Unit = synchronized { aclsLoaded = false }
-  //TODO: call from Create Alias, Create Label, Move Label, Copy Label, Remove Label
   def invalidateLabels(): Unit = getAcls.foreach(_.invalidateLabels())
   def invalidateAliases(): Unit = getAcls.foreach(_.invalidateAliases())
-  //TODO: call from Delete Connection, Complete Introduction
   def invalidateConnections(): Unit = getAcls.foreach(_.invalidateConnections())
-  //TODO: call from Create Content, Add Content Label, Remove Content Label, Respond to Verification Request, Verify
   def invalidateContent(): Unit = getAcls.foreach(_.invalidateContent())
 
   private def getAcls: List[Acl] = {

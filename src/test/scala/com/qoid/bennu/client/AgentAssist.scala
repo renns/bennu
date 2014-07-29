@@ -4,6 +4,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
 import com.qoid.bennu.client.HttpAssist.logger
+import com.qoid.bennu.model.id.InternalId
 import m3.predef._
 import m3.servlet.longpoll.ChannelId
 
@@ -66,7 +67,12 @@ object AgentAssist {
         case _ => m3x.error(s"Invalid create channel response -- ${response}")
       }
 
-      new HttpChannelClient(channelId)
+      val connectionIid = parseJson(response) \ "connectionIid" match {
+        case JString(id) => InternalId(id)
+        case _ => m3x.error(s"Invalid create channel response -- ${response}")
+      }
+
+      new HttpChannelClient(channelId, connectionIid)
     }
   }
 }

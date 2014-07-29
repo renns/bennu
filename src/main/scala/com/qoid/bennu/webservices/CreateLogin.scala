@@ -12,7 +12,7 @@
 //  injector: ScalaInjector,
 //  authenticationMgr: AuthenticationManager,
 //  @Parm aliasIid: InternalId,
-//  @Parm password: String = "password" //TODO: Remove default value
+//  @Parm password: String
 //) {
 //
 //  def service: JValue = {

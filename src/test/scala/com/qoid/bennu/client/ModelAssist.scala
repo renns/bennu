@@ -131,25 +131,6 @@
 //    })).map(_ => ())
 //  }
 //
-//  def getAgent(): Future[Agent] = {
-//    async {
-//      await(queryLocal[Agent]("")).head
-//    }
-//  }
-//
-//  def getRootLabel(): Future[Label] = {
-//    async {
-//      val alias = await(getRootAlias())
-//      await(queryLocal[Label](sql"iid = ${alias.rootLabelIid}")).head
-//    }
-//  }
-//
-//  def getRootAlias(): Future[Alias] = {
-//    async {
-//      await(queryLocal[Alias](sql"iid = $rootAliasIid")).head
-//    }
-//  }
-//
 //  def getProfile(aliasIid: InternalId): Future[Profile] = {
 //    async {
 //      await(queryLocal[Profile](sql"aliasIid = $aliasIid")).head

@@ -1,24 +1,101 @@
 package com.qoid.bennu.client
 
+import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.ServicePath
-import net.liftweb.json._
+import com.qoid.bennu.distributed.DistributedResult
+import com.qoid.bennu.distributed.messages.CreateLabelResponse
+import com.qoid.bennu.distributed.messages.DistributedMessageKind
+import com.qoid.bennu.distributed.messages.QueryResponse
+import com.qoid.bennu.mapper.MapperAssist
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
+import com.qoid.bennu.query.StandingQueryAction
+import m3.servlet.beans.MultiRequestHandler.MethodInvocationResult
 
 import scala.concurrent.Future
-
-//import com.qoid.bennu.JsonAssist._
-//import com.qoid.bennu.JsonAssist.jsondsl._
-//import com.qoid.bennu.model._
-//import com.qoid.bennu.model.id._
-//import com.qoid.bennu.query.QueryResponseType
-//import com.qoid.bennu.query.StandingQueryAction
-//import scala.async.Async._
-//import scala.concurrent._
 
 trait ServiceAssist {
   this: ChannelClient =>
 
   def logout(): Future[Unit] = {
     post(ServicePath.logout, Map.empty[String, JValue]).map(_ => ())
+  }
+
+  def query[T : Manifest](query: String, route: List[InternalId] = List(connectionIid)): Future[List[T]] = {
+    val typeName = MapperAssist.findMapperByType[T].typeName
+
+    val parms = Map[String, JValue](
+      "route" -> route,
+      "type" -> typeName,
+      "query" -> query,
+      "historical" -> true,
+      "standing" -> false
+    )
+
+    transformResult[QueryResponse](
+      submit(ServicePath.query, parms),
+      DistributedMessageKind.QueryResponse
+    ).map(_.results.map(serializer.fromJson[T]))
+  }
+
+  def queryStanding[T : Manifest](
+    query: String,
+    route: List[InternalId] = List(connectionIid)
+  )(
+    fn: (T, StandingQueryAction, JValue) => Unit
+  ): Future[List[T]] = {
+
+    val typeName = MapperAssist.findMapperByType[T].typeName
+
+    val parms = Map[String, JValue](
+      "route" -> route,
+      "type" -> typeName,
+      "query" -> query,
+      "historical" -> true,
+      "standing" -> true
+    )
+
+    //TODO: specify context
+    //TODO: add context / fn to callbacks map
+    //TODO: move callbacks map to this class
+
+    transformResult[QueryResponse](
+      submit(ServicePath.query, parms),
+      DistributedMessageKind.QueryResponse
+    ).map(_.results.map(serializer.fromJson[T]))
+  }
+
+  def createLabel(parentLabelIid: InternalId, name: String, route: List[InternalId] = List(connectionIid)): Future[Label] = {
+    val parms = Map[String, JValue](
+      "route" -> route,
+      "parentLabelIid" -> parentLabelIid,
+      "name" -> name,
+      "data" -> ("color" -> "#7F7F7F")
+    )
+
+    transformResult[CreateLabelResponse](
+      submit(ServicePath.createLabel, parms),
+      DistributedMessageKind.CreateLabelResponse
+    ).map(_.label)
+  }
+
+  private def transformResult[T : Manifest](f: Future[MethodInvocationResult], kind: DistributedMessageKind): Future[T] = {
+    f.map { result1 =>
+      (result1.success, result1.error) match {
+        case (true, _) =>
+          val result2 = DistributedResult.fromJson(result1.result)
+
+          if (result2.kind == kind) {
+            serializer.fromJson[T](result2.result)
+          } else {
+            throw new Exception(ErrorCode.unsupportedResponseMessage)
+          }
+        case (false, Some(error)) => throw new Exception(error.message)
+        case (false, None) => throw new Exception(ErrorCode.unexpectedError)
+      }
+    }
   }
 }
 
@@ -133,41 +210,7 @@ trait ServiceAssist {
 //
 //    p.future
 //  }
-//
-//  def query[T <: HasInternalId : Manifest](
-//    queryStr: String,
-//    aliasIid: Option[InternalId] = None,
-//    local: Boolean = true,
-//    connectionIids: List[List[InternalId]] = Nil,
-//    historical: Boolean = true,
-//    standing: Boolean = false
-//  )(
-//    fn: QueryResponse => Unit
-//  ): Future[Handle] = {
-//    async {
-//      val typeName = JdbcAssist.findMapperByType[T].typeName
-//
-//      val parms = Map[String, JValue](
-//        "type" -> typeName.toLowerCase,
-//        "q" -> queryStr,
-//        "aliasIid" -> aliasIid,
-//        "local" -> local,
-//        "connectionIids" -> connectionIids,
-//        "historical" -> historical,
-//        "standing" -> standing
-//      )
-//
-//      val context = JString(InternalId.random.value)
-//      asyncCallbacks += context -> fn
-//      val response = await(post(ServicePath.query, parms, context))
-//
-//      response.result match {
-//        case JObject(JField("handle", JString(handle)) :: _) => Handle(handle)
-//        case r => throw new Exception(s"Distributed query result invalid -- $r")
-//      }
-//    }
-//  }
-//
+
 //  def deRegisterStandingQuery(handle: Handle): Future[Boolean] = {
 //    async {
 //      val parms = Map[String, JValue]("handle" -> handle)

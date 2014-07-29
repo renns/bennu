@@ -2,28 +2,26 @@ package com.qoid.bennu.distributed.messages
 
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.FromJsonCapable
-import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedResult
-import com.qoid.bennu.query.StandingQueryAction
-import m3.json.Json
+import com.qoid.bennu.model.Label
 import m3.predef._
 
-object StandingQueryResponse extends FromJsonCapable[StandingQueryResponse] with Logging {
+object CreateLabelResponse extends FromJsonCapable[CreateLabelResponse] with Logging {
   def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
     val distributedMgr = injector.instance[DistributedManager]
 
     message.replyToMessageId match {
       case Some(replyToMessageId) =>
         (message.kind, message.version) match {
-          case (DistributedMessageKind.StandingQueryResponse, 1) =>
+          case (DistributedMessageKind.CreateLabelResponse, 1) =>
             try {
               // Deserialize message data
-              val standingQueryResponse = fromJson(message.data)
+              val createLabelResponse = fromJson(message.data)
 
               // Create result
-              val result = DistributedResult(DistributedMessageKind.StandingQueryResponse, standingQueryResponse.toJson)
+              val result = DistributedResult(DistributedMessageKind.CreateLabelResponse, createLabelResponse.toJson)
 
               // Put response on channel
               distributedMgr.putResponseOnChannel(replyToMessageId, result)
@@ -44,8 +42,6 @@ object StandingQueryResponse extends FromJsonCapable[StandingQueryResponse] with
   }
 }
 
-case class StandingQueryResponse(
-  @Json("type") tpe: String,
-  result: JValue,
-  action: StandingQueryAction
+case class CreateLabelResponse(
+  label: Label
 ) extends ToJsonCapable

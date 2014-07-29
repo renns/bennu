@@ -11,18 +11,9 @@
 
 == General Tasks ==
 
-* refactor the longpolling code so that we can return richer errors.  I.e. errors can have an error code and parms so the UI can give more complete error messages
-
-* Update IntroductionResponse handler in NotificationListener so that it handles race conditions
-    - It should make sure that if both parties accept, connections will always be made
-    - It should make sure that if both parties accept, only one pair of connections will be made
-    - A possible solution is to use database locking, preferably on the one introduction row
-
 * hiding InternalId's from other connections (for any kind of query)
 
-* rewriting the author on a query from a connection to be the connection instead of the alias
-
-* what happens when we delete certain things like an alias? (e.g. are remote connections removed? content?)
+* use transactions for operations so that if one piece fails, everything rolls back
 
 
 == Things we don't handle and won't for demo but should for production ==

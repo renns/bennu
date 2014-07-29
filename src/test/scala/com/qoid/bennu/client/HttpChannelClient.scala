@@ -1,28 +1,33 @@
 package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
+import com.qoid.bennu.distributed.DistributedResult
+import com.qoid.bennu.distributed.messages.DistributedMessageKind
+import com.qoid.bennu.distributed.messages.StandingQueryResponse
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.query.QueryManager.QueryResponse
 import m3.LockFreeMap
 import m3.predef._
+import m3.servlet.beans.MultiRequestHandler.MethodInvocation
+import m3.servlet.beans.MultiRequestHandler.MethodInvocationResult
 import m3.servlet.longpoll.ChannelId
 
-import scala.async.Async.async
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
 case class HttpChannelClient(
-  channelId: ChannelId
+  channelId: ChannelId,
+  connectionIid: InternalId
 )(
   implicit
   config: HttpClientConfig,
   val ec: ExecutionContext
 ) extends ChannelClient with Logging {
 
-  private val asyncCallbacks = new LockFreeMap[JValue, QueryResponse => Unit]
-  private val waiters = new LockFreeMap[JValue, Promise[ChannelResponse]]
+  private val standingQueryCallbacks = new LockFreeMap[JValue, (StandingQueryResponse, JValue) => Unit]
+  private val waiters = new LockFreeMap[JValue, Promise[MethodInvocationResult]]
   private var closed = false
 
   poll()
@@ -31,11 +36,13 @@ case class HttpChannelClient(
     path: String,
     parms: Map[String, JValue],
     context: JValue = JString(InternalId.random.value)
-  ): Future[ChannelResponse] = {
-    val promise = Promise[ChannelResponse]()
+  ): Future[MethodInvocationResult] = {
+    val promise = Promise[MethodInvocationResult]()
 
     try {
-      val request = createRequest(path, context, parms)
+      val parmsJValue = JObject(parms.map{ case (k, v) => JField(k, v) }.toList)
+      val request = serializer.toJson(MethodInvocation(path, context, parmsJValue))
+      val body: JValue = "requests" -> List(request)
 
       waiters += context -> promise
 
@@ -43,12 +50,24 @@ case class HttpChannelClient(
         case _ => waiters -= context
       }
 
-      HttpAssist.httpPost(s"${config.server}${ServicePath.submitChannelRequests}", request.toJson, channelId)
+      HttpAssist.httpPost(s"${config.server}${ServicePath.submitChannelRequests}", body, channelId)
     } catch {
       case e: Exception => promise.failure(e)
     }
 
     promise.future
+  }
+
+  override def submitStanding(
+    path: String,
+    parms: Map[String, JValue],
+    context: JValue = JString(InternalId.random.value)
+  )(
+    fn: (StandingQueryResponse, JValue) => Unit
+  ): Future[MethodInvocationResult] = {
+
+    standingQueryCallbacks.put(context, fn)
+    submit(path, parms, context)
   }
 
   override def post(path: String, parms: Map[String, JValue]): Future[JValue] = {
@@ -58,18 +77,6 @@ case class HttpChannelClient(
 
   override def close(): Unit = {
     closed = true
-  }
-
-  private def createRequest(path: String, context: JValue, parms: Map[String, JValue]): ChannelRequest = {
-    val parmsJValue = JObject(parms.map{ case (k, v) => JField(k, v) }.toList)
-
-    ChannelRequest(
-      List(ChannelRequestRequest(
-        path,
-        context,
-        parmsJValue
-      ))
-    )
   }
 
   private def poll(): Unit = {
@@ -84,20 +91,19 @@ case class HttpChannelClient(
     parseJson(responseBody) match {
       case JArray(messages) =>
         for (message <- messages) {
-          message \ "handle" match {
-            case JNothing =>
-              // This is a channel response
-              val channelResponse = serializer.fromJson[ChannelResponse](message)
-              waiters.remove(channelResponse.context).foreach(_.success(channelResponse))
-            case _ =>
-              // This is an async response
-              val response = serializer.fromJson[QueryResponse](message)
+          val result1 = serializer.fromJson[MethodInvocationResult](message)
 
-              for (callback <- asyncCallbacks.get(response.context)) {
-                async {
-                  callback(response)
-                }
-              }
+          if (!result1.success) {
+            waiters.remove(result1.context).foreach(_.success(result1))
+          } else if (result1.result != JNothing) {
+            val result2 = DistributedResult.fromJson(result1.result)
+
+            if (result2.kind == DistributedMessageKind.StandingQueryResponse) {
+              val result3 = StandingQueryResponse.fromJson(result2.result)
+              standingQueryCallbacks.get(result1.context).foreach(_(result3, result1.context))
+            } else {
+              waiters.remove(result1.context).foreach(_.success(result1))
+            }
           }
         }
       case _ => logger.warn(s"channel poll response invalid -- $responseBody")

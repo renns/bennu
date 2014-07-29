@@ -1,81 +1,13 @@
-//package com.qoid.bennu.client
-//
+package com.qoid.bennu.client
+
 //import com.qoid.bennu.JsonAssist.jsondsl._
 //import com.qoid.bennu.model._
 //import com.qoid.bennu.model.id.InternalId
 //import com.qoid.bennu.query.StandingQueryAction
 //import m3.jdbc._
-//import m3.predef._
-//import scala.async.Async._
-//import scala.concurrent._
-//
-//object TestAssist extends Logging {
-//
-//  def channelClient1[T](
-//    body: ChannelClient => Future[T]
-//  )(
-//    implicit
-//    config: HttpClientConfig,
-//    ec: ExecutionContext
-//  ): Future[T] = {
-//    async {
-//      val client1 = await(HttpAssist.createAgent())
-//      val t = await(body(client1))
-//
-//      // Delete agent
-//      async {
-//        val agentClient = await(ChannelClientFactory.createHttpChannelClient(client1.agentName))
-//        agentClient.deleteAgent()
-//        agentClient.close()
-//      }
-//
-//      client1.close()
-//      t
-//    }
-//  }
-//
-//  def channelClient2[T](
-//    body: (ChannelClient, ChannelClient) => Future[T]
-//  )(
-//    implicit
-//    config: HttpClientConfig,
-//    ec: ExecutionContext
-//  ): Future[T] = {
-//    channelClient1 { client1 =>
-//      channelClient1 { client2 =>
-//        body(client1, client2)
-//      }
-//    }
-//  }
-//
-//  def channelClient3[T](
-//    body: (ChannelClient, ChannelClient, ChannelClient) => Future[T]
-//  )(
-//    implicit
-//    config: HttpClientConfig,
-//    ec: ExecutionContext
-//  ): Future[T] = {
-//    channelClient1 { client1 =>
-//      channelClient2 { (client2, client3) =>
-//        body(client1, client2, client3)
-//      }
-//    }
-//  }
-//
-//  def channelClient4[T](
-//    body: (ChannelClient, ChannelClient, ChannelClient, ChannelClient) => Future[T]
-//  )(
-//    implicit
-//    config: HttpClientConfig,
-//    ec: ExecutionContext
-//  ): Future[T] = {
-//    channelClient1 { client1 =>
-//      channelClient3 { (client2, client3, client4) =>
-//        body(client1, client2, client3, client4)
-//      }
-//    }
-//  }
-//
+import m3.predef._
+
+object TestAssist extends Logging {
 //  def createSampleContent(
 //    client: ChannelClient,
 //    labelName: String,
@@ -166,4 +98,4 @@
 //
 //    p.future
 //  }
-//}
+}

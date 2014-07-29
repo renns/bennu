@@ -8,7 +8,6 @@ import com.qoid.bennu.model._
 sealed trait Role extends Enum[Role] {
   override val companion = Role
 
-  //TODO: Maybe have an isRecursive setting?
   protected val permissions: Map[BennuMapperCompanion[_], List[Permission]]
 
   def hasPermission(permissionType: BennuMapperCompanion[_], permission: Permission): Boolean = {

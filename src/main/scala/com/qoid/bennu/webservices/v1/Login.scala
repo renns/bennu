@@ -21,6 +21,7 @@ import org.apache.http.client.HttpResponseException
 *
 * Response Values:
 * - channelId: String
+* - connectionIid: String
 *
 * Error Codes:
 * - authenticationIdInvalid
@@ -38,7 +39,7 @@ case class Login @Inject()(
       validateParameters()
 
       val session = sessionMgr.createSession(authenticationId, password)
-      "channelId" -> session.channel.id.value
+      ("channelId" -> session.channel.id.value) ~ ("connectionIid" -> session.securityContext.connectionIid)
     } catch {
       case e: BennuException =>
         throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, e.getErrorCode()).initCause(e)

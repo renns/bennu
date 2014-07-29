@@ -59,6 +59,7 @@ class WebServicesModule extends M3ServletModule {
     // Content
 
     // Label
+    serveBean[v1.CreateLabel](ServicePath.createLabel)
 
     // Notification
 

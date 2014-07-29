@@ -7,7 +7,6 @@ object ErrorCode {
   val contextAliasIidInvalid = "contextAliasIidInvalid"
   val typeInvalid = "typeInvalid"
   val queryInvalid = "queryInvalid"
-  val routesInvalid = "routesInvalid"
   val historicalStandingInvalid = "historicalStandingInvalid"
   val permissionDenied = "permissionDenied"
   val importAgentFailed = "importAgentFailed"
@@ -15,4 +14,8 @@ object ErrorCode {
   val authenticationFailed = "authenticationFailed"
   val timeoutMillisInvalid = "timeoutMillisInvalid"
   val byteCountInvalid = "byteCountInvalid"
+  val routeInvalid = "routeInvalid"
+  val unexpectedError = "unexpectedError"
+  val unsupportedMessage = "unsupportedMessage"
+  val unsupportedResponseMessage = "unsupportedResponseMessage"
 }

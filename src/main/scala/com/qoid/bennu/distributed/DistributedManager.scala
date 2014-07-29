@@ -2,19 +2,31 @@ package com.qoid.bennu.distributed
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.BennuException
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.model.Connection
+import com.qoid.bennu.model.id.DistributedMessageId
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.ConnectionSecurityContext
+import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.security.SystemSecurityContext
+import com.qoid.bennu.session.SessionManager
+import m3.LockFreeMap
 import m3.predef._
+import m3.servlet.beans.MultiRequestHandler.MethodInvocationError
+import m3.servlet.beans.MultiRequestHandler.MethodInvocationResult
 
 @Singleton
 class DistributedManager @Inject()(
   injector: ScalaInjector,
-  messageQueue: MessageQueue
+  messageQueue: MessageQueue,
+  sessionMgr: SessionManager
 ) extends Logging {
+
+  //TODO: If there is a problem forwarding message or handling message or any security problems, send a response back to message originator
+
+  private val requestDataStore = LockFreeMap.empty[(InternalId, DistributedMessageId), RequestData]
 
   def initialize(): Unit = {
     val connections = SystemSecurityContext {
@@ -44,10 +56,68 @@ class DistributedManager @Inject()(
     messageQueue.unsubscribe(connection)
   }
 
-  def send(message: DistributedMessage): Unit = {
-    if (!sendMessage(message)) {
-      logger.warn("no connection iids in message")
+  def sendRequest(message: DistributedMessage, requestData: RequestData): Unit = {
+    message.route match {
+      case connectionIid :: connectionIids =>
+        storeRequestData(connectionIid, message.messageId, requestData)
+        sendMessage(connectionIid, message.copy(route = connectionIids))
+
+      case _ => logger.warn("no connection iids in message")
     }
+  }
+
+  def sendResponse(message: DistributedMessage, requestDataOpt: Option[RequestData] = None): Unit = {
+    message.route match {
+      case connectionIid :: connectionIids =>
+        requestDataOpt.foreach(requestData => storeRequestData(connectionIid, message.messageId, requestData))
+        sendMessage(connectionIid, message.copy(route = connectionIids))
+
+      case _ => logger.warn("no connection iids in message")
+    }
+  }
+
+  def sendError(e: BennuException, message: DistributedMessage): Unit = {
+    sendError(e.getErrorCode(), e.getMessage, message)
+  }
+
+  def sendError(errorCode: String, errorDetails: String, message: DistributedMessage): Unit = {
+    val error = Error(errorCode, errorDetails)
+    val errorMessage = DistributedMessage(DistributedMessageKind.Error, 1, message.replyRoute, error.toJson, Some(message.messageId))
+    sendResponse(errorMessage)
+  }
+
+  def putResponseOnChannel(messageId: DistributedMessageId, result: DistributedResult): Unit = {
+    val securityContext = injector.instance[SecurityContext]
+
+    requestDataStore.get((securityContext.connectionIid, messageId)).foreach { requestData =>
+      sessionMgr.getSessionOpt(requestData.channelId) match {
+        case Some(session) => session.put(MethodInvocationResult(true, requestData.context, result.toJson, None))
+        case None => requestDataStore.remove((securityContext.connectionIid, messageId))
+      }
+
+      if (requestData.singleResponse) {
+        requestDataStore.remove((securityContext.connectionIid, messageId))
+      }
+    }
+  }
+
+  def putErrorOnChannel(messageId: DistributedMessageId, errorCode: String): Unit = {
+    val securityContext = injector.instance[SecurityContext]
+
+    requestDataStore.get((securityContext.connectionIid, messageId)).foreach { requestData =>
+      sessionMgr.getSessionOpt(requestData.channelId).foreach { session =>
+        session.put(MethodInvocationResult(false, requestData.context, JNothing, Some(MethodInvocationError(errorCode, ""))))
+      }
+
+      if (requestData.singleResponse) {
+        requestDataStore.remove((securityContext.connectionIid, messageId))
+      }
+    }
+  }
+
+  def removeRequestData(messageId: DistributedMessageId): Unit = {
+    val securityContext = injector.instance[SecurityContext]
+    requestDataStore.remove((securityContext.connectionIid, messageId))
   }
 
   private def messageHandler(connectionIid: InternalId)(message: DistributedMessage): Unit = {
@@ -62,30 +132,34 @@ class DistributedManager @Inject()(
       )
     }
 
-    if (!sendMessage(message2)) {
-      ConnectionSecurityContext(connectionIid, injector) {
-        message2.kind.handle(message2, injector)
-      }
+    message.route match {
+      case toConnectionIid :: toConnectionIids =>
+        sendMessage(toConnectionIid, message2.copy(route = toConnectionIids))
+      case _ =>
+        ConnectionSecurityContext(connectionIid, injector) {
+          message2.kind.handle(message2, injector)
+        }
     }
   }
 
-  private def sendMessage(message: DistributedMessage): Boolean = {
-    message.route match {
-      case connectionIid :: connectionIids =>
-        SystemSecurityContext {
-          val connection = Connection.fetch(connectionIid)
+  private def storeRequestData(
+    connectionIid: InternalId,
+    messageId: DistributedMessageId,
+    requestData: RequestData
+  ): Unit = {
+    requestDataStore.put((connectionIid, messageId), requestData)
+  }
 
-          logger.debug(
-            s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
-              message.toJson.toJsonStr
-          )
+  private def sendMessage(connectionIid: InternalId, message: DistributedMessage): Unit = {
+    SystemSecurityContext {
+      val connection = Connection.fetch(connectionIid)
 
-          messageQueue.enqueue(connection, message.copy(route = connectionIids))
-        }
+      logger.debug(
+        s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
+          message.toJson.toJsonStr
+      )
 
-        true
-
-      case _ => false
+      messageQueue.enqueue(connection, message)
     }
   }
 }
