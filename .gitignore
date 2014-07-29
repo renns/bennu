@@ -1,12 +1,16 @@
 src/main/webapp/WEB-INF/source-jsp
-.logs
-log-usage.txt
-config.json
-portal-files
 src/main/webapp/WEB-INF/tmp-file-upload
+
+config.json
+
 target
 
 *.iml
-.cache
 .idea
+
+.cache
+.settings
+.classpath
+.project
+
 db
