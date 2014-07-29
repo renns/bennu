@@ -4,9 +4,9 @@ import com.google.inject.Inject
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.RequestData
-import com.qoid.bennu.distributed.messages.DistributedMessage
-import com.qoid.bennu.distributed.messages.DistributedMessageKind
 import com.qoid.bennu.distributed.messages.QueryRequest
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.model.id.InternalId
@@ -69,13 +69,8 @@ case class Query @Inject()(
   }
 
   private def validateParameters(): Unit = {
-    if (route.isEmpty) {
-      throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.routeInvalid)
-    }
-
-    if (!MapperAssist.allMappers.exists(_.typeName =:= tpe)) {
-      throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.typeInvalid)
-    }
+    if (route.isEmpty) throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.routeInvalid)
+    if (!MapperAssist.allMappers.exists(_.typeName =:= tpe)) throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.typeInvalid)
 
     try {
       ast.Query.parse(query)
@@ -83,8 +78,6 @@ case class Query @Inject()(
       case _: Exception => throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.queryInvalid)
     }
 
-    if (!historical && !standing) {
-      throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.historicalStandingInvalid)
-    }
+    if (!historical && !standing) throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.historicalStandingInvalid)
   }
 }

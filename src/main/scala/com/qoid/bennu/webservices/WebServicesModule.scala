@@ -57,6 +57,7 @@ class WebServicesModule extends M3ServletModule {
     // Connection
 
     // Content
+    serveBean[v1.CreateContent](ServicePath.createContent)
 
     // Label
     serveBean[v1.CreateLabel](ServicePath.createLabel)

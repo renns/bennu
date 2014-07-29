@@ -70,13 +70,8 @@ case class PollChannel @Inject()(
   }
 
   private def validateParameters(): Unit = {
-    if (timeoutMillis < 1000) {
-      throw new BennuException(ErrorCode.timeoutMillisInvalid)
-    }
-
-    if (byteCount < 1024) {
-      throw new BennuException(ErrorCode.byteCountInvalid)
-    }
+    if (timeoutMillis < 1000) throw new BennuException(ErrorCode.timeoutMillisInvalid)
+    if (byteCount < 1024) throw new BennuException(ErrorCode.byteCountInvalid)
   }
 
   private def writeResponse(queue: LinkedBlockingQueue[JValue], out: javax.servlet.ServletOutputStream, byteCount: Int) = {

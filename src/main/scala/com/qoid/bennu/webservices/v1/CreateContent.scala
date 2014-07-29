@@ -1,14 +1,14 @@
- package com.qoid.bennu.webservices.v1
+package com.qoid.bennu.webservices.v1
 
 import com.google.inject.Inject
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.DistributedManager
- import com.qoid.bennu.distributed.DistributedMessage
- import com.qoid.bennu.distributed.DistributedMessageKind
- import com.qoid.bennu.distributed.RequestData
-import com.qoid.bennu.distributed.messages.CreateLabelRequest
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
+import com.qoid.bennu.distributed.RequestData
+import com.qoid.bennu.distributed.messages.CreateContentRequest
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.session.Session
 import m3.predef._
@@ -18,36 +18,38 @@ import m3.servlet.beans.MultiRequestHandler.MethodInvocation
 import m3.servlet.beans.Parm
 
 /**
-* Creates a new label.
+* Creates a new piece of content.
 *
 * Parameters:
 * - route: Array of Strings
-* - parentLabelIid: String
-* - name: String
-* - data: JSON (optional)
+* - contentType: String
+* - data: JSON
+* - labelIids: Array of Strings
 *
 * Response Values: None
 *
 * Error Codes:
 * - routeInvalid
-* - nameInvalid
+* - contentTypeInvalid
+* - dataInvalid
+* - labelIidsInvalid
 */
-case class CreateLabel @Inject()(
+case class CreateContent @Inject()(
   session: Session,
   distributedMgr: DistributedManager,
   methodInvocation: MethodInvocation,
   @Parm route: List[InternalId],
-  @Parm parentLabelIid: InternalId,
-  @Parm name: String,
-  @Parm data: JValue = JNothing
+  @Parm contentType: String,
+  @Parm data: JValue,
+  @Parm labelIids: List[InternalId]
 ) extends Logging {
 
   def doPost(): Unit = {
     try {
       validateParameters()
 
-      val createLabelRequest = CreateLabelRequest(parentLabelIid, name, data)
-      val message = DistributedMessage(DistributedMessageKind.CreateLabelRequest, 1, route, createLabelRequest.toJson)
+      val createContentRequest = CreateContentRequest(contentType, data, labelIids)
+      val message = DistributedMessage(DistributedMessageKind.CreateContentRequest, 1, route, createContentRequest.toJson)
       val requestData = RequestData(session.channel.id, methodInvocation.context, true)
 
       distributedMgr.sendRequest(message, requestData)
@@ -59,6 +61,8 @@ case class CreateLabel @Inject()(
 
   private def validateParameters(): Unit = {
     if (route.isEmpty) throw new BennuException(ErrorCode.routeInvalid)
-    if (name.isEmpty) throw new BennuException(ErrorCode.nameInvalid)
+    if (contentType.isEmpty) throw new BennuException(ErrorCode.contentTypeInvalid)
+    if (data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
+    if (labelIids.isEmpty) throw new BennuException(ErrorCode.labelIidsInvalid)
   }
 }

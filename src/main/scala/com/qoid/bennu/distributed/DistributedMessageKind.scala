@@ -1,8 +1,7 @@
-package com.qoid.bennu.distributed.messages
+package com.qoid.bennu.distributed
 
 import com.qoid.bennu.Enum
 import com.qoid.bennu.EnumCompanion
-import com.qoid.bennu.distributed.messages
 import m3.predef._
 
 sealed trait DistributedMessageKind extends Enum[DistributedMessageKind] {
@@ -28,6 +27,14 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.StandingQueryResponse.handle
   }
 
+  case object CreateContentRequest extends DistributedMessageKind {
+    override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.CreateContentRequest.handle
+  }
+
+  case object CreateContentResponse extends DistributedMessageKind {
+    override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.CreateContentResponse.handle
+  }
+
   case object CreateLabelRequest extends DistributedMessageKind {
     override val handle: (DistributedMessage, ScalaInjector) => Unit = messages.CreateLabelRequest.handle
   }
@@ -47,6 +54,8 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     QueryRequest,
     QueryResponse,
     StandingQueryResponse,
+    CreateContentRequest,
+    CreateContentResponse,
     CreateLabelRequest,
     CreateLabelResponse,
     IntroductionRequest,

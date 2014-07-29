@@ -4,6 +4,8 @@ import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedResult
 import com.qoid.bennu.model.Label
 import m3.predef._
@@ -18,10 +20,10 @@ object CreateLabelResponse extends FromJsonCapable[CreateLabelResponse] with Log
           case (DistributedMessageKind.CreateLabelResponse, 1) =>
             try {
               // Deserialize message data
-              val createLabelResponse = fromJson(message.data)
+              val response = fromJson(message.data)
 
               // Create result
-              val result = DistributedResult(DistributedMessageKind.CreateLabelResponse, createLabelResponse.toJson)
+              val result = DistributedResult(DistributedMessageKind.CreateLabelResponse, response.toJson)
 
               // Put response on channel
               distributedMgr.putResponseOnChannel(replyToMessageId, result)

@@ -8,32 +8,37 @@ import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
-import com.qoid.bennu.model.Label
-import com.qoid.bennu.model.LabelChild
+import com.qoid.bennu.model.Content
+import com.qoid.bennu.model.LabeledContent
 import com.qoid.bennu.model.id.InternalId
 import m3.predef._
 
-object CreateLabelRequest extends FromJsonCapable[CreateLabelRequest] with Logging {
+object CreateContentRequest extends FromJsonCapable[CreateContentRequest] with Logging {
   def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
     val distributedMgr = injector.instance[DistributedManager]
 
     (message.kind, message.version) match {
-      case (DistributedMessageKind.CreateLabelRequest, 1) =>
+      case (DistributedMessageKind.CreateContentRequest, 1) =>
         try {
           // Deserialize message data
           val request = fromJson(message.data)
 
           // Validate
-          if (request.name.isEmpty) throw new BennuException(ErrorCode.nameInvalid)
+          if (request.contentType.isEmpty) throw new BennuException(ErrorCode.contentTypeInvalid)
+          if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
+          if (request.labelIids.isEmpty) throw new BennuException(ErrorCode.labelIidsInvalid)
 
-          // Create label
-          val label = Label.insert(Label(request.name, data = request.data))
-          LabelChild.insert(LabelChild(request.parentLabelIid, label.iid))
+          // Create content
+          val content = Content.insert(Content(request.contentType, data = request.data))
+
+          request.labelIids.foreach { labelIid =>
+            LabeledContent.insert(LabeledContent(content.iid, labelIid))
+          }
 
           // Create response
-          val response = CreateLabelResponse(label)
+          val response = CreateContentResponse(content)
           val responseMessage = DistributedMessage(
-            DistributedMessageKind.CreateLabelResponse,
+            DistributedMessageKind.CreateContentResponse,
             1,
             message.replyRoute,
             response.toJson,
@@ -58,8 +63,8 @@ object CreateLabelRequest extends FromJsonCapable[CreateLabelRequest] with Loggi
   }
 }
 
-case class CreateLabelRequest(
-  parentLabelIid: InternalId,
-  name: String,
-  data: JValue
+case class CreateContentRequest(
+  contentType: String,
+  data: JValue,
+  labelIids: List[InternalId]
 ) extends ToJsonCapable

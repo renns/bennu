@@ -1,4 +1,4 @@
-package com.qoid.bennu.distributed.messages
+package com.qoid.bennu.distributed
 
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JsonAssist._

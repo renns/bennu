@@ -1,6 +1,5 @@
 package com.qoid.bennu.distributed
 
-import com.qoid.bennu.distributed.messages.DistributedMessage
 import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.id.InternalId
 

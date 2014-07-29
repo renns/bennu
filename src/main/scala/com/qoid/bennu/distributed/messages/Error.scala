@@ -4,6 +4,8 @@ import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
 import m3.predef._
 
 object Error extends FromJsonCapable[Error] with Logging {

@@ -23,6 +23,7 @@ object ServicePath {
   // Connection
 
   // Content
+  val createContent = "/api/v1/content/create"
 
   // Label
   val createLabel = "/api/v1/label/create"

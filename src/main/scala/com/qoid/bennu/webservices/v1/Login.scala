@@ -47,12 +47,7 @@ case class Login @Inject()(
   }
 
   private def validateParameters(): Unit = {
-    if (authenticationId.value.isEmpty) {
-      throw new BennuException(ErrorCode.authenticationIdInvalid)
-    }
-
-    if (password.isEmpty) {
-      throw new BennuException(ErrorCode.passwordInvalid)
-    }
+    if (authenticationId.value.isEmpty) throw new BennuException(ErrorCode.authenticationIdInvalid)
+    if (password.isEmpty) throw new BennuException(ErrorCode.passwordInvalid)
   }
 }

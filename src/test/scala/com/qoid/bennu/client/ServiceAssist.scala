@@ -2,12 +2,11 @@ package com.qoid.bennu.client
 
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.ServicePath
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedResult
-import com.qoid.bennu.distributed.messages.CreateLabelResponse
-import com.qoid.bennu.distributed.messages.DistributedMessageKind
-import com.qoid.bennu.distributed.messages.QueryResponse
+import com.qoid.bennu.distributed.messages._
 import com.qoid.bennu.mapper.MapperAssist
-import com.qoid.bennu.model.Label
+import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
@@ -65,6 +64,20 @@ trait ServiceAssist {
       submit(ServicePath.query, parms),
       DistributedMessageKind.QueryResponse
     ).map(_.results.map(serializer.fromJson[T]))
+  }
+
+  def createContent(contentType: String, data: JValue, labelIids: List[InternalId], route: List[InternalId] = List(connectionIid)): Future[Content] = {
+    val parms = Map[String, JValue](
+      "route" -> route,
+      "contentType" -> contentType,
+      "data" -> data,
+      "labelIids" -> labelIids
+    )
+
+    transformResult[CreateContentResponse](
+      submit(ServicePath.createContent, parms),
+      DistributedMessageKind.CreateContentResponse
+    ).map(_.content)
   }
 
   def createLabel(parentLabelIid: InternalId, name: String, route: List[InternalId] = List(connectionIid)): Future[Label] = {

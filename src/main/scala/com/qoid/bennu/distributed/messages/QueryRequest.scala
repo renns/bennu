@@ -6,6 +6,8 @@ import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JsonAssist
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.query.StandingQuery
 import com.qoid.bennu.query.StandingQueryRepository
@@ -24,30 +26,30 @@ object QueryRequest extends FromJsonCapable[QueryRequest] with Logging {
       case (DistributedMessageKind.QueryRequest, 1) =>
         try {
           // Deserialize message data
-          val queryRequest = fromJson(message.data)
+          val request = fromJson(message.data)
 
           // Validate
-          if (!MapperAssist.allMappers.exists(_.typeName =:= queryRequest.tpe)) {
+          if (!MapperAssist.allMappers.exists(_.typeName =:= request.tpe)) {
             throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.typeInvalid)
           }
 
           try {
-            ast.Query.parse(queryRequest.query)
+            ast.Query.parse(request.query)
           } catch {
             case _: Exception => throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.queryInvalid)
           }
 
-          if (!queryRequest.historical && !queryRequest.standing) {
+          if (!request.historical && !request.standing) {
             throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.historicalStandingInvalid)
           }
 
-          if (queryRequest.historical) {
+          if (request.historical) {
             // Query historical
-            val mapper = MapperAssist.findMapperByTypeName(queryRequest.tpe)
-            val results = mapper.select(queryRequest.query).map(JsonAssist.toJson).toList
+            val mapper = MapperAssist.findMapperByTypeName(request.tpe)
+            val results = mapper.select(request.query).map(JsonAssist.toJson).toList
 
             // Create response
-            val response = QueryResponse(queryRequest.tpe, results)
+            val response = QueryResponse(request.tpe, results)
             val responseMessage = DistributedMessage(
               DistributedMessageKind.QueryResponse,
               1,
@@ -61,13 +63,13 @@ object QueryRequest extends FromJsonCapable[QueryRequest] with Logging {
           }
 
           // Setup standing query
-          if (queryRequest.standing) {
+          if (request.standing) {
             val standingQueryRepo = injector.instance[StandingQueryRepository]
 
             val standingQuery = StandingQuery(
               injector.instance[SecurityContext].agentId,
-              queryRequest.tpe,
-              queryRequest.query,
+              request.tpe,
+              request.query,
               message.messageId,
               message.replyRoute
             )

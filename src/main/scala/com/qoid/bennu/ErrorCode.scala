@@ -18,4 +18,7 @@ object ErrorCode {
   val unexpectedError = "unexpectedError"
   val unsupportedMessage = "unsupportedMessage"
   val unsupportedResponseMessage = "unsupportedResponseMessage"
+  val contentTypeInvalid = "contentTypeInvalid"
+  val dataInvalid = "dataInvalid"
+  val labelIidsInvalid = "labelIidsInvalid"
 }

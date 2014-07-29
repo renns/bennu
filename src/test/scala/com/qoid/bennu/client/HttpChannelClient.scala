@@ -3,8 +3,8 @@ package com.qoid.bennu.client
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.ServicePath
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedResult
-import com.qoid.bennu.distributed.messages.DistributedMessageKind
 import com.qoid.bennu.distributed.messages.StandingQueryResponse
 import com.qoid.bennu.model.id.InternalId
 import m3.LockFreeMap

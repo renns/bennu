@@ -5,6 +5,8 @@ import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedResult
 import com.qoid.bennu.query.StandingQueryAction
 import m3.json.Json
@@ -20,10 +22,10 @@ object StandingQueryResponse extends FromJsonCapable[StandingQueryResponse] with
           case (DistributedMessageKind.StandingQueryResponse, 1) =>
             try {
               // Deserialize message data
-              val standingQueryResponse = fromJson(message.data)
+              val response = fromJson(message.data)
 
               // Create result
-              val result = DistributedResult(DistributedMessageKind.StandingQueryResponse, standingQueryResponse.toJson)
+              val result = DistributedResult(DistributedMessageKind.StandingQueryResponse, response.toJson)
 
               // Put response on channel
               distributedMgr.putResponseOnChannel(replyToMessageId, result)
