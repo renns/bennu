@@ -105,7 +105,7 @@ object GuiceModule {
     provOptChannelId: Provider[Option[ChannelId]]
   ) extends Provider[ChannelId] {
 
-    def get = provOptChannelId.get.getOrError("unable to find channel id")
+    def get: ChannelId = provOptChannelId.get.getOrError("unable to find channel id")
   }
 
   @Singleton
@@ -114,9 +114,9 @@ object GuiceModule {
     provChannelId: ProviderOptionalChannelId
   ) extends Provider[Option[ChannelId]] {
 
-    def get = {
+    def get: Option[ChannelId] = {
       provHttpReq.get().
-        flatMap(_.cookieValue("channelId")).
+        flatMap(_.headerValue("Qoid-ChannelId")).
         map(ChannelId.apply).
         orElse(provChannelId.get())
     }

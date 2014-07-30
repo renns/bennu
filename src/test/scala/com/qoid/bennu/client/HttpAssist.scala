@@ -26,7 +26,7 @@ object HttpAssist extends Logging {
 
     logger.debug(s"sending to ${path}\n--->\n${body.toJsonStr.indent("  ")}")
 
-    channelId.foreach { id => httpPost.setHeader("Cookie", s"channelId=${id.value}") }
+    channelId.foreach { id => httpPost.setHeader("Qoid-ChannelId", id.value) }
     httpPost.setHeader("Content-Type", "application/json")
     httpPost.setEntity(new StringEntity(body.toJsonStr))
 
