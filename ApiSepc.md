@@ -1,3 +1,7 @@
+## Generic Notes
+
+* Pass the channel id over the HTTP header 'Qoid-ChannelId'
+
 ## Agent
 
 ### Create Agent
@@ -14,6 +18,12 @@
 **Response Parameters:**
 
 * authenticationId: String
+
+**Error Codes:**
+
+* nameInvalid
+* nameDuplicate
+* passwordInvalid
 
 ## Session
 
@@ -33,6 +43,10 @@
 * channelId: String
 * connectionIid: String - The logged in alias's connectionId.  To get the alias object, you must query for it, using the connctionIid.
 
+**Error Codes:**
+
+* authenticationFailed
+
 ### Logout
 
 **Submit over channel:** No
@@ -42,6 +56,8 @@
 **Parameters:** None
 
 **Response Parameters:** None
+
+**Error Codes:** None
 
 **Notes:**
 
@@ -65,9 +81,19 @@
 
 * JSON (Array of responses)
 
+**Error Codes:**
+
+* timeoutMillisInvalid
+* byteCountInvalid
+
 **Notes:**
 
 * The timeoutMillis parameter must be passed as a URL parameter (e.g. */api/v1/channel/poll/5000*)
+
+**Questions:**
+
+* Why does the request body dissapear when the continuation completes?
+* Do we need byteCount or need to handle it better?
 
 ### Submit Channel Requests
 
@@ -80,6 +106,8 @@
 * requests: Array of requests
 
 **Response Parameters:** None
+
+**Error Codes:** None
 
 ## Query
 
@@ -97,21 +125,23 @@
 * historical: Boolean
 * standing: Boolean
 
-**Result Kinds**: QueryResponse, StandingQueryResponse
+**Response Parameters:**
 
-**QueryResponse Parameters:**
-
+* standing: Boolean
 * type: String
 * results: Array of JSON
+* action: String (optional)
 
-**StandingQueryResponse Parameters:**
+**Error Codes:**
 
-* type: String
-* result: JSON
-* action: String
+* routeInvalid
+* typeInvalid
+* queryInvalid
+* historicalStandingInvalid
 
 **Notes:**
 
+* At least one of *historical* or *standing* must be provided
 * The context passed in submit channel request is used to identify the query and the responses
 * Standing queries aren't working yet
 
@@ -123,27 +153,158 @@
 
 ### Create Alias
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/create*
+
+**Parameters:**
+
+* route: Array of Strings
+* name: String
+* profileName: String
+* profileImage: String (optional)
+* data: JSON (optional)
+
+**Response Parameters:**
+
+* alias fields
+
+**Error Codes:**
+
+* routeInvalid
+* nameInvalid
+* profileNameInvalid
 
 ### Update Alias
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+* data: JSON
+
+**Response Parameters:**
+
+* alias fields
+
+**Error Codes:**
+
+* routeInvalid
+
+### Delete Alias
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/delete*
+
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+
+**Response Parameters:**
+
+* aliasIid: String
+
+**Error Codes:**
+
+* routeInvalid
+
+**Notes:**
+
+* Currently not implemented
+* Need to figure out what will actually be deleted
 
 ### Create Alias Login
 
-*Not yet implemented*
+**Submit over channel:** Yes
 
-### Delete Alias Login
+**Path:** */api/v1/alias/login/create*
 
-*Not yet implemented*
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+* password: String
+
+**Response Parameters:**
+
+* login fields
+
+**Error Codes:**
+
+* routeInvalid
+* passwordInvalid
 
 ### Update Alias Login
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/login/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+* password: String
+
+**Response Parameters:**
+
+* login fields
+
+**Error Codes:**
+
+* routeInvalid
+* passwordInvalid
+
+### Delete Alias Login
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/login/delete*
+
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+
+**Response Parameters:**
+
+* aliasIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ### Update Alias Profile
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/alias/profile/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* aliasIid: String
+* profileName: String (optional)
+* profileImage: String (optional)
+
+**Response Parameters:**
+
+* profile fields
+
+**Error Codes:**
+
+* routeInvalid
+* profileNameProfileImageInvalid
+
+**Notes:**
+
+* At least one of *profileName* or *profileImage* must be provided
 
 ## Connection
 
@@ -166,11 +327,16 @@
 * data: JSON
 * labelIids: Array of Strings
 
-**Result Kind**: CreateContentResponse
+**Response Parameters:**
 
-**CreateContentResponse Parameters:**
+* content fields
 
-* content: JSON
+**Error Codes:**
+
+* routeInvalid
+* contentTypeInvalid
+* dataInvalid
+* labelIidsInvalid
 
 ### Update Content
 
@@ -199,11 +365,14 @@
 * name: String
 * data: AJSON
 
-**Result Kind**: CreateLabelResponse
+**Response Parameters:**
 
-**CreateLabelResponse Parameters:**
+* label fields
 
-* label: JSON
+**Error Codes:**
+
+* routeInvalid
+* nameInvalid
 
 ### Update Label
 
