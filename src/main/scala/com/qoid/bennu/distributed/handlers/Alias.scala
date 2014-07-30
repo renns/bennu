@@ -3,17 +3,21 @@ package com.qoid.bennu.distributed.handlers
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
+import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedRequestHandler
 import com.qoid.bennu.distributed.DistributedResponseHandler
 import com.qoid.bennu.distributed.messages
-import com.qoid.bennu.model.{Profile, Alias}
 import com.qoid.bennu.model.assist.AliasAssist
-import com.qoid.bennu.security.{AuthenticationManager, SecurityContext}
+import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Profile
+import com.qoid.bennu.security.AuthenticationManager
+import com.qoid.bennu.security.SecurityContext
 import m3.jdbc._
 import m3.predef._
 
-object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAliasRequest] with Logging {
+object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAliasRequest] {
   override protected val requestKind = DistributedMessageKind.CreateAliasRequest
   override protected val responseKind = DistributedMessageKind.CreateAliasResponse
   override protected val allowedVersions = List(1)
@@ -23,7 +27,7 @@ object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAlias
     if (request.profileName.isEmpty) throw new BennuException(ErrorCode.profileNameInvalid)
   }
 
-  override def process(request: messages.CreateAliasRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.CreateAliasRequest, injector: ScalaInjector): JValue = {
     val aliasAssist = injector.instance[AliasAssist]
     val securityContext = injector.instance[SecurityContext]
 
@@ -33,102 +37,126 @@ object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAlias
   }
 }
 
-object CreateAliasResponse extends DistributedResponseHandler[messages.CreateAliasResponse] with Logging {
+object CreateAliasResponse extends DistributedResponseHandler[messages.CreateAliasResponse] {
   override protected val responseKind = DistributedMessageKind.CreateAliasResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.CreateAliasResponse): JValue = {
+    response.alias.toJson
+  }
 }
 
-object UpdateAliasRequest extends DistributedRequestHandler[messages.UpdateAliasRequest] with Logging {
+object UpdateAliasRequest extends DistributedRequestHandler[messages.UpdateAliasRequest] {
   override protected val requestKind = DistributedMessageKind.UpdateAliasRequest
   override protected val responseKind = DistributedMessageKind.UpdateAliasResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.UpdateAliasRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.UpdateAliasRequest, injector: ScalaInjector): JValue = {
     val alias = Alias.fetch(request.aliasIid)
     val alias2 = Alias.update(alias.copy(data = request.data))
     messages.UpdateAliasResponse(alias2).toJson
   }
 }
 
-object UpdateAliasResponse extends DistributedResponseHandler[messages.UpdateAliasResponse] with Logging {
+object UpdateAliasResponse extends DistributedResponseHandler[messages.UpdateAliasResponse] {
   override protected val responseKind = DistributedMessageKind.UpdateAliasResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.UpdateAliasResponse): JValue = {
+    response.alias.toJson
+  }
 }
 
-object DeleteAliasRequest extends DistributedRequestHandler[messages.DeleteAliasRequest] with Logging {
+object DeleteAliasRequest extends DistributedRequestHandler[messages.DeleteAliasRequest] {
   override protected val requestKind = DistributedMessageKind.DeleteAliasRequest
   override protected val responseKind = DistributedMessageKind.DeleteAliasResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.DeleteAliasRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.DeleteAliasRequest, injector: ScalaInjector): JValue = {
     val aliasAssist = injector.instance[AliasAssist]
     aliasAssist.deleteAlias(request.aliasIid)
     messages.DeleteAliasResponse(request.aliasIid).toJson
   }
 }
 
-object DeleteAliasResponse extends DistributedResponseHandler[messages.DeleteAliasResponse] with Logging {
+object DeleteAliasResponse extends DistributedResponseHandler[messages.DeleteAliasResponse] {
   override protected val responseKind = DistributedMessageKind.DeleteAliasResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.DeleteAliasResponse): JValue = {
+    "aliasIid" -> response.aliasIid
+  }
 }
 
-object CreateAliasLoginRequest extends DistributedRequestHandler[messages.CreateAliasLoginRequest] with Logging {
+object CreateAliasLoginRequest extends DistributedRequestHandler[messages.CreateAliasLoginRequest] {
   override protected val requestKind = DistributedMessageKind.CreateAliasLoginRequest
   override protected val responseKind = DistributedMessageKind.CreateAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.CreateAliasLoginRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.CreateAliasLoginRequest, injector: ScalaInjector): JValue = {
     val authenticationMgr = injector.instance[AuthenticationManager]
     val login = authenticationMgr.createLogin(request.aliasIid, request.password)
     messages.CreateAliasLoginResponse(login).toJson
   }
 }
 
-object CreateAliasLoginResponse extends DistributedResponseHandler[messages.CreateAliasLoginResponse] with Logging {
+object CreateAliasLoginResponse extends DistributedResponseHandler[messages.CreateAliasLoginResponse] {
   override protected val responseKind = DistributedMessageKind.CreateAliasLoginResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.CreateAliasLoginResponse): JValue = {
+    response.login.toJson
+  }
 }
 
-object UpdateAliasLoginRequest extends DistributedRequestHandler[messages.UpdateAliasLoginRequest] with Logging {
+object UpdateAliasLoginRequest extends DistributedRequestHandler[messages.UpdateAliasLoginRequest] {
   override protected val requestKind = DistributedMessageKind.UpdateAliasLoginRequest
   override protected val responseKind = DistributedMessageKind.UpdateAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.UpdateAliasLoginRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.UpdateAliasLoginRequest, injector: ScalaInjector): JValue = {
     val authenticationMgr = injector.instance[AuthenticationManager]
     val login = authenticationMgr.updatePassword(request.aliasIid, request.password)
     messages.UpdateAliasLoginResponse(login).toJson
   }
 }
 
-object UpdateAliasLoginResponse extends DistributedResponseHandler[messages.UpdateAliasLoginResponse] with Logging {
+object UpdateAliasLoginResponse extends DistributedResponseHandler[messages.UpdateAliasLoginResponse] {
   override protected val responseKind = DistributedMessageKind.UpdateAliasLoginResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.UpdateAliasLoginResponse): JValue = {
+    response.login.toJson
+  }
 }
 
-object DeleteAliasLoginRequest extends DistributedRequestHandler[messages.DeleteAliasLoginRequest] with Logging {
+object DeleteAliasLoginRequest extends DistributedRequestHandler[messages.DeleteAliasLoginRequest] {
   override protected val requestKind = DistributedMessageKind.DeleteAliasLoginRequest
   override protected val responseKind = DistributedMessageKind.DeleteAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.DeleteAliasLoginRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.DeleteAliasLoginRequest, injector: ScalaInjector): JValue = {
     val authenticationMgr = injector.instance[AuthenticationManager]
     authenticationMgr.deleteLogin(request.aliasIid)
     messages.DeleteAliasLoginResponse(request.aliasIid).toJson
   }
 }
 
-object DeleteAliasLoginResponse extends DistributedResponseHandler[messages.DeleteAliasLoginResponse] with Logging {
+object DeleteAliasLoginResponse extends DistributedResponseHandler[messages.DeleteAliasLoginResponse] {
   override protected val responseKind = DistributedMessageKind.DeleteAliasLoginResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.DeleteAliasLoginResponse): JValue = {
+    "aliasIid" -> response.aliasIid
+  }
 }
 
-object UpdateAliasProfileRequest extends DistributedRequestHandler[messages.UpdateAliasProfileRequest] with Logging {
+object UpdateAliasProfileRequest extends DistributedRequestHandler[messages.UpdateAliasProfileRequest] {
   override protected val requestKind = DistributedMessageKind.UpdateAliasProfileRequest
   override protected val responseKind = DistributedMessageKind.UpdateAliasProfileResponse
   override protected val allowedVersions = List(1)
 
-  override def process(request: messages.UpdateAliasProfileRequest, injector: ScalaInjector): JValue = {
+  override def process(message: DistributedMessage, request: messages.UpdateAliasProfileRequest, injector: ScalaInjector): JValue = {
     val profile = Profile.selectOne(sql"aliasIid = ${request.aliasIid}")
 
     val profile2 = (request.profileName, request.profileImage) match {
@@ -144,8 +172,12 @@ object UpdateAliasProfileRequest extends DistributedRequestHandler[messages.Upda
   }
 }
 
-object UpdateAliasProfileResponse extends DistributedResponseHandler[messages.UpdateAliasProfileResponse] with Logging {
+object UpdateAliasProfileResponse extends DistributedResponseHandler[messages.UpdateAliasProfileResponse] {
   override protected val responseKind = DistributedMessageKind.UpdateAliasProfileResponse
   override protected val allowedVersions = List(1)
+
+  override protected def getServiceResult(response: messages.UpdateAliasProfileResponse): JValue = {
+    response.profile.toJson
+  }
 }
 

@@ -7,7 +7,6 @@ import com.qoid.bennu.distributed.DistributedHandler
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
-import com.qoid.bennu.distributed.DistributedResult
 import com.qoid.bennu.model.Content
 import m3.predef._
 
@@ -24,7 +23,7 @@ object CreateContentResponse extends DistributedHandler with FromJsonCapable[Cre
               val response = fromJson(message.data)
 
               // Create result
-              val result = DistributedResult(DistributedMessageKind.CreateContentResponse, response.toJson)
+              val result = response.content.toJson
 
               // Put response on channel
               distributedMgr.putResponseOnChannel(replyToMessageId, result)

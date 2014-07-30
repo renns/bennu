@@ -7,7 +7,6 @@ import com.qoid.bennu.distributed.DistributedHandler
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
-import com.qoid.bennu.distributed.DistributedResult
 import com.qoid.bennu.model.Label
 import m3.predef._
 
@@ -24,7 +23,7 @@ object CreateLabelResponse extends DistributedHandler with FromJsonCapable[Creat
               val response = fromJson(message.data)
 
               // Create result
-              val result = DistributedResult(DistributedMessageKind.CreateLabelResponse, response.toJson)
+              val result = response.label.toJson
 
               // Put response on channel
               distributedMgr.putResponseOnChannel(replyToMessageId, result)

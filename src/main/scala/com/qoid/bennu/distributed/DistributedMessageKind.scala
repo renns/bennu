@@ -10,12 +10,13 @@ sealed trait DistributedMessageKind extends Enum[DistributedMessageKind] {
 
 object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
 
-  case object Error extends DistributedMessageKind { override val handler = messages.Error }
+  // Error
+  case object Error extends DistributedMessageKind { override val handler = handlers.Error }
 
   // Query
-  case object QueryRequest extends DistributedMessageKind { override val handler = messages.QueryRequest }
-  case object QueryResponse extends DistributedMessageKind { override val handler = messages.QueryResponse }
-  case object StandingQueryResponse extends DistributedMessageKind { override val handler = messages.StandingQueryResponse }
+  case object QueryRequest extends DistributedMessageKind { override val handler = handlers.QueryRequest }
+  case object QueryResponse extends DistributedMessageKind { override val handler = handlers.QueryResponse }
+  case object StandingQueryResponse extends DistributedMessageKind { override val handler = handlers.StandingQueryResponse }
 
   // Alias
   case object CreateAliasRequest extends DistributedMessageKind { override val handler = handlers.CreateAliasRequest }

@@ -86,12 +86,12 @@ class DistributedManager @Inject()(
     sendResponse(errorMessage)
   }
 
-  def putResponseOnChannel(messageId: DistributedMessageId, result: DistributedResult): Unit = {
+  def putResponseOnChannel(messageId: DistributedMessageId, result: JValue): Unit = {
     val securityContext = injector.instance[SecurityContext]
 
     requestDataStore.get((securityContext.connectionIid, messageId)).foreach { requestData =>
       sessionMgr.getSessionOpt(requestData.channelId) match {
-        case Some(session) => session.put(MethodInvocationResult(true, requestData.context, result.toJson, None))
+        case Some(session) => session.put(MethodInvocationResult(true, requestData.context, result, None))
         case None => requestDataStore.remove((securityContext.connectionIid, messageId))
       }
 
