@@ -53,6 +53,13 @@ class WebServicesModule extends M3ServletModule {
 //    serveBean[CancelQuery](ServicePath.cancelQuery)
 
     // Alias
+    serveBean[v1.CreateAlias](ServicePath.createAlias)
+    serveBean[v1.UpdateAlias](ServicePath.updateAlias)
+    serveBean[v1.DeleteAlias](ServicePath.deleteAlias)
+    serveBean[v1.CreateAliasLogin](ServicePath.createAliasLogin)
+    serveBean[v1.UpdateAliasLogin](ServicePath.updateAliasLogin)
+    serveBean[v1.DeleteAliasLogin](ServicePath.deleteAliasLogin)
+    serveBean[v1.UpdateAliasProfile](ServicePath.updateAliasProfile)
 
     // Connection
 

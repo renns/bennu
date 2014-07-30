@@ -16,20 +16,6 @@ import m3.servlet.longpoll.ChannelId
 import org.apache.http.client.HttpResponseException
 import org.eclipse.jetty.continuation.ContinuationSupport
 
-/**
-* Perform a long poll in order to receive asynchronous responses.
-*
-* Parameters:
-* - timeoutMillis: Integer (Must be passed as a parameter in the URL)
-* - byteCount: Integer (Optional)
-*
-* Response Values:
-* - JSON (Array of responses)
-*
-* Error Codes:
-* - timeoutMillisInvalid
-* - byteCountInvalid
-*/
 case class PollChannel @Inject()(
   req: HttpServletRequest,
   resp: HttpServletResponse,

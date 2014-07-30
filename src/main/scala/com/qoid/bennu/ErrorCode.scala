@@ -21,4 +21,6 @@ object ErrorCode {
   val contentTypeInvalid = "contentTypeInvalid"
   val dataInvalid = "dataInvalid"
   val labelIidsInvalid = "labelIidsInvalid"
+  val profileNameInvalid = "profileNameInvalid"
+  val profileNameProfileImageInvalid = "profileNameProfileImageInvalid"
 }

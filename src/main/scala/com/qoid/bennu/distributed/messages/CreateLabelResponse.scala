@@ -3,6 +3,7 @@ package com.qoid.bennu.distributed.messages
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.distributed.DistributedHandler
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
@@ -10,7 +11,7 @@ import com.qoid.bennu.distributed.DistributedResult
 import com.qoid.bennu.model.Label
 import m3.predef._
 
-object CreateLabelResponse extends FromJsonCapable[CreateLabelResponse] with Logging {
+object CreateLabelResponse extends DistributedHandler with FromJsonCapable[CreateLabelResponse] with Logging {
   def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
     val distributedMgr = injector.instance[DistributedManager]
 

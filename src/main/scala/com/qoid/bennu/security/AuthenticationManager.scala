@@ -47,6 +47,21 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
     }
   }
 
+  def updatePassword(aliasIid: InternalId, password: String): Login = {
+    validatePassword(password)
+
+    val salt = BCrypt.gensalt(config.bcryptSaltRounds)
+    val hash = BCrypt.hashpw(password, salt)
+
+    val login = Login.selectOne(sql"aliasIid = $aliasIid")
+    Login.update(login.copy(passwordHash = hash))
+  }
+
+  def deleteLogin(aliasIid: InternalId): Unit = {
+    val login = Login.selectOne(sql"aliasIid = $aliasIid")
+    Login.delete(login)
+  }
+
   def authenticate(authenticationId: AuthenticationId, password: String): InternalId = {
     SystemSecurityContext {
       val loginOpt = Login.selectOpt(sql"authenticationId = ${authenticationId.value.toLowerCase}").orElse {

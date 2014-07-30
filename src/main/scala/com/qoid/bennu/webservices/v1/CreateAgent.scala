@@ -14,21 +14,6 @@ import m3.servlet.HttpStatusCodes
 import m3.servlet.beans.Parm
 import net.liftweb.json._
 
-/**
-* Creates a new agent on this node.
-*
-* Parameters:
-* - name: String
-* - password: String
-*
-* Response Values:
-* - authenticationId: String
-*
-* Error Codes:
-* - nameInvalid
-* - nameDuplicate
-* - passwordInvalid
-*/
 case class CreateAgent @Inject()(
   agentAssist: AgentAssist,
   aliasAssist: AliasAssist,

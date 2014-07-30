@@ -7,15 +7,6 @@ import com.qoid.bennu.session.Session
 import com.qoid.bennu.session.SessionManager
 import m3.predef._
 
-/**
-* Logs out of the current session.
-*
-* Call this service directly and not by submitting on the channel.
-*
-* Parameters: None
-* Response Values: None
-* Error Codes: None
-*/
 case class Logout @Inject()(
   req: HttpServletRequest,
   sessionMgr: SessionManager,

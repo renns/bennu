@@ -59,4 +59,8 @@ class AliasAssist @Inject()(
   def createAnonymousAlias(parentAliasIid: InternalId): Alias = {
     createAlias(anonymousAliasName, anonymousAliasName, anonymousAliasImage, Some(parentAliasIid))
   }
+
+  def deleteAlias(aliasIid: InternalId): Unit = {
+    //TODO: What does it delete?
+  }
 }

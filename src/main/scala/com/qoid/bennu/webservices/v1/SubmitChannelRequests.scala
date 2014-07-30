@@ -10,15 +10,6 @@ import m3.servlet.beans.Parm
 import m3.servlet.longpoll.webservice
 import net.liftweb.json._
 
-/**
-* Submits one or more asynchronous requests.
-*
-* Parameters:
-* - requests: JSON (Array of MethodInvocation objects)
-*
-* Response Values: None
-* Error Codes: None
-*/
 case class SubmitChannelRequests @Inject()(
   session: Session,
   serializer: JsonSerializer,

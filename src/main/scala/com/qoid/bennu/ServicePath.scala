@@ -19,6 +19,13 @@ object ServicePath {
 //  val cancelQuery = "/api/v1/query/cancel"
 
   // Alias
+  val createAlias = "/api/v1/alias/create"
+  val updateAlias = "/api/v1/alias/update"
+  val deleteAlias = "/api/v1/alias/delete"
+  val createAliasLogin = "/api/v1/alias/login/create"
+  val updateAliasLogin = "/api/v1/alias/login/update"
+  val deleteAliasLogin = "/api/v1/alias/login/delete"
+  val updateAliasProfile = "/api/v1/alias/profile/update"
 
   // Connection
 

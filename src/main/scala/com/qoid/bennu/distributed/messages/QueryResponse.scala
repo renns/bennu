@@ -4,6 +4,7 @@ import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.FromJsonCapable
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
+import com.qoid.bennu.distributed.DistributedHandler
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
@@ -11,7 +12,7 @@ import com.qoid.bennu.distributed.DistributedResult
 import m3.json.Json
 import m3.predef._
 
-object QueryResponse extends FromJsonCapable[QueryResponse] with Logging {
+object QueryResponse extends DistributedHandler with FromJsonCapable[QueryResponse] with Logging {
   def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
     val distributedMgr = injector.instance[DistributedManager]
 
