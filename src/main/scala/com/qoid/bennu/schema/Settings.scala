@@ -4,7 +4,7 @@ import java.sql.Connection
 import m3.Txn
 import m3.fs._
 import m3.jdbc._
-import m3.jdbc.schemagen.DatabaseDialect._
+import m3.jdbc.schemagen.dialect._
 import m3.jdbc.schemagen._
 import m3.predef._
 import m3.predef.box._
@@ -32,7 +32,7 @@ object Settings {
 
   lazy val dialectName = schemaManager.dialect match {
     case _: HsqldbDialect => "hsqldb"
-    case _: Postgres => "postgresql"
+    case _: PostgresDialect => "postgresql"
     case _ => "unknown"
   }
 
@@ -45,7 +45,7 @@ object Settings {
   def shutdownDatabase(): Unit = {
     schemaManager.dialect match {
       case _: HsqldbDialect => inject[Connection].update("shutdown")
-      case _: Postgres =>
+      case _: PostgresDialect =>
       case _ => m3x.error("Unsupported database dialect")
     }
   }
