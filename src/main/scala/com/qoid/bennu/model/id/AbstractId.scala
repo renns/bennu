@@ -5,7 +5,7 @@ import m3.StringConverters.HasStringConverter
 import m3.jdbc.Row
 import m3.jdbc.RowMapper
 import m3.predef._
-import net.liftweb.json.JString
+import m3.json.LiftJsonAssist._
 import net.model3.util.UidGenerator
 import scala.language.implicitConversions
 

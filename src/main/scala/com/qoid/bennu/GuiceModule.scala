@@ -29,6 +29,7 @@ import m3.Logger
 import m3.guice.ScalaInjectorProvider
 import m3.jdbc.Database
 import m3.jdbc.M3ProviderDataSource
+import m3.jdbc.mapper.ColumnMapper.ColumnMapperFactory
 import m3.predef._
 import m3.servlet.M3ServletGuiceModule
 import m3.servlet.beans.Wrappers
@@ -168,6 +169,8 @@ class GuiceModule extends ScalaModule with Provider[Module] {
     bind[AgentAclManager].toProvider[ProviderAgentAclManager]
 
     bind[MessageQueue].to[SimpleMessageQueue]
+
+    bind[ColumnMapperFactory].toInstance(JdbcAssist.columnMapper)
   }
   
   @Provides

@@ -8,6 +8,7 @@ import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AgentAclManager
 import m3.jdbc._
+import m3.jdbc.mapper.PrimaryKey
 import m3.predef._
 import net.liftweb.json._
 import net.model3.chrono.DateTime

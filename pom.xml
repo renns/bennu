@@ -107,13 +107,6 @@
             <version>0.3m</version>
         </dependency>
 
-        <!-- JSON -->
-        <dependency>
-            <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_2.10</artifactId>
-            <version>2.5.1</version>
-        </dependency>
-
         <!-- RabbitMQ -->
         <dependency>
             <groupId>com.rabbitmq</groupId>
@@ -168,7 +161,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<scalaVersion>2.10.3</scalaVersion>
+		<scalaVersion>2.10.4</scalaVersion>
 	</properties>
 
 	<build>

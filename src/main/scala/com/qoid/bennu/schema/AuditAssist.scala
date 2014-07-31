@@ -1,8 +1,7 @@
 package com.qoid.bennu.schema
 
 import m3.jdbc._
-import m3.jdbc.schemagen.DatabaseDialect.Postgres
-import m3.jdbc.schemagen.HsqldbDialect
+import m3.jdbc.schemagen.dialect._
 import m3.jdbc.schemagen.Model._
 import m3.predef._
 
@@ -56,7 +55,7 @@ object AuditAssist {
           createHsqldbTrigger(table, delete) ::
           triggers
         }
-      case _: Postgres =>
+      case _: PostgresDialect =>
         schemaManager.model.resolvedTables.values.foldLeft(List.empty[String]) { case (triggers, table) =>
           createPostgresTriggerFunction(table, insert) ::
           createPostgresTriggerFunction(table, update) ::
