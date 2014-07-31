@@ -85,7 +85,7 @@ table labelAcl {
   connectionIid             Connection;
   labelIid                  Label;
   role                      Role;
-  maxDegreesOfVisibility    int;
+  maxDegreesOfVisibility    integer;
   import(CommonFields);
 }
 
@@ -95,7 +95,7 @@ table introduction {
   aState            varchar(50);
   bConnectionIid    Connection;
   bState            varchar(50);
-  recordVersion     int;
+  recordVersion     integer;
   import(CommonFields);
 }
 

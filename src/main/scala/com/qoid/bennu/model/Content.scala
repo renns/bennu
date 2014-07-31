@@ -1,6 +1,7 @@
 package com.qoid.bennu.model
 
 import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
@@ -10,8 +11,7 @@ import com.qoid.bennu.model.id.SharedId
 import com.qoid.bennu.query.ast.ContentQuery
 import com.qoid.bennu.query.ast.Node
 import m3.Chord
-import m3.jdbc._
-import net.liftweb.json._
+import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object Content extends BennuMapperCompanion[Content] with FromJsonCapable[Content] {

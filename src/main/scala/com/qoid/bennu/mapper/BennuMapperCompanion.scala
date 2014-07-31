@@ -10,7 +10,7 @@ import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
 import m3.Chord
-import m3.jdbc._
+import m3.jdbc.mapper.Mapper
 import m3.predef._
 import m3.predef.box._
 import net.model3.chrono.DateTime
@@ -28,9 +28,6 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
   /** The query transformer to use when performing a select */
   protected val queryTransformer: PartialFunction[Node, Chord] = PartialFunction.empty
 
-  /** The factory that maps columns to fields */
-  implicit val columnMapperFactory = new ColumnMapper.DefaultColumnMapperFactory(JValueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
-
   /** The internal mapper companion */
   private val mapper = new Mapper.MapperCompanion[T, InternalId] { mapper =>
     /** Performs a query and returns the results in a collection */
@@ -47,10 +44,10 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
   }
 
   /** The name of the table in the database */
-  lazy val tableName = mapper.tableName
+  lazy val tableName = mapper.asMapperInternal.sqlSafeTableName
 
   /** The name of the mapper class */
-  lazy val typeName = ClassX.getShortName(mapper.clazz)
+  lazy val typeName = ClassX.getShortName(mapper.asMapperInternal.clazz)
 
   def select(where: String, maxRows: Int = -1): Iterator[T] = mapper.select(where, maxRows)(jdbcConn)
   def selectAll: Iterator[T] = mapper.selectAll(jdbcConn)

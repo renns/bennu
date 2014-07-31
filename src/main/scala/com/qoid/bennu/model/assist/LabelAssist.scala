@@ -4,6 +4,7 @@ import java.sql.{Connection => JdbcConn}
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Connection
@@ -15,7 +16,6 @@ import com.qoid.bennu.security.SecurityContext
 import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
-import net.liftweb.json._
 
 @Singleton
 class LabelAssist @Inject()(injector: ScalaInjector) {

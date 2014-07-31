@@ -6,6 +6,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.mapper.MapperAssist
@@ -20,7 +21,6 @@ import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.security.SystemSecurityContext
 import m3.jdbc._
 import m3.predef._
-import net.liftweb.json._
 
 @Singleton
 class AgentAssist @Inject()(

@@ -4,11 +4,9 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-import com.qoid.bennu.JsonAssist
+import com.qoid.bennu.JsonAssist._
 import m3.Logging
-import m3.jdbc.ColumnMapper.SingleColumnMapper
-import net.liftweb.json.JNothing
-import net.liftweb.json.JValue
+import m3.jdbc.mapper.ColumnMapper.SingleColumnMapper
 
 object JValueColumnMapper extends SingleColumnMapper[JValue] with Logging {
   override val defaultValue = JNothing
@@ -21,7 +19,7 @@ object JValueColumnMapper extends SingleColumnMapper[JValue] with Logging {
 
       case s =>
         try {
-          JsonAssist.parseJson(s)
+          parseJson(s)
         } catch {
           case e: Exception => {
             logger.warn(s"error parsing -- ${s}", e)
@@ -32,7 +30,7 @@ object JValueColumnMapper extends SingleColumnMapper[JValue] with Logging {
   }
 
   override def toPreparedStatement(ps: PreparedStatement, col: Int, value: JValue): Unit = {
-    val s = JsonAssist.prettyPrint(value)
+    val s = prettyPrint(value)
     ps.setString(col, s)
   }
 }

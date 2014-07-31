@@ -1,9 +1,9 @@
 package com.qoid.bennu.distributed
 
 import com.qoid.bennu.FromJsonCapable
+import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.ToJsonCapable
 import m3.servlet.longpoll.ChannelId
-import net.liftweb.json.JValue
 
 object RequestData extends FromJsonCapable[RequestData]
 

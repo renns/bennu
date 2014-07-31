@@ -17,6 +17,7 @@ import com.qoid.bennu.GuiceModule.ProviderSecurityContext
 import com.qoid.bennu.GuiceModule.ProviderSession
 import com.qoid.bennu.distributed.MessageQueue
 import com.qoid.bennu.distributed.SimpleMessageQueue
+import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.security.AclManager
 import com.qoid.bennu.security.AgentAclManager
 import com.qoid.bennu.security.SecurityContext
@@ -170,7 +171,7 @@ class GuiceModule extends ScalaModule with Provider[Module] {
 
     bind[MessageQueue].to[SimpleMessageQueue]
 
-    bind[ColumnMapperFactory].toInstance(JdbcAssist.columnMapper)
+    bind[ColumnMapperFactory].toInstance(MapperAssist.columnMapperFactory)
   }
   
   @Provides

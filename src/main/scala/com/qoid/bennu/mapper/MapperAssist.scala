@@ -1,9 +1,12 @@
 package com.qoid.bennu.mapper
 
 import com.qoid.bennu.model._
+import m3.jdbc.mapper.ColumnMapper
 import m3.predef._
 
 object MapperAssist {
+  lazy val columnMapperFactory = new ColumnMapper.DefaultColumnMapperFactory(JValueColumnMapper :: ColumnMapper.mappers.allMapperFactories)
+
   lazy val allMappers: List[BennuMapperCompanion[_]] = List(
     Agent,
     Alias,
