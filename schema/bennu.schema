@@ -76,7 +76,7 @@ table connection {
   aliasIid                      InternalId;
   localPeerId                   PeerId;
   remotePeerId                  PeerId;
-  allowedDegreesOfVisibility    int;
+  allowedDegreesOfVisibility    integer;
   import(CommonFields);
 }
 
@@ -105,7 +105,7 @@ table introduction {
   aState            varchar(50);
   bConnectionIid    InternalId;
   bState            varchar(50);
-  recordVersion     int;
+  recordVersion     integer;
   import(CommonFields);
 }
 
