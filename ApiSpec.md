@@ -363,7 +363,7 @@
 * route: Array of Strings
 * parentLabelIid: String
 * name: String
-* data: AJSON
+* data: JSON
 
 **Response Parameters:**
 
