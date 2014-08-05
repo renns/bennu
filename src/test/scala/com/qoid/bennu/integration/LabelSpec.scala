@@ -6,13 +6,13 @@ import org.specs2.execute.Result
 
 import scala.async.Async
 
-class CreateLabelSpec extends Specification {
+class LabelSpec extends Specification {
   implicit val config = HttpClientConfig()
 
   def is = s2"""
     ${section("integration")}
 
-    Create Label should
+    Label should
       create a label      ${createLabel()}
 
     ${section("integration")}

@@ -6,6 +6,7 @@ import m3.servlet.beans.MultiRequestHandler.MethodInvocationResult
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
 
 trait ChannelClient extends ServiceAssist with QueryAssist {
   implicit val ec: ExecutionContext
@@ -19,6 +20,24 @@ trait ChannelClient extends ServiceAssist with QueryAssist {
   )(
     fn: MethodInvocationResult => Unit
   ): Unit
+
+  // Submits a request that only expects one response over the channel.
+  // The response result is returned as the completion of the promise.
+  def submitSingleResponse(path: String, parms: Map[String, JValue]): Future[JValue] = {
+    val promise = Promise[JValue]()
+
+    submit(path, parms) { result =>
+      cancelSubmit(result.context)
+
+      (result.success, result.error) match {
+        case (true, _) => promise.success(result.result)
+        case (false, Some(error)) => promise.failure(new Exception(error.message))
+        case (false, None) => promise.failure(new Exception("Failed with no error"))
+      }
+    }
+
+    promise.future
+  }
 
   // Stops waiting for a response to a request.
   def cancelSubmit(context: JValue): Unit

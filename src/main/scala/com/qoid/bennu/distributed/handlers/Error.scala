@@ -8,7 +8,6 @@ import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.messages
-import m3.TypeInfo
 import m3.predef._
 
 object Error extends DistributedHandler with Logging {
@@ -25,11 +24,11 @@ object Error extends DistributedHandler with Logging {
             throw new BennuException(ErrorCode.unsupportedResponseMessage, s"${message.kind} v${message.version}")
           }
 
-          val error = serializer.fromJsonTi[messages.Error](message.data, TypeInfo(message.data.getClass))
+          val error = serializer.fromJson[messages.Error](message.data)
 
           logger.warn(s"Error message -- ${error.errorCode} -- ${error.message}")
 
-          distributedMgr.putErrorOnChannel(message.messageId, error.errorCode)
+          distributedMgr.putErrorOnChannel(replyToMessageId, error.errorCode)
         } catch {
           case e: BennuException =>
             logger.debug(s"BennuException: ${e.getErrorCode()} -- ${e.getMessage}")

@@ -8,7 +8,7 @@ import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.service.QueryResult
 import com.qoid.bennu.query.StandingQueryAction
-
+import scala.async.Async._
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
@@ -20,34 +20,21 @@ trait ServiceAssist {
   }
 
   def query[T : Manifest](query: String, route: List[InternalId] = List(connectionIid)): Future[List[T]] = {
-    val promise = Promise[List[T]]()
+    async {
+      val typeName = MapperAssist.findMapperByType[T].typeName
 
-    val typeName = MapperAssist.findMapperByType[T].typeName
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "type" -> typeName,
+        "query" -> query,
+        "historical" -> true,
+        "standing" -> false
+      )
 
-    val parms = Map[String, JValue](
-      "route" -> route,
-      "type" -> typeName,
-      "query" -> query,
-      "historical" -> true,
-      "standing" -> false
-    )
-
-    submit(ServicePath.query, parms) { result =>
-      cancelSubmit(result.context)
-
-      (result.success, result.error) match {
-        case (true, _) =>
-          val queryResult = serializer.fromJson[QueryResult](result.result)
-
-          if (!queryResult.standing) {
-            promise.success(queryResult.results.map(serializer.fromJson[T]))
-          }
-        case (false, Some(error)) => promise.failure(new Exception(error.message))
-        case (false, None) => promise.failure(new Exception("Failed with no error"))
-      }
+      val result = await(submitSingleResponse(ServicePath.query, parms))
+      val queryResult = serializer.fromJson[QueryResult](result)
+      queryResult.results.map(serializer.fromJson[T])
     }
-
-    promise.future
   }
 
   def queryStanding[T : Manifest](
@@ -69,11 +56,7 @@ trait ServiceAssist {
       "standing" -> true
     )
 
-    //TODO: move callbacks map to this class
-
     submit(ServicePath.query, parms) { result =>
-      cancelSubmit(result.context)
-
       (result.success, result.error) match {
         case (true, _) =>
           val queryResult = serializer.fromJson[QueryResult](result.result)
@@ -92,49 +75,170 @@ trait ServiceAssist {
     promise.future
   }
 
-  def createContent(contentType: String, data: JValue, labelIids: List[InternalId], route: List[InternalId] = List(connectionIid)): Future[Content] = {
-    val promise = Promise[Content]()
+  def createAlias(
+    name: String,
+    profileName: String,
+    profileImage: Option[String] = None,
+    data: Option[JValue] = None,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Alias] = {
 
-    val parms = Map[String, JValue](
-      "route" -> route,
-      "contentType" -> contentType,
-      "data" -> data,
-      "labelIids" -> labelIids
-    )
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "name" -> name,
+        "profileName" -> profileName,
+        "profileImage" -> profileImage,
+        "data" -> data
+      )
 
-    submit(ServicePath.createContent, parms) { result =>
-      cancelSubmit(result.context)
-
-      (result.success, result.error) match {
-        case (true, _) => promise.success(Content.fromJson(result.result))
-        case (false, Some(error)) => promise.failure(new Exception(error.message))
-        case (false, None) => promise.failure(new Exception("Failed with no error"))
-      }
+      val result = await(submitSingleResponse(ServicePath.createAlias, parms))
+      Alias.fromJson(result)
     }
-
-    promise.future
   }
 
-  def createLabel(parentLabelIid: InternalId, name: String, route: List[InternalId] = List(connectionIid)): Future[Label] = {
-    val promise = Promise[Label]()
+  def updateAlias(
+    aliasIid: InternalId,
+    data: JValue,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Alias] = {
 
-    val parms = Map[String, JValue](
-      "route" -> route,
-      "parentLabelIid" -> parentLabelIid,
-      "name" -> name,
-      "data" -> ("color" -> "#7F7F7F")
-    )
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid,
+        "data" -> data
+      )
 
-    submit(ServicePath.createLabel, parms) { result =>
-      cancelSubmit(result.context)
-
-      (result.success, result.error) match {
-        case (true, _) => promise.success(Label.fromJson(result.result))
-        case (false, Some(error)) => promise.failure(new Exception(error.message))
-        case (false, None) => promise.failure(new Exception("Failed with no error"))
-      }
+      val result = await(submitSingleResponse(ServicePath.updateAlias, parms))
+      Alias.fromJson(result)
     }
+  }
 
-    promise.future
+  def deleteAlias(
+    aliasIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.deleteAlias, parms))
+      serializer.fromJson[AliasIid](result).aliasIid
+    }
+  }
+
+  def createAliasLogin(
+    aliasIid: InternalId,
+    password: String,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Login] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid,
+        "password" -> password
+      )
+
+      val result = await(submitSingleResponse(ServicePath.createAliasLogin, parms))
+      Login.fromJson(result)
+    }
+  }
+
+  def updateAliasLogin(
+    aliasIid: InternalId,
+    password: String,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Login] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid,
+        "password" -> password
+      )
+
+      val result = await(submitSingleResponse(ServicePath.updateAliasLogin, parms))
+      Login.fromJson(result)
+    }
+  }
+
+  def deleteAliasLogin(
+    aliasIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.deleteAliasLogin, parms))
+      serializer.fromJson[AliasIid](result).aliasIid
+    }
+  }
+
+  def updateAliasProfile(
+    aliasIid: InternalId,
+    profileName: Option[String] = None,
+    profileImage: Option[String] = None,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Profile] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aliasIid" -> aliasIid,
+        "profileName" -> profileName,
+        "profileImage" -> profileImage
+      )
+
+      val result = await(submitSingleResponse(ServicePath.updateAliasProfile, parms))
+      Profile.fromJson(result)
+    }
+  }
+
+  def createContent(
+    contentType: String,
+    data: JValue,
+    labelIids: List[InternalId],
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Content] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "contentType" -> contentType,
+        "data" -> data,
+        "labelIids" -> labelIids
+      )
+
+      val result = await(submitSingleResponse(ServicePath.createContent, parms))
+      Content.fromJson(result)
+    }
+  }
+
+  def createLabel(
+    parentLabelIid: InternalId,
+    name: String,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Label] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "parentLabelIid" -> parentLabelIid,
+        "name" -> name,
+        "data" -> ("color" -> "#7F7F7F")
+      )
+
+      val result = await(submitSingleResponse(ServicePath.createLabel, parms))
+      Label.fromJson(result)
+    }
   }
 }

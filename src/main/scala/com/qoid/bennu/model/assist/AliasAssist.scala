@@ -30,13 +30,14 @@ class AliasAssist @Inject()(
   ): Alias = {
     val labelIid = InternalId.random
 
-    val alias = Alias.insert(Alias(labelIid, connectionIid, iid = aliasIid))
     val label = Label.insert(Label(name, data = labelAssist.aliasLabelData, iid = labelIid))
 
     parentAliasIid.foreach { iid =>
       val parentAlias = Alias.fetch(iid)
       LabelChild.insert(LabelChild(parentAlias.labelIid, label.iid))
     }
+
+    val alias = Alias.insert(Alias(label.iid, connectionIid, iid = aliasIid))
 
     val metaLabel = Label.insert(Label(labelAssist.metaLabelName, data = labelAssist.metaLabelData))
     LabelChild.insert(LabelChild(label.iid, metaLabel.iid))

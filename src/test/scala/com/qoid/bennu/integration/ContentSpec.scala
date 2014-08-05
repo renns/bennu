@@ -5,16 +5,15 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.client._
 import org.specs2.Specification
 import org.specs2.execute.Result
-
 import scala.async.Async
 
-class CreateContentSpec extends Specification {
+class ContentSpec extends Specification {
   implicit val config = HttpClientConfig()
 
   def is = s2"""
     ${section("integration")}
 
-    Create Content should
+    Content should
       create content      ${createContent()}
 
     ${section("integration")}

@@ -7,13 +7,13 @@ import org.specs2.execute.Result
 
 import scala.async.Async
 
-class CreateAgentSpec extends Specification {
+class AgentSpec extends Specification {
   implicit val config = HttpClientConfig()
 
   def is = s2"""
     ${section("integration")}
 
-    Create Agent should
+    Agent should
       create agent      ${createAgent()}
 
     ${section("integration")}

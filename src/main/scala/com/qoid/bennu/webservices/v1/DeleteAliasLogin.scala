@@ -11,8 +11,7 @@ import m3.servlet.beans.Parm
 case class DeleteAliasLogin @Inject()(
   injector: ScalaInjector,
   @Parm route: List[InternalId],
-  @Parm aliasIid: InternalId,
-  @Parm password: String
+  @Parm aliasIid: InternalId
 ) extends DistributedService {
 
   override protected val request = DeleteAliasLoginRequest(aliasIid).toJson
