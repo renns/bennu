@@ -13,7 +13,6 @@ import com.qoid.bennu.model.assist.AliasAssist
 import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.Profile
 import com.qoid.bennu.security.AuthenticationManager
-import com.qoid.bennu.security.SecurityContext
 import m3.jdbc._
 import m3.predef._
 
@@ -29,9 +28,8 @@ object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAlias
 
   override def process(message: DistributedMessage, request: messages.CreateAliasRequest, injector: ScalaInjector): JValue = {
     val aliasAssist = injector.instance[AliasAssist]
-    val securityContext = injector.instance[SecurityContext]
 
-    val alias = aliasAssist.createAlias(request.name, request.profileName, request.profileImage, Some(securityContext.aliasIid))
+    val alias = aliasAssist.createAlias(request.name, request.profileName, request.profileImage)
 
     messages.CreateAliasResponse(alias).toJson
   }

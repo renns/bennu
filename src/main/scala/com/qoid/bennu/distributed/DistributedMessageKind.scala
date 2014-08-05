@@ -35,6 +35,8 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object UpdateAliasProfileResponse extends DistributedMessageKind { override val handler = handlers.UpdateAliasProfileResponse }
 
   // Connection
+  case object DeleteConnectionRequest extends DistributedMessageKind { override val handler = handlers.DeleteConnectionRequest }
+  case object DeleteConnectionResponse extends DistributedMessageKind { override val handler = handlers.DeleteConnectionResponse }
 
   // Content
   case object CreateContentRequest extends DistributedMessageKind { override val handler = messages.CreateContentRequest }
@@ -71,6 +73,9 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     DeleteAliasLoginResponse,
     UpdateAliasProfileRequest,
     UpdateAliasProfileResponse,
+
+    DeleteConnectionRequest,
+    DeleteConnectionResponse,
 
     CreateContentRequest,
     CreateContentResponse,

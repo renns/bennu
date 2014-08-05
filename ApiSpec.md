@@ -310,7 +310,22 @@
 
 ### Delete Connection
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/connection/delete*
+
+**Parameters:**
+
+* route: Array of Strings
+* connectionIid: String
+
+**Response Parameters:**
+
+* connectionIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ## Content
 

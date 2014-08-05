@@ -53,9 +53,8 @@ class AgentAssist @Inject()(
     val securityContext = injector.instance[SecurityContext]
 
     val agent = Agent.insert(Agent(name, aliasIid = InternalId.random))
-    val alias = aliasAssist.createAlias(name, name, "", None, securityContext.connectionIid, agent.aliasIid)
+    val alias = aliasAssist.createRootAlias(name, name, "", securityContext.connectionIid, agent.aliasIid)
     val login = authenticationMgr.createLogin(alias.iid, password)
-    LabelAcl.insert(LabelAcl(alias.connectionIid, alias.labelIid, Role.AgentAdmin, maxDegreesOfVisibility = 1))
 
     login
   }

@@ -62,6 +62,7 @@ class WebServicesModule extends M3ServletModule {
     serveBean[v1.UpdateAliasProfile](ServicePath.updateAliasProfile)
 
     // Connection
+    serveBean[v1.DeleteConnection](ServicePath.deleteConnection)
 
     // Content
     serveBean[v1.CreateContent](ServicePath.createContent)

@@ -203,6 +203,22 @@ trait ServiceAssist {
     }
   }
 
+  def deleteConnection(
+    connectionIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "connectionIid" -> connectionIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.deleteConnection, parms))
+      serializer.fromJson[ConnectionIid](result).connectionIid
+    }
+  }
+
   def createContent(
     contentType: String,
     data: JValue,

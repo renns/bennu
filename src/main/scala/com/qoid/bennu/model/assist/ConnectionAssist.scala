@@ -26,16 +26,20 @@ class ConnectionAssist @Inject()(
     localPeerId: PeerId,
     remotePeerId: PeerId,
     connectionsLabelIid: InternalId,
-    connectionIid: InternalId
+    connectionIid: InternalId = InternalId.random
   ): Connection = {
 
-    val connectionLabelIid = InternalId.random
-
-    val connection = Connection.insert(Connection(aliasIid, localPeerId, remotePeerId, connectionLabelIid, iid = connectionIid))
-    val connectionLabel = Label.insert(Label(labelAssist.connectionLabelName, data = labelAssist.metaLabelData, iid = connectionLabelIid))
+    // Create connection label
+    val connectionLabel = Label.insert(Label(labelAssist.connectionLabelName, data = labelAssist.metaLabelData))
     LabelChild.insert(LabelChild(connectionsLabelIid, connectionLabel.iid))
+
+    // Create connection
+    val connection = Connection.insert(Connection(aliasIid, localPeerId, remotePeerId, connectionLabel.iid, iid = connectionIid))
+
+    // Grant the ContentViewer role to the connection
     LabelAcl.insert(LabelAcl(connection.iid, connectionLabel.iid, Role.ContentViewer, 1))
 
+    // Start listening on the connection
     distributedMgr.listen(connection)
 
     connection

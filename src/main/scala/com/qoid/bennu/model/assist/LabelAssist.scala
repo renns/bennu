@@ -27,6 +27,19 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
   val aliasLabelData: JValue = "color" -> "#000000"
   val metaLabelData: JValue = "color" -> "#7FBA00"
 
+  def createMetaLabels(labelIid: InternalId): (Label, Label, Label) = {
+    val metaLabel = Label.insert(Label(metaLabelName, data = metaLabelData))
+    LabelChild.insert(LabelChild(labelIid, metaLabel.iid))
+
+    val connectionsLabel = Label.insert(Label(connectionsLabelName, data = metaLabelData))
+    LabelChild.insert(LabelChild(metaLabel.iid, connectionsLabel.iid))
+
+    val verificationsLabel = Label.insert(Label(verificationsLabelName, data = metaLabelData))
+    LabelChild.insert(LabelChild(metaLabel.iid, verificationsLabel.iid))
+
+    (metaLabel, connectionsLabel, verificationsLabel)
+  }
+
   def findChildLabel(parentIid: InternalId, childName: String): Box[Label] = {
     val childIids = LabelChild.select(sql"parentIid = ${parentIid}").map(_.childIid).toList
     Label.selectBox(sql"name = ${childName} and iid in (${childIids})")

@@ -2,6 +2,7 @@ package com.qoid.bennu.client
 
 import com.qoid.bennu.model.Agent
 import com.qoid.bennu.model.Alias
+import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.Label
 import m3.jdbc._
 
@@ -17,17 +18,24 @@ trait QueryAssist {
     }
   }
 
-  def getRootAlias(): Future[Alias] = {
+  def getCurrentAlias(): Future[Alias] = {
     async {
       val agent = await(getAgent())
       await(query[Alias](sql"iid = ${agent.aliasIid}")).head
     }
   }
 
-  def getRootLabel(): Future[Label] = {
+  def getCurrentAliasLabel(): Future[Label] = {
     async {
-      val rootAlias = await(getRootAlias())
-      await(query[Label](sql"iid = ${rootAlias.labelIid}")).head
+      val alias = await(getCurrentAlias())
+      await(query[Label](sql"iid = ${alias.labelIid}")).head
+    }
+  }
+
+  def getConnections(): Future[List[Connection]] = {
+    async {
+      val alias = await(getCurrentAlias())
+      await(query[Connection](sql"aliasIid = ${alias.iid}"))
     }
   }
 }

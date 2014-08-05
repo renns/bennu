@@ -28,6 +28,7 @@ object ServicePath {
   val updateAliasProfile = "/api/v1/alias/profile/update"
 
   // Connection
+  val deleteConnection = "/api/v1/connection/delete"
 
   // Content
   val createContent = "/api/v1/content/create"

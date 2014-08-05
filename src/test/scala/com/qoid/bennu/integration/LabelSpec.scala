@@ -25,7 +25,7 @@ class LabelSpec extends Specification {
   def createLabel(): Result = {
     ClientAssist.channelClient1 { client =>
       Async.async {
-        val rootLabel = Async.await(client.getRootLabel())
+        val rootLabel = Async.await(client.getCurrentAliasLabel())
         val label = Async.await(client.createLabel(rootLabel.iid, "Label"))
 
         label.name must_== "Label"
