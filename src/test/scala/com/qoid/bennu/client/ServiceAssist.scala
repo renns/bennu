@@ -266,6 +266,60 @@ trait ServiceAssist {
     }
   }
 
+  def updateContent(
+    contentIid: InternalId,
+    data: JValue,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Content] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "contentIid" -> contentIid,
+        "data" -> data
+      )
+
+      val result = await(submitSingleResponse(ServicePath.updateContent, parms))
+      Content.fromJson(result)
+    }
+  }
+
+  def addContentLabel(
+    contentIid: InternalId,
+    labelIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[ContentLabel] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "contentIid" -> contentIid,
+        "labelIid" -> labelIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.addContentLabel, parms))
+      serializer.fromJson[ContentLabel](result)
+    }
+  }
+
+  def removeContentLabel(
+    contentIid: InternalId,
+    labelIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[ContentLabel] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "contentIid" -> contentIid,
+        "labelIid" -> labelIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.removeContentLabel, parms))
+      serializer.fromJson[ContentLabel](result)
+    }
+  }
+
   def createLabel(
     parentLabelIid: InternalId,
     name: String,

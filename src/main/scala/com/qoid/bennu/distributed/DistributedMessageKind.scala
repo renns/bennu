@@ -39,8 +39,14 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object DeleteConnectionResponse extends DistributedMessageKind { override val handler = handlers.DeleteConnectionResponse }
 
   // Content
-  case object CreateContentRequest extends DistributedMessageKind { override val handler = messages.CreateContentRequest }
-  case object CreateContentResponse extends DistributedMessageKind { override val handler = messages.CreateContentResponse }
+  case object CreateContentRequest extends DistributedMessageKind { override val handler = handlers.CreateContentRequest }
+  case object CreateContentResponse extends DistributedMessageKind { override val handler = handlers.CreateContentResponse }
+  case object UpdateContentRequest extends DistributedMessageKind { override val handler = handlers.UpdateContentRequest }
+  case object UpdateContentResponse extends DistributedMessageKind { override val handler = handlers.UpdateContentResponse }
+  case object AddContentLabelRequest extends DistributedMessageKind { override val handler = handlers.AddContentLabelRequest }
+  case object AddContentLabelResponse extends DistributedMessageKind { override val handler = handlers.AddContentLabelResponse }
+  case object RemoveContentLabelRequest extends DistributedMessageKind { override val handler = handlers.RemoveContentLabelRequest }
+  case object RemoveContentLabelResponse extends DistributedMessageKind { override val handler = handlers.RemoveContentLabelResponse }
 
   // Label
   case object CreateLabelRequest extends DistributedMessageKind { override val handler = messages.CreateLabelRequest }
@@ -79,6 +85,12 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
 
     CreateContentRequest,
     CreateContentResponse,
+    UpdateContentRequest,
+    UpdateContentResponse,
+    AddContentLabelRequest,
+    AddContentLabelResponse,
+    RemoveContentLabelRequest,
+    RemoveContentLabelResponse,
 
     CreateLabelRequest,
     CreateLabelResponse

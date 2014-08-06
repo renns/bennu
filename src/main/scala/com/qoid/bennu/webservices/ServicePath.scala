@@ -33,6 +33,9 @@ object ServicePath {
 
   // Content
   val createContent = "/api/v1/content/create"
+  val updateContent = "/api/v1/content/update"
+  val addContentLabel = "/api/v1/content/label/add"
+  val removeContentLabel = "/api/v1/content/label/remove"
 
   // Label
   val createLabel = "/api/v1/label/create"

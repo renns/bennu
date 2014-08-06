@@ -14,7 +14,10 @@ class ContentSpec extends Specification {
     ${section("integration")}
 
     Content should
-      create content      ${createContent()}
+      create content        ${createContent()}
+      update content        ${updateContent()}
+      add content label     ${addContentLabel()}
+      remove content label  ${removeContentLabel()}
 
     ${section("integration")}
   """
@@ -26,11 +29,49 @@ class ContentSpec extends Specification {
   def createContent(): Result = {
     ClientAssist.channelClient1 { client =>
       Async.async {
-        val rootLabel = Async.await(client.getCurrentAliasLabel())
+        val label = Async.await(client.getCurrentAliasLabel())
         val data: JValue = "text" -> "My content"
-        val content = Async.await(client.createContent("TEXT", data, List(rootLabel.iid)))
+        val content = Async.await(client.createContent("TEXT", data, List(label.iid)))
 
         content.data must_== data
+      }
+    }.await(60)
+  }
+
+  def updateContent(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val label = Async.await(client.getCurrentAliasLabel())
+        val content = Async.await(client.createContent("TEXT", "text" -> "My content", List(label.iid)))
+        val data: JValue = "text" -> "My updated content"
+        val content2 = Async.await(client.updateContent(content.iid, data))
+
+        content2.data must_== data
+      }
+    }.await(60)
+  }
+
+  def addContentLabel(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val label = Async.await(client.getCurrentAliasLabel())
+        val label2 = Async.await(client.createLabel(label.iid, "Test"))
+        val content = Async.await(client.createContent("TEXT", "text" -> "My content", List(label.iid)))
+        val contentLabel = Async.await(client.addContentLabel(content.iid, label2.iid))
+
+        (contentLabel.contentIid must_== content.iid) and (contentLabel.labelIid must_== label2.iid)
+      }
+    }.await(60)
+  }
+
+  def removeContentLabel(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val label = Async.await(client.getCurrentAliasLabel())
+        val content = Async.await(client.createContent("TEXT", "text" -> "My content", List(label.iid)))
+        val contentLabel = Async.await(client.removeContentLabel(content.iid, label.iid))
+
+        (contentLabel.contentIid must_== content.iid) and (contentLabel.labelIid must_== label.iid)
       }
     }.await(60)
   }

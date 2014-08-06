@@ -23,4 +23,6 @@ object ErrorCode {
   val labelIidsInvalid = "labelIidsInvalid"
   val profileNameInvalid = "profileNameInvalid"
   val profileNameProfileImageInvalid = "profileNameProfileImageInvalid"
+  val contentAlreadyHasLabel = "contentAlreadyHasLabel"
+  val contentDoesNotHaveLabel = "contentDoesNotHaveLabel"
 }

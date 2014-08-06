@@ -372,15 +372,72 @@
 
 ### Update Content
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/content/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* contentIid: InternalId
+* data: JSON
+
+**Response Parameters:**
+
+* content fields
+
+**Error Codes:**
+
+* routeInvalid
+* dataInvalid
 
 ### Add Content Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/content/label/add*
+
+**Parameters:**
+
+* route: Array of Strings
+* contentIid: String
+* labelIid: String
+
+**Response Parameters:**
+
+* contentIid: String
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* contentAlreadyHasLabel
 
 ### Remove Content Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/content/label/remove*
+
+**Parameters:**
+
+* route: Array of Strings
+* contentIid: String
+* labelIid: String
+
+**Response Parameters:**
+
+* contentIid: String
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* contentDoesNotHaveLabel
+
+**Notes:**
+
+* If the last label is removed from a piece of content, that content is orphaned and is no longer accessible
 
 ## Label
 
