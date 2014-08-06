@@ -62,9 +62,12 @@ class AgentAssist @Inject()(
   def deleteAgent(): Unit = {
     val securityContext = injector.instance[SecurityContext]
 
-    if (securityContext.isAgentAdmin) {
+    val agent = Agent.selectOne(sql"agentId = ${securityContext.agentId}")
+
+    if (securityContext.canDelete[Agent](agent)) {
       val jdbcConn = injector.instance[JdbcConn]
 
+      // The following is executed outside of any security context
       MapperAssist.allMappers.foreach { mapper =>
         jdbcConn.update(sql"delete from ${mapper.tableName.rawSql} where agentId = ${securityContext.agentId}")
         jdbcConn.update(sql"delete from ${(mapper.tableName + "_log").rawSql} where agentId = ${securityContext.agentId}")
@@ -155,7 +158,7 @@ class AgentAssist @Inject()(
   def exportAgent(): JValue = {
     val securityContext = injector.instance[SecurityContext]
 
-    if (securityContext.isAgentAdmin) {
+    if (securityContext.canExportAgent) {
       val agent = Agent.selectOne("")
       val aliases = Alias.select("").toList
       val connections = Connection.select("").toList

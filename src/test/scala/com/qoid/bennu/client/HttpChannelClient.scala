@@ -2,8 +2,8 @@ package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.ServicePath
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.webservices.ServicePath
 import m3.LockFreeMap
 import m3.predef._
 import m3.servlet.beans.MultiRequestHandler.MethodInvocation

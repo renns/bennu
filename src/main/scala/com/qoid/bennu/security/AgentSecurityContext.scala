@@ -47,5 +47,5 @@ class AgentSecurityContext(
   override def canUpdate[T <: BennuMappedInstance[T]](instance: T): Boolean = instance.agentId == agentId
   override def canDelete[T <: BennuMappedInstance[T]](instance: T): Boolean = instance.agentId == agentId
 
-  override def isAgentAdmin: Boolean = true
+  override def canExportAgent: Boolean = true
 }

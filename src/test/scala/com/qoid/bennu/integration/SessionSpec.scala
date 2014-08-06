@@ -1,20 +1,22 @@
 package com.qoid.bennu.integration
 
 import com.qoid.bennu.client._
+import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.InternalId
 import org.specs2.Specification
 import org.specs2.execute.Result
 
 import scala.async.Async
 
-class LoginSpec extends Specification {
+class SessionSpec extends Specification {
   implicit val config = HttpClientConfig()
 
   def is = s2"""
     ${section("integration")}
 
-    Login should
+    Session should
       login and logout      ${loginLogout()}
+      spawn session         ${spawnSession()}
 
     ${section("integration")}
   """
@@ -32,6 +34,22 @@ class LoginSpec extends Specification {
       Async.await(client.logout())
 
       success
+    }.await(60)
+  }
+
+  def spawnSession(): Result = {
+    ClientAssist.channelClient1 { client1 =>
+      Async.async {
+        val alias1 = Async.await(client1.getAlias("Anonymous"))
+
+        val alias2 = Async.await {
+          client1.spawnSession(alias1.iid) { client2 =>
+            client2.getCurrentAlias()
+          }
+        }
+
+        alias2.iid must_== alias1.iid
+      }
     }.await(60)
   }
 }

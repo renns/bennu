@@ -4,10 +4,15 @@ import java.util.concurrent.TimeUnit
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.BennuException
 import com.qoid.bennu.Config
+import com.qoid.bennu.ErrorCode
+import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.AuthenticationId
+import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.security.AuthenticationManager
 import com.qoid.bennu.security.ConnectionSecurityContext
+import com.qoid.bennu.security.SecurityContext
 import io.netty.util.HashedWheelTimer
 import io.netty.util.Timeout
 import io.netty.util.TimerTask
@@ -35,6 +40,21 @@ class SessionManager @Inject()(
     sessions.put(session.channel.id, session)
     timeouts.put(session.channel.id, createTimeout(session.channel.id))
     session
+  }
+
+  def createSession(aliasIid: InternalId): Session = {
+    val currentSecurityContext = injector.instance[SecurityContext]
+
+    if (currentSecurityContext.canSpawnSession) {
+      val alias = Alias.fetch(aliasIid)
+      val securityContext = new ConnectionSecurityContext(alias.connectionIid, injector)
+      val session = new Session(injector, securityContext)
+      sessions.put(session.channel.id, session)
+      timeouts.put(session.channel.id, createTimeout(session.channel.id))
+      session
+    } else {
+      throw new BennuException(ErrorCode.permissionDenied, "canSpawnSession")
+    }
   }
 
   def getSessionOpt(channelId: ChannelId): Option[Session] = {

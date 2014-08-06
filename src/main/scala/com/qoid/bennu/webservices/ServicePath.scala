@@ -1,4 +1,4 @@
-package com.qoid.bennu
+package com.qoid.bennu.webservices
 
 object ServicePath {
   // Agent
@@ -9,6 +9,7 @@ object ServicePath {
   // Session
   val login = "/api/v1/login"
   val logout = "/api/v1/logout"
+  val spawnSession = "/api/v1/session/spawn"
 
   // Channel
   val pollChannel = "/api/v1/channel/poll"

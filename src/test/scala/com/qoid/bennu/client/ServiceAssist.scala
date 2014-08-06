@@ -2,18 +2,45 @@ package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.ServicePath
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.service.QueryResult
 import com.qoid.bennu.query.StandingQueryAction
+import com.qoid.bennu.webservices.ServicePath
 import scala.async.Async._
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
 trait ServiceAssist {
   this: ChannelClient =>
+
+  def spawnSession[T](
+    aliasIid: InternalId
+  )(
+    body: ChannelClient => Future[T]
+  )(
+    implicit
+    config: HttpClientConfig,
+    ec: ExecutionContext
+  ): Future[T] = {
+    async {
+      val parms = Map[String, JValue](
+        "aliasIid" -> aliasIid
+      )
+
+      val result = await(post(ServicePath.spawnSession, parms))
+      val session = serializer.fromJson[Session](result)
+      val client = new HttpChannelClient(session.channelId, session.connectionIid)
+      val t = await(body(client))
+
+      client.close()
+      await(client.logout())
+
+      t
+    }
+  }
 
   def logout(): Future[Unit] = {
     post(ServicePath.logout, Map.empty[String, JValue]).map(_ => ())

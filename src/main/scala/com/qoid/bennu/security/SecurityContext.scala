@@ -17,5 +17,6 @@ trait SecurityContext {
   def canUpdate[T <: BennuMappedInstance[T]](instance: T): Boolean
   def canDelete[T <: BennuMappedInstance[T]](instance: T): Boolean
 
-  def isAgentAdmin: Boolean
+  def canExportAgent = false
+  def canSpawnSession = false
 }

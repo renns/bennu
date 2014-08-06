@@ -8,6 +8,9 @@ import com.qoid.bennu.model._
 sealed trait Role extends Enum[Role] {
   override val companion = Role
 
+  val canExportAgent = false
+  val canSpawnSession = false
+
   protected val permissions: Map[BennuMapperCompanion[_], List[Permission]]
 
   def hasPermission(permissionType: BennuMapperCompanion[_], permission: Permission): Boolean = {
@@ -19,6 +22,8 @@ object Role extends EnumCompanion[Role] {
   import com.qoid.bennu.security.Permission._
 
   case object AgentAdmin extends Role {
+    override val canExportAgent = true
+
     override val permissions = Map[BennuMapperCompanion[_], List[Permission]](
       Agent -> List(View, Insert, Update, Delete),
       Alias -> List(View, Insert, Update, Delete),
@@ -36,6 +41,8 @@ object Role extends EnumCompanion[Role] {
   }
 
   case object AliasAdmin extends Role {
+    override val canSpawnSession = true
+
     override val permissions = Map[BennuMapperCompanion[_], List[Permission]](
       Agent -> List(View),
       Alias -> List(View, Insert, Update, Delete),

@@ -40,6 +40,4 @@ class SystemSecurityContext extends SecurityContext {
   override def canInsert[T <: BennuMappedInstance[T]](instance: T): Boolean = false
   override def canUpdate[T <: BennuMappedInstance[T]](instance: T): Boolean = false
   override def canDelete[T <: BennuMappedInstance[T]](instance: T): Boolean = false
-
-  override def isAgentAdmin: Boolean = false
 }

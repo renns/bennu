@@ -20,8 +20,7 @@ trait QueryAssist {
 
   def getCurrentAlias(): Future[Alias] = {
     async {
-      val agent = await(getAgent())
-      await(query[Alias](sql"iid = ${agent.aliasIid}")).head
+      await(query[Alias](sql"connectionIid = ${connectionIid}")).head
     }
   }
 
@@ -36,6 +35,14 @@ trait QueryAssist {
     async {
       val alias = await(getCurrentAlias())
       await(query[Connection](sql"aliasIid = ${alias.iid}"))
+    }
+  }
+
+  def getAlias(name: String): Future[Alias] = {
+    async {
+      val allAliases = await(query[Alias](""))
+      val label = await(query[Label](sql"iid in (${allAliases.map(_.labelIid)}) and name = ${name}")).head
+      allAliases.find(_.labelIid == label.iid).head
     }
   }
 }

@@ -1,6 +1,5 @@
 package com.qoid.bennu.webservices
 
-import com.qoid.bennu.ServicePath
 import m3.servlet.CorsFilter
 import m3.servlet.CurlFilter
 import m3.servlet.M3ServletModule
@@ -43,6 +42,7 @@ class WebServicesModule extends M3ServletModule {
     // Session
     serveBean[v1.Login](ServicePath.login)
     serveBean[v1.Logout](ServicePath.logout)
+    serveBean[v1.SpawnSession](ServicePath.spawnSession)
 
     // Channel
     serveBean[v1.PollChannel](ServicePath.pollChannel)
