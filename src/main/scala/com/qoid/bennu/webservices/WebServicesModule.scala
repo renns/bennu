@@ -72,6 +72,13 @@ class WebServicesModule extends M3ServletModule {
 
     // Label
     serveBean[v1.CreateLabel](ServicePath.createLabel)
+    serveBean[v1.UpdateLabel](ServicePath.updateLabel)
+    serveBean[v1.MoveLabel](ServicePath.moveLabel)
+    serveBean[v1.CopyLabel](ServicePath.copyLabel)
+    serveBean[v1.RemoveLabel](ServicePath.removeLabel)
+    serveBean[v1.GrantLabelAccess](ServicePath.grantLabelAccess)
+    serveBean[v1.RevokeLabelAccess](ServicePath.revokeLabelAccess)
+    serveBean[v1.UpdateLabelAccess](ServicePath.updateLabelAccess)
 
     // Notification
 

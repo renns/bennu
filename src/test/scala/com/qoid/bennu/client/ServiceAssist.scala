@@ -338,4 +338,136 @@ trait ServiceAssist {
       Label.fromJson(result)
     }
   }
+
+  def updateLabel(
+    labelIid: InternalId,
+    name: String,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Label] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "name" -> name
+      )
+
+      val result = await(submitSingleResponse(ServicePath.updateLabel, parms))
+      Label.fromJson(result)
+    }
+  }
+
+  def moveLabel(
+    labelIid: InternalId,
+    oldParentLabelIid: InternalId,
+    newParentLabelIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "oldParentLabelIid" -> oldParentLabelIid,
+        "newParentLabelIid" -> newParentLabelIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.moveLabel, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
+
+  def copyLabel(
+    labelIid: InternalId,
+    newParentLabelIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "newParentLabelIid" -> newParentLabelIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.copyLabel, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
+
+  def removeLabel(
+    labelIid: InternalId,
+    parentLabelIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "parentLabelIid" -> parentLabelIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.removeLabel, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
+
+  def grantLabelAccess(
+    labelIid: InternalId,
+    connectionIid: InternalId,
+    maxDoV: Int,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "connectionIid" -> connectionIid,
+        "maxDoV" -> JInt(maxDoV)
+      )
+
+      val result = await(submitSingleResponse(ServicePath.grantLabelAccess, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
+
+  def revokeLabelAccess(
+    labelIid: InternalId,
+    connectionIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "connectionIid" -> connectionIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.revokeLabelAccess, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
+
+  def updateLabelAccess(
+    labelIid: InternalId,
+    connectionIid: InternalId,
+    maxDoV: Int,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "labelIid" -> labelIid,
+        "connectionIid" -> connectionIid,
+        "maxDoV" -> JInt(maxDoV)
+      )
+
+      val result = await(submitSingleResponse(ServicePath.updateLabelAccess, parms))
+      serializer.fromJson[LabelIid](result).labelIid
+    }
+  }
 }

@@ -317,6 +317,7 @@
 **Error Codes:**
 
 * routeInvalid
+* profileNameInvalid
 * profileNameProfileImageInvalid
 
 **Notes:**
@@ -452,7 +453,7 @@
 * route: Array of Strings
 * parentLabelIid: String
 * name: String
-* data: JSON
+* data: JSON (optional)
 
 **Response Parameters:**
 
@@ -465,19 +466,166 @@
 
 ### Update Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* name: String (optional)
+* data: JSON (optional)
+
+**Response Parameters:**
+
+* label fields
+
+**Error Codes:**
+
+* routeInvalid
+* nameInvalid
+* nameDataInvalid
+
+**Notes:**
+
+* At least one of *name* or *data* must be provided
 
 ### Move Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/move*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* oldParentLabelIid: String,
+* newParentLabelIid: String
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ### Copy Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/copy*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* newParentLabelIid: String
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ### Remove Label
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/remove*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* parentLabelIid: String
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+
+### Grant Label Access
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/access/grant*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* connectionIid: String
+* maxDoV: Integer
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* maxDoVInvalid
+* connectionAlreadyHasAccess
+
+**Notes:**
+
+* *maxDoV* must be greater than 0
+
+### Revoke Label Access
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/access/revoke*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* connectionIid: String
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* connectionDoesNotHaveAccess
+
+### Update Label Access
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/label/access/update*
+
+**Parameters:**
+
+* route: Array of Strings
+* labelId: String
+* connectionIid: String
+* maxDoV: Integer
+
+**Response Parameters:**
+
+* labelIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* maxDoVInvalid
+* connectionDoesNotHaveAccess
+
+**Notes:**
+
+* *maxDoV* must be greater than 0
 
 ## Notification
 

@@ -39,6 +39,13 @@ object ServicePath {
 
   // Label
   val createLabel = "/api/v1/label/create"
+  val updateLabel = "/api/v1/label/update"
+  val moveLabel = "/api/v1/label/move"
+  val copyLabel = "/api/v1/label/copy"
+  val removeLabel = "/api/v1/label/remove"
+  val grantLabelAccess = "/api/v1/label/access/grant"
+  val revokeLabelAccess = "/api/v1/label/access/revoke"
+  val updateLabelAccess = "/api/v1/label/access/update"
 
   // Notification
 

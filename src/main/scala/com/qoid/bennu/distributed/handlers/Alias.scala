@@ -21,12 +21,10 @@ object CreateAliasRequest extends DistributedRequestHandler[messages.CreateAlias
   override protected val responseKind = DistributedMessageKind.CreateAliasResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.CreateAliasRequest): Unit = {
+  override def process(message: DistributedMessage, request: messages.CreateAliasRequest, injector: ScalaInjector): JValue = {
     if (request.name.isEmpty) throw new BennuException(ErrorCode.nameInvalid)
     if (request.profileName.isEmpty) throw new BennuException(ErrorCode.profileNameInvalid)
-  }
 
-  override def process(message: DistributedMessage, request: messages.CreateAliasRequest, injector: ScalaInjector): JValue = {
     val aliasAssist = injector.instance[AliasAssist]
 
     val alias = aliasAssist.createAlias(request.name, request.profileName, request.profileImage)
@@ -155,6 +153,8 @@ object UpdateAliasProfileRequest extends DistributedRequestHandler[messages.Upda
   override protected val allowedVersions = List(1)
 
   override def process(message: DistributedMessage, request: messages.UpdateAliasProfileRequest, injector: ScalaInjector): JValue = {
+    request.profileName.foreach(n => if (n.isEmpty) throw new BennuException(ErrorCode.profileNameInvalid))
+
     val profile = Profile.selectOne(sql"aliasIid = ${request.aliasIid}")
 
     val profile2 = (request.profileName, request.profileImage) match {
@@ -178,4 +178,3 @@ object UpdateAliasProfileResponse extends DistributedResponseHandler[messages.Up
     response.profile.toJson
   }
 }
-

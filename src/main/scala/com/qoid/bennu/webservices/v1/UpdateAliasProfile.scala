@@ -25,6 +25,7 @@ case class UpdateAliasProfile @Inject()(
   }
 
   override protected def validateParameters(): Unit = {
+    profileName.foreach(n => if (n.isEmpty) throw new BennuException(ErrorCode.profileNameInvalid))
     if (profileName.isEmpty && profileImage.isEmpty) throw new BennuException(ErrorCode.profileNameProfileImageInvalid)
   }
 }

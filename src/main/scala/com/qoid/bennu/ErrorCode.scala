@@ -25,4 +25,8 @@ object ErrorCode {
   val profileNameProfileImageInvalid = "profileNameProfileImageInvalid"
   val contentAlreadyHasLabel = "contentAlreadyHasLabel"
   val contentDoesNotHaveLabel = "contentDoesNotHaveLabel"
+  val nameDataInvalid = "nameDataInvalid"
+  val maxDoVInvalid = "maxDoVInvalid"
+  val connectionAlreadyHasAccess = "connectionAlreadyHasAccess"
+  val connectionDoesNotHaveAccess = "connectionDoesNotHaveAccess"
 }

@@ -36,7 +36,7 @@ class ConnectionAssist @Inject()(
     // Create connection
     val connection = Connection.insert(Connection(aliasIid, localPeerId, remotePeerId, connectionLabel.iid, iid = connectionIid))
 
-    // Grant the ContentViewer role to the connection
+    // Grant the ContentViewer role to the connection meta-label
     LabelAcl.insert(LabelAcl(connection.iid, connectionLabel.iid, Role.ContentViewer, 1))
 
     // Start listening on the connection

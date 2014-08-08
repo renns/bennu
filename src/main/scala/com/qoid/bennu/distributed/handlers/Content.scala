@@ -19,13 +19,11 @@ object CreateContentRequest extends DistributedRequestHandler[messages.CreateCon
   override protected val responseKind = DistributedMessageKind.CreateContentResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.CreateContentRequest): Unit = {
+  override def process(message: DistributedMessage, request: messages.CreateContentRequest, injector: ScalaInjector): JValue = {
     if (request.contentType.isEmpty) throw new BennuException(ErrorCode.contentTypeInvalid)
     if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
     if (request.labelIids.isEmpty) throw new BennuException(ErrorCode.labelIidsInvalid)
-  }
 
-  override def process(message: DistributedMessage, request: messages.CreateContentRequest, injector: ScalaInjector): JValue = {
     val content = Content.insert(Content(request.contentType, data = request.data))
 
     request.labelIids.foreach { labelIid =>
@@ -50,11 +48,9 @@ object UpdateContentRequest extends DistributedRequestHandler[messages.UpdateCon
   override protected val responseKind = DistributedMessageKind.UpdateContentResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.UpdateContentRequest): Unit = {
-    if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
-  }
-
   override def process(message: DistributedMessage, request: messages.UpdateContentRequest, injector: ScalaInjector): JValue = {
+    if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
+
     val content = Content.fetch(request.contentIid)
     val content2 = Content.update(content.copy(data = request.data))
     messages.UpdateContentResponse(content2).toJson
@@ -75,13 +71,11 @@ object AddContentLabelRequest extends DistributedRequestHandler[messages.AddCont
   override protected val responseKind = DistributedMessageKind.AddContentLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.AddContentLabelRequest): Unit = {
+  override def process(message: DistributedMessage, request: messages.AddContentLabelRequest, injector: ScalaInjector): JValue = {
     if (LabeledContent.selectOpt(sql"contentIid = ${request.contentIid} and labelIid = ${request.labelIid}").nonEmpty) {
       throw new BennuException(ErrorCode.contentAlreadyHasLabel)
     }
-  }
 
-  override def process(message: DistributedMessage, request: messages.AddContentLabelRequest, injector: ScalaInjector): JValue = {
     LabeledContent.insert(LabeledContent(request.contentIid, request.labelIid))
     messages.AddContentLabelResponse(request.contentIid, request.labelIid).toJson
   }
@@ -101,13 +95,11 @@ object RemoveContentLabelRequest extends DistributedRequestHandler[messages.Remo
   override protected val responseKind = DistributedMessageKind.RemoveContentLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.RemoveContentLabelRequest): Unit = {
+  override def process(message: DistributedMessage, request: messages.RemoveContentLabelRequest, injector: ScalaInjector): JValue = {
     if (LabeledContent.selectOpt(sql"contentIid = ${request.contentIid} and labelIid = ${request.labelIid}").isEmpty) {
       throw new BennuException(ErrorCode.contentDoesNotHaveLabel)
     }
-  }
 
-  override def process(message: DistributedMessage, request: messages.RemoveContentLabelRequest, injector: ScalaInjector): JValue = {
     val labeledContent = LabeledContent.selectOne(sql"contentIid = ${request.contentIid} and labelIid = ${request.labelIid}")
     LabeledContent.delete(labeledContent)
     messages.RemoveContentLabelResponse(request.contentIid, request.labelIid).toJson

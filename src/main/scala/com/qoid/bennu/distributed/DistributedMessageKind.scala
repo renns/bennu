@@ -49,8 +49,22 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object RemoveContentLabelResponse extends DistributedMessageKind { override val handler = handlers.RemoveContentLabelResponse }
 
   // Label
-  case object CreateLabelRequest extends DistributedMessageKind { override val handler = messages.CreateLabelRequest }
-  case object CreateLabelResponse extends DistributedMessageKind { override val handler = messages.CreateLabelResponse }
+  case object CreateLabelRequest extends DistributedMessageKind { override val handler = handlers.CreateLabelRequest }
+  case object CreateLabelResponse extends DistributedMessageKind { override val handler = handlers.CreateLabelResponse }
+  case object UpdateLabelRequest extends DistributedMessageKind { override val handler = handlers.UpdateLabelRequest }
+  case object UpdateLabelResponse extends DistributedMessageKind { override val handler = handlers.UpdateLabelResponse }
+  case object MoveLabelRequest extends DistributedMessageKind { override val handler = handlers.MoveLabelRequest }
+  case object MoveLabelResponse extends DistributedMessageKind { override val handler = handlers.MoveLabelResponse }
+  case object CopyLabelRequest extends DistributedMessageKind { override val handler = handlers.CopyLabelRequest }
+  case object CopyLabelResponse extends DistributedMessageKind { override val handler = handlers.CopyLabelResponse }
+  case object RemoveLabelRequest extends DistributedMessageKind { override val handler = handlers.RemoveLabelRequest }
+  case object RemoveLabelResponse extends DistributedMessageKind { override val handler = handlers.RemoveLabelResponse }
+  case object GrantLabelAccessRequest extends DistributedMessageKind { override val handler = handlers.GrantLabelAccessRequest }
+  case object GrantLabelAccessResponse extends DistributedMessageKind { override val handler = handlers.GrantLabelAccessResponse }
+  case object RevokeLabelAccessRequest extends DistributedMessageKind { override val handler = handlers.RevokeLabelAccessRequest }
+  case object RevokeLabelAccessResponse extends DistributedMessageKind { override val handler = handlers.RevokeLabelAccessResponse }
+  case object UpdateLabelAccessRequest extends DistributedMessageKind { override val handler = handlers.UpdateLabelAccessRequest }
+  case object UpdateLabelAccessResponse extends DistributedMessageKind { override val handler = handlers.UpdateLabelAccessResponse }
 
   // Notification
 
@@ -93,6 +107,20 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     RemoveContentLabelResponse,
 
     CreateLabelRequest,
-    CreateLabelResponse
+    CreateLabelResponse,
+    UpdateLabelRequest,
+    UpdateLabelResponse,
+    MoveLabelRequest,
+    MoveLabelResponse,
+    CopyLabelRequest,
+    CopyLabelResponse,
+    RemoveLabelRequest,
+    RemoveLabelResponse,
+    GrantLabelAccessRequest,
+    GrantLabelAccessResponse,
+    RevokeLabelAccessRequest,
+    RevokeLabelAccessResponse,
+    UpdateLabelAccessRequest,
+    UpdateLabelAccessResponse
   )
 }

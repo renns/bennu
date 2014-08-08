@@ -83,6 +83,7 @@ class ConnectionSecurityContext(
       case i: LabelAcl =>
         agentAclMgr.hasConnectionIid(connectionIid, LabelAcl, Permission.Insert, i.connectionIid) &&
           agentAclMgr.hasLabelIid(connectionIid, LabelAcl, Permission.Insert, i.labelIid)
+        //TODO: must be able to maintain passed in role
       case i: LabelChild => agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Insert, i.parentIid)
       case i: LabeledContent => agentAclMgr.hasLabelIid(connectionIid, LabeledContent, Permission.Insert, i.labelIid)
       case i: Login => agentAclMgr.hasAliasIid(connectionIid, Login, Permission.Insert, i.aliasIid)
@@ -105,6 +106,7 @@ class ConnectionSecurityContext(
       case i: LabelAcl =>
         agentAclMgr.hasConnectionIid(connectionIid, LabelAcl, Permission.Update, i.connectionIid) &&
           agentAclMgr.hasLabelIid(connectionIid, LabelAcl, Permission.Update, i.labelIid)
+        //TODO: must be able to maintain passed in role
       case i: LabelChild =>
         agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Update, i.parentIid) &&
           agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Update, i.childIid)
@@ -129,6 +131,7 @@ class ConnectionSecurityContext(
       case i: LabelAcl =>
         agentAclMgr.hasConnectionIid(connectionIid, LabelAcl, Permission.Delete, i.connectionIid) &&
           agentAclMgr.hasLabelIid(connectionIid, LabelAcl, Permission.Delete, i.labelIid)
+        //TODO: must be able to maintain passed in role
       case i: LabelChild =>
         agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Delete, i.parentIid) &&
           agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Delete, i.childIid)

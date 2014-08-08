@@ -23,7 +23,7 @@ object QueryRequest extends DistributedRequestHandler[messages.QueryRequest] {
   override protected val responseKind = DistributedMessageKind.QueryResponse
   override protected val allowedVersions = List(1)
 
-  override protected def validateRequest(request: messages.QueryRequest): Unit = {
+  override def process(message: DistributedMessage, request: messages.QueryRequest, injector: ScalaInjector): JValue = {
     if (!MapperAssist.allMappers.exists(_.typeName =:= request.tpe)) {
       throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.typeInvalid)
     }
@@ -37,9 +37,7 @@ object QueryRequest extends DistributedRequestHandler[messages.QueryRequest] {
     if (!request.historical && !request.standing) {
       throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, ErrorCode.historicalStandingInvalid)
     }
-  }
 
-  override def process(message: DistributedMessage, request: messages.QueryRequest, injector: ScalaInjector): JValue = {
     if (request.standing) {
       val standingQueryRepo = injector.instance[StandingQueryRepository]
 

@@ -11,7 +11,6 @@ abstract class DistributedRequestHandler[T : Manifest] extends DistributedHandle
   protected val responseKind: DistributedMessageKind
   protected val allowedVersions: List[Int]
 
-  protected def validateRequest(request: T): Unit = ()
   protected def process(message: DistributedMessage, request: T, injector: ScalaInjector): JValue
 
   override def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
@@ -23,8 +22,6 @@ abstract class DistributedRequestHandler[T : Manifest] extends DistributedHandle
       }
 
       val request = serializer.fromJson[T](message.data)
-
-      validateRequest(request)
 
       val response = process(message, request, injector)
 

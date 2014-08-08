@@ -72,6 +72,7 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
   def resolveLabelAncestry(parentLabelIid: InternalId): Iterator[InternalId] = {
     val jdbcConn = injector.instance[JdbcConn]
 
+    // The following is executed outside of any security context
     jdbcConn.queryFor[InternalId](sql"""
       with recursive reachable_labels as (
         select iid as labelIid from label where iid = ${parentLabelIid}
