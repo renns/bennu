@@ -62,6 +62,8 @@ object Role extends EnumCompanion[Role] {
   case object ContentViewer extends Role {
     override val permissions = Map[BennuMapperCompanion[_], List[Permission]](
       Content -> List(View),
+      Label -> List(View),
+      LabelChild -> List(View),
       LabeledContent -> List(View)
     )
   }
