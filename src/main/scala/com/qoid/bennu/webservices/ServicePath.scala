@@ -48,6 +48,7 @@ object ServicePath {
   val updateLabelAccess = "/api/v1/label/access/update"
 
   // Notification
+  val consumeNotification = "/api/v1/notification/consume"
 
   // Introduction
 //  val initiateIntroduction = "/api/v1/introduction/initiate"

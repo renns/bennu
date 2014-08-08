@@ -81,6 +81,7 @@ class WebServicesModule extends M3ServletModule {
     serveBean[v1.UpdateLabelAccess](ServicePath.updateLabelAccess)
 
     // Notification
+    serveBean[v1.ConsumeNotification](ServicePath.consumeNotification)
 
     // Introduction
 //    serveBean[InitiateIntroductionService](ServicePath.initiateIntroduction)

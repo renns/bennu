@@ -631,7 +631,22 @@
 
 ### Consume Notification
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/notification/consume*
+
+**Parameters:**
+
+* route: Array of Strings
+* notificationIid: String
+
+**Response Parameters:**
+
+* notificationIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ## Introduction
 

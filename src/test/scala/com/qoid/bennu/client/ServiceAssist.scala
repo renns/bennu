@@ -470,4 +470,20 @@ trait ServiceAssist {
       serializer.fromJson[LabelIid](result).labelIid
     }
   }
+
+  def consumeNotification(
+    notificationIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "notificationIid" -> notificationIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.consumeNotification, parms))
+      serializer.fromJson[NotificationIid](result).notificationIid
+    }
+  }
 }

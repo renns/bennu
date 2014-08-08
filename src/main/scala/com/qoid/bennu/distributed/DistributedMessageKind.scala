@@ -67,6 +67,8 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object UpdateLabelAccessResponse extends DistributedMessageKind { override val handler = handlers.UpdateLabelAccessResponse }
 
   // Notification
+  case object ConsumeNotificationRequest extends DistributedMessageKind { override val handler = handlers.ConsumeNotificationRequest }
+  case object ConsumeNotificationResponse extends DistributedMessageKind { override val handler = handlers.ConsumeNotificationResponse }
 
   // Introduction
 
@@ -121,6 +123,9 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     RevokeLabelAccessRequest,
     RevokeLabelAccessResponse,
     UpdateLabelAccessRequest,
-    UpdateLabelAccessResponse
+    UpdateLabelAccessResponse,
+
+    ConsumeNotificationRequest,
+    ConsumeNotificationResponse
   )
 }
