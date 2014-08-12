@@ -84,8 +84,8 @@ class WebServicesModule extends M3ServletModule {
     serveBean[v1.ConsumeNotification](ServicePath.consumeNotification)
 
     // Introduction
-//    serveBean[InitiateIntroductionService](ServicePath.initiateIntroduction)
-//    serveBean[RespondToIntroductionService](ServicePath.respondToIntroduction)
+    serveBean[v1.InitiateIntroduction](ServicePath.initiateIntroduction)
+    serveBean[v1.AcceptIntroduction](ServicePath.acceptIntroduction)
 
     // Verification
 //    serveBean[RequestVerificationService](ServicePath.requestVerification)

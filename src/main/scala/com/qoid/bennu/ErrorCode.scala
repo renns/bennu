@@ -29,4 +29,6 @@ object ErrorCode {
   val maxDoVInvalid = "maxDoVInvalid"
   val connectionAlreadyHasAccess = "connectionAlreadyHasAccess"
   val connectionDoesNotHaveAccess = "connectionDoesNotHaveAccess"
+  val aMessageInvalid = "aMessageInvalid"
+  val bMessageInvalid = "bMessageInvalid"
 }

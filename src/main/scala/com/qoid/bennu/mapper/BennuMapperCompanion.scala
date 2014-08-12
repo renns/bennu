@@ -1,8 +1,8 @@
 package com.qoid.bennu.mapper
 
 import java.sql.{Connection => JdbcConn}
-
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.query.{StandingQueryAction, QueryManager}
 import com.qoid.bennu.query.ast.Node
 import com.qoid.bennu.query.ast.Query
 import com.qoid.bennu.query.ast.Transformer
@@ -27,6 +27,8 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
 
   /** The query transformer to use when performing a select */
   protected val queryTransformer: PartialFunction[Node, Chord] = PartialFunction.empty
+
+  private val queryMgr = inject[QueryManager]
 
   /** The internal mapper companion */
   private val mapper = new Mapper.MapperCompanion[T, InternalId] { mapper =>
@@ -89,7 +91,12 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
     }
 
     // Do the insert
-    mapper.insert(instance2)(jdbcConn)
+    val instance3 = mapper.insert(instance2)(jdbcConn)
+
+    // Notify standing queries
+    queryMgr.notifyStandingQueries(instance3, StandingQueryAction.Insert)
+
+    instance3
   }
 
   /** Performs an update */
@@ -106,7 +113,12 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
     }
 
     // Do the update
-    mapper.update(instance2)(jdbcConn)
+    val instance3 = mapper.update(instance2)(jdbcConn)
+
+    // Notify standing queries
+    queryMgr.notifyStandingQueries(instance3, StandingQueryAction.Update)
+
+    instance3
   }
 
   /** Performs a delete */
@@ -123,6 +135,11 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
     }
 
     // Do the delete (after updating the audit fields)
-    mapper.delete(mapper.update(instance2)(jdbcConn))(jdbcConn)
+    val instance3 = mapper.delete(mapper.update(instance2)(jdbcConn))(jdbcConn)
+
+    // Notify standing queries
+    queryMgr.notifyStandingQueries(instance3, StandingQueryAction.Delete)
+
+    instance3
   }
 }

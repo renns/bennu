@@ -60,7 +60,7 @@ class ConnectionSecurityContext(
       case Login =>
         query.and(Query.parse(sql"aliasIid in (${agentAclMgr.reachableAliasIids(connectionIid, Login, Permission.View)})"))
       case Notification =>
-        query.and(Query.parse(sql"connectionIid in (${agentAclMgr.reachableConnectionIids(connectionIid, Notification, Permission.View)})"))
+        query.and(Query.parse(sql"createdByConnectionIid in (${agentAclMgr.reachableConnectionIids(connectionIid, Notification, Permission.View)})"))
       case Profile =>
         query.and(Query.parse(sql"aliasIid in (${agentAclMgr.reachableAliasIids(connectionIid, Profile, Permission.View)})"))
       case _ =>
@@ -87,7 +87,7 @@ class ConnectionSecurityContext(
       case i: LabelChild => agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Insert, i.parentIid)
       case i: LabeledContent => agentAclMgr.hasLabelIid(connectionIid, LabeledContent, Permission.Insert, i.labelIid)
       case i: Login => agentAclMgr.hasAliasIid(connectionIid, Login, Permission.Insert, i.aliasIid)
-      case i: Notification => agentAclMgr.hasConnectionIid(connectionIid, Notification, Permission.Insert, i.connectionIid)
+      case i: Notification => true
       case i: Profile => agentAclMgr.hasAliasIid(connectionIid, Profile, Permission.Insert, i.aliasIid)
       case _ => false
     }
@@ -112,7 +112,7 @@ class ConnectionSecurityContext(
           agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Update, i.childIid)
       case i: LabeledContent => agentAclMgr.hasLabelIid(connectionIid, LabeledContent, Permission.Update, i.labelIid)
       case i: Login => agentAclMgr.hasAliasIid(connectionIid, Login, Permission.Update, i.aliasIid)
-      case i: Notification => agentAclMgr.hasConnectionIid(connectionIid, Notification, Permission.Update, i.connectionIid)
+      case i: Notification => agentAclMgr.hasConnectionIid(connectionIid, Notification, Permission.Update, i.createdByConnectionIid)
       case i: Profile => agentAclMgr.hasAliasIid(connectionIid, Profile, Permission.Update, i.aliasIid)
       case _ => false
     }
@@ -137,7 +137,7 @@ class ConnectionSecurityContext(
           agentAclMgr.hasLabelIid(connectionIid, LabelChild, Permission.Delete, i.childIid)
       case i: LabeledContent => agentAclMgr.hasLabelIid(connectionIid, LabeledContent, Permission.Delete, i.labelIid)
       case i: Login => agentAclMgr.hasAliasIid(connectionIid, Login, Permission.Delete, i.aliasIid)
-      case i: Notification => agentAclMgr.hasConnectionIid(connectionIid, Notification, Permission.Delete, i.connectionIid)
+      case i: Notification => agentAclMgr.hasConnectionIid(connectionIid, Notification, Permission.Delete, i.createdByConnectionIid)
       case i: Profile => agentAclMgr.hasAliasIid(connectionIid, Profile, Permission.Delete, i.aliasIid)
       case _ => false
     }

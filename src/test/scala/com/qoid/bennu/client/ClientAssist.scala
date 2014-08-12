@@ -72,4 +72,35 @@ object ClientAssist {
       }
     }
   }
+
+  def anonymousClient1[T](
+    body: (ChannelClient) => Future[T]
+  )(
+    implicit
+    config: HttpClientConfig,
+    ec: ExecutionContext
+  ): Future[T] = {
+    channelClient1 { client1 =>
+      async {
+        val alias = await(client1.getAlias("Anonymous"))
+        await(client1.spawnSession(alias.iid) { anonymousClient =>
+          body(anonymousClient)
+        })
+      }
+    }
+  }
+
+  def anonymousClient2[T](
+    body: (ChannelClient, ChannelClient) => Future[T]
+  )(
+    implicit
+    config: HttpClientConfig,
+    ec: ExecutionContext
+  ): Future[T] = {
+    anonymousClient1 { client1 =>
+      anonymousClient1 { client2 =>
+        body(client1, client2)
+      }
+    }
+  }
 }

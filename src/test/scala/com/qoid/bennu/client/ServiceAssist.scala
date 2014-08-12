@@ -46,7 +46,7 @@ trait ServiceAssist {
     post(ServicePath.logout, Map.empty[String, JValue]).map(_ => ())
   }
 
-  def query[T : Manifest](query: String, route: List[InternalId] = List(connectionIid)): Future[List[T]] = {
+  def query[T : Manifest](query: String = "", route: List[InternalId] = List(connectionIid)): Future[List[T]] = {
     async {
       val typeName = MapperAssist.findMapperByType[T].typeName
 
@@ -65,7 +65,7 @@ trait ServiceAssist {
   }
 
   def queryStanding[T : Manifest](
-    query: String,
+    query: String = "",
     route: List[InternalId] = List(connectionIid)
   )(
     fn: (T, StandingQueryAction, JValue) => Unit
@@ -483,6 +483,44 @@ trait ServiceAssist {
       )
 
       val result = await(submitSingleResponse(ServicePath.consumeNotification, parms))
+      serializer.fromJson[NotificationIid](result).notificationIid
+    }
+  }
+
+  def initiateIntroduction(
+    aConnectionIid: InternalId,
+    aMessage: String,
+    bConnectionIid: InternalId,
+    bMessage: String,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "aConnectionIid" -> aConnectionIid,
+        "aMessage" -> aMessage,
+        "bConnectionIid" -> bConnectionIid,
+        "bMessage" -> bMessage
+      )
+
+      val result = await(submitSingleResponse(ServicePath.initiateIntroduction, parms))
+      serializer.fromJson[IntroductionIid](result).introductionIid
+    }
+  }
+
+  def acceptIntroduction(
+    notificationIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "notificationIid" -> notificationIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.acceptIntroduction, parms))
       serializer.fromJson[NotificationIid](result).notificationIid
     }
   }

@@ -1,7 +1,6 @@
 package com.qoid.bennu.integration
 
 import com.qoid.bennu.client._
-import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.InternalId
 import org.specs2.Specification
 import org.specs2.execute.Result

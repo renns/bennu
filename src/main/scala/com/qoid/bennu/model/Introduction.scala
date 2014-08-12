@@ -7,7 +7,6 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.model.introduction.IntroductionState
 import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
@@ -15,9 +14,9 @@ object Introduction extends BennuMapperCompanion[Introduction] with FromJsonCapa
 
 case class Introduction(
   aConnectionIid: InternalId,
-  aState: IntroductionState,
+  aAccepted: Boolean,
   bConnectionIid: InternalId,
-  bState: IntroductionState,
+  bAccepted: Boolean,
   recordVersion: Int = 1,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,

@@ -22,6 +22,7 @@ object Transformer {
     case fc: FunctionCall => fc.name ~ "(" ~ fc.parms.map(transformer).mkChord(", ") ~ ")"
     case op: Op => transformer(op.left) ~*~ op.op.symbol ~*~ transformer(op.right)
     case NumericLit(value) => value.toString
+    case BooleanLit(b) => b.toString
     case Parens(e) => "(" ~ transformer(e) ~ ")" 
     case StringLit(value) => "'" ~ value ~ "'"
     case NullLit => "null"

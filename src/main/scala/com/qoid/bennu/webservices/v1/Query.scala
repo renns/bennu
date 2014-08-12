@@ -28,6 +28,7 @@ case class Query @Inject()(
 ) extends DistributedService {
 
   override protected val request = QueryRequest(tpe, query, historical, standing).toJson
+  override protected val singleResponse = !standing
 
   def doPost(): Unit = {
     run(injector, DistributedMessageKind.QueryRequest, route)

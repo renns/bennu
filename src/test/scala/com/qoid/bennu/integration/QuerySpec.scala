@@ -1,31 +1,56 @@
-//package com.qoid.bennu.integration
-//
-//import com.qoid.bennu.JsonAssist.jsondsl._
-//import com.qoid.bennu.client._
-//import com.qoid.bennu.model._
-//import com.qoid.bennu.query.StandingQueryAction
-//import org.specs2.Specification
-//import org.specs2.execute.Result
-//import scala.async.Async
-//
-//class QuerySpec extends Specification {
-//  implicit val config = HttpClientConfig()
-//
-//  def is = s2"""
-//    ${section("integration")}
-//
-//    Query should
-//      query local historical              ${queryLocalHistorical()}
-//      query local standing                ${queryLocalStanding()}
-//      query sub-alias local historical    ${querySubAliasLocalHistorical()}
-//      query sub-alias local standing      ${querySubAliasLocalStanding()}
-//      query remote historical             ${queryRemoteHistorical()}
-//      query remote standing               ${queryRemoteStanding()}
-//      query remote meta-label historical  ${queryRemoteMetaLabelHistorical()}
-//      query remote connections historical ${queryRemoteConnectionsHistorical()}
-//
-//    ${section("integration")}
-//  """
+package com.qoid.bennu.integration
+
+import com.qoid.bennu.client._
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.query.StandingQueryAction
+import m3.jdbc._
+import org.specs2.Specification
+import org.specs2.execute.Result
+import scala.async.Async
+import scala.concurrent.Promise
+
+class QuerySpec extends Specification {
+  implicit val config = HttpClientConfig()
+
+  def is = s2"""
+    ${section("integration")}
+
+    Query should
+      query standing        ${queryStanding()}
+
+    ${section("integration")}
+  """
+
+  //      query historical              ${queryLocalHistorical()}
+  //      query standing                ${queryLocalStanding()}
+  //      query sub-alias historical    ${querySubAliasLocalHistorical()}
+  //      query sub-alias standing      ${querySubAliasLocalStanding()}
+  //      query meta-label historical  ${queryRemoteMetaLabelHistorical()}
+  //      query connections historical ${queryRemoteConnectionsHistorical()}
+
+  def queryStanding(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val p = Promise[Label]()
+        val alias = Async.await(client.getCurrentAlias())
+        val labelName = "Label"
+
+        Async.await(client.queryStanding[Label](sql"name = ${labelName}") { (label, action, context) =>
+          if (action == StandingQueryAction.Insert)
+          client.cancelSubmit(context)
+          p.success(label)
+        })
+
+        client.createLabel(alias.labelIid, labelName)
+
+        val l = Async.await(p.future)
+
+        l.name must_== labelName
+      }
+    }.await(60)
+  }
+}
+
 //
 //  def queryLocalHistorical(): Result = {
 //    TestAssist.channelClient1 { client =>

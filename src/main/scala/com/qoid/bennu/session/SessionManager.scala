@@ -68,7 +68,8 @@ class SessionManager @Inject()(
   }
 
   def closeSession(channelId: ChannelId): Unit = {
-    sessions.remove(channelId).foreach(_.close())
+    sessions.get(channelId).foreach(_.close())
+    sessions.remove(channelId)
     timeouts.remove(channelId)
   }
 

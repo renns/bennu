@@ -51,8 +51,8 @@ object ServicePath {
   val consumeNotification = "/api/v1/notification/consume"
 
   // Introduction
-//  val initiateIntroduction = "/api/v1/introduction/initiate"
-//  val respondToIntroduction = "/api/v1/introduction/respond"
+  val initiateIntroduction = "/api/v1/introduction/initiate"
+  val acceptIntroduction = "/api/v1/introduction/accept"
 
   // Verification
 //  val requestVerification = "/api/v1/verification/request"

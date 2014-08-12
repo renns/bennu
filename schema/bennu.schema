@@ -75,7 +75,6 @@ table connection {
 table notification {
   iid                   InternalId key;
   consumed              Boolean;
-  connectionIid         Connection;
   kind                  varchar(50);
   import(CommonFields);
 }
@@ -92,9 +91,9 @@ table labelAcl {
 table introduction {
   iid               InternalId key;
   aConnectionIid    Connection;
-  aState            varchar(50);
+  aAccepted         Boolean;
   bConnectionIid    Connection;
-  bState            varchar(50);
+  bAccepted         Boolean;
   recordVersion     integer;
   import(CommonFields);
 }

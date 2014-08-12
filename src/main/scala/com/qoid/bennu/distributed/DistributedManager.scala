@@ -56,17 +56,11 @@ class DistributedManager @Inject()(
     messageQueue.unsubscribe(connection)
   }
 
-  def sendRequest(message: DistributedMessage, requestData: RequestData): Unit = {
-    message.route match {
-      case connectionIid :: connectionIids =>
-        storeRequestData(connectionIid, message.messageId, requestData)
-        sendMessage(connectionIid, message.copy(route = connectionIids))
-
-      case _ => logger.warn("no connection iids in message")
-    }
+  def send(message: DistributedMessage, requestData: RequestData): Unit = {
+    send(message, Some(requestData))
   }
 
-  def sendResponse(message: DistributedMessage, requestDataOpt: Option[RequestData] = None): Unit = {
+  def send(message: DistributedMessage, requestDataOpt: Option[RequestData] = None): Unit = {
     message.route match {
       case connectionIid :: connectionIids =>
         requestDataOpt.foreach(requestData => storeRequestData(connectionIid, message.messageId, requestData))
@@ -83,7 +77,7 @@ class DistributedManager @Inject()(
   def sendError(errorCode: String, errorDetails: String, message: DistributedMessage): Unit = {
     val error = Error(errorCode, errorDetails)
     val errorMessage = DistributedMessage(DistributedMessageKind.Error, 1, message.replyRoute, error.toJson, Some(message.messageId))
-    sendResponse(errorMessage)
+    send(errorMessage)
   }
 
   def putResponseOnChannel(messageId: DistributedMessageId, result: JValue): Unit = {

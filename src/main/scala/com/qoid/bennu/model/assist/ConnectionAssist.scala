@@ -39,6 +39,10 @@ class ConnectionAssist @Inject()(
     // Grant the ContentViewer role to the connection meta-label
     LabelAcl.insert(LabelAcl(connection.iid, connectionLabel.iid, Role.ContentViewer, 1))
 
+    // Grant the ProfileViewer role to the alias' label (to 2 degrees of visibility)
+    val alias = Alias.fetch(aliasIid)
+    LabelAcl.insert(LabelAcl(connection.iid, alias.labelIid, Role.ProfileViewer, 2))
+
     // Start listening on the connection
     distributedMgr.listen(connection)
 

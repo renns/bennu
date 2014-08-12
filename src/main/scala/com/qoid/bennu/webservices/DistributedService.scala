@@ -16,6 +16,7 @@ import m3.servlet.beans.MultiRequestHandler.MethodInvocation
 
 trait DistributedService {
   protected val request: JValue
+  protected val singleResponse = true
 
   protected def run(
     injector: ScalaInjector,
@@ -33,9 +34,11 @@ trait DistributedService {
       validateParameters()
 
       val message = DistributedMessage(distributedMessageKind, 1, route, request)
-      val requestData = RequestData(session.channel.id, methodInvocation.context, true)
+      val requestData = RequestData(session.channel.id, methodInvocation.context, singleResponse)
 
-      distributedMgr.sendRequest(message, requestData)
+      beforeSend(message)
+
+      distributedMgr.send(message, requestData)
     } catch {
       case e: BennuException =>
         throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, e.getErrorCode()).initCause(e)

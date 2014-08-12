@@ -2,30 +2,59 @@ package com.qoid.bennu.query
 
 import com.google.inject.Inject
 import com.google.inject.Singleton
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.distributed.DistributedManager
+import com.qoid.bennu.distributed.DistributedMessage
+import com.qoid.bennu.distributed.DistributedMessageKind
+import com.qoid.bennu.distributed.messages
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.query.ast.Evaluator
 import com.qoid.bennu.query.ast.Query
+import com.qoid.bennu.security.ConnectionSecurityContext
 import com.qoid.bennu.security.SecurityContext
 import m3.predef._
+import net.model3.transaction.Transaction
 
 @Singleton
 class QueryManager @Inject()(
   injector: ScalaInjector,
-  standingQueryRepo: StandingQueryRepository
+  standingQueryRepo: StandingQueryRepository,
+  distributedMgr: DistributedManager
 ) {
-  def notifyStandingQueries[T : Manifest](
-    instance: T,
-    action: StandingQueryAction
-  ): Unit = {
+
+  def notifyStandingQueries[T : Manifest](instance: T, action: StandingQueryAction): Unit = {
+    val txn = injector.instance[Transaction]
+
+    txn.events().addListener(new Transaction.Adapter {
+      override def commit(t: Transaction): Unit = {
+        evaluateStandingQueries(instance, action)
+      }
+    })
+  }
+
+  private def evaluateStandingQueries[T : Manifest](instance: T, action: StandingQueryAction): Unit = {
     val mapper = MapperAssist.findMapperByType[T]
     val agentId = injector.instance[SecurityContext].agentId
 
     standingQueryRepo.find(agentId, mapper.typeName).foreach { sq =>
-      //TODO: set security context
-      val securityContext = injector.instance[SecurityContext]
 
-      if (Evaluator.evaluateQuery(securityContext.constrictQuery(mapper, Query.parse(sq.query)), instance) == Evaluator.VTrue) {
-        //TODO: send standing query response
+      ConnectionSecurityContext(sq.replyRoute.head, injector) {
+        val securityContext = injector.instance[SecurityContext]
+
+        if (Evaluator.evaluateQuery(securityContext.constrictQuery(mapper, Query.parse(sq.query)), instance) == Evaluator.VTrue) {
+          val result = serializer.toJson(instance)
+          val response = messages.StandingQueryResponse(sq.tpe, result, action)
+
+          val responseMessage = DistributedMessage(
+            DistributedMessageKind.StandingQueryResponse,
+            1,
+            sq.replyRoute,
+            response.toJson,
+            Some(sq.messageId)
+          )
+
+          distributedMgr.send(responseMessage)
+        }
       }
     }
   }

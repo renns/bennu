@@ -14,7 +14,6 @@ import net.model3.chrono.DateTime
 object Notification extends BennuMapperCompanion[Notification] with FromJsonCapable[Notification]
 
 case class Notification(
-  connectionIid: InternalId,
   kind: NotificationKind,
   consumed: Boolean = false,
   agentId: AgentId = AgentId(""),

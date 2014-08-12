@@ -160,7 +160,6 @@
 
 * At least one of *historical* or *standing* must be provided
 * The context passed in submit channel request is used to identify the query and the responses
-* Standing queries aren't working yet
 
 ### Cancel Query
 
@@ -652,11 +651,46 @@
 
 ### Initiate Introduction
 
-*Not yet implemented*
+**Submit over channel:** Yes
 
-### Respond to Introduction
+**Path:** */api/v1/introduction/initiate*
 
-*Not yet implemented*
+**Parameters:**
+
+* route: Array of Strings
+* aConnectionIid: String
+* aMessage: String
+* bConnectionIid: String
+* bMessage: String
+
+**Response Parameters:**
+
+* introductionIid: String
+
+**Error Codes:**
+
+* routeInvalid
+* aMessageInvalid
+* bMessageInvalid
+
+### Accept Introduction
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/introduction/accept*
+
+**Parameters:**
+
+* route: Array of Strings
+* notificationIid: String
+
+**Response Parameters:**
+
+* notificationIid: String
+
+**Error Codes:**
+
+* routeInvalid
 
 ## Verification
 

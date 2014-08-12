@@ -27,7 +27,7 @@ abstract class DistributedRequestHandler[T : Manifest] extends DistributedHandle
 
       val responseMessage = DistributedMessage(responseKind, 1, message.replyRoute, response, Some(message.messageId))
 
-      distributedMgr.sendResponse(responseMessage)
+      distributedMgr.send(responseMessage)
     } catch {
       case e: BennuException =>
         logger.debug(s"BennuException: ${e.getErrorCode()} -- ${e.getMessage}")

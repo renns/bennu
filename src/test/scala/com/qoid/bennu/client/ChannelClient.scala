@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
-trait ChannelClient extends ServiceAssist with QueryAssist {
+trait ChannelClient extends ServiceAssist with QueryAssist with IntroductionAssist {
   implicit val ec: ExecutionContext
   val connectionIid: InternalId
 
