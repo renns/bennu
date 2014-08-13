@@ -11,40 +11,40 @@ class AgentAclManager(agentId: AgentId, injector: ScalaInjector) {
 
   private var _acls = List.empty[Acl]
 
-  def reachableLabelIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): List[InternalId] = {
-    getAcls(connectionIid, permissionType, permission).flatMap(_.reachableLabelIids)
+  def reachableLabelIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): List[InternalId] = {
+    getAcls(connectionIid, permissionType, permission, degreesOfVisibility).flatMap(_.reachableLabelIids)
   }
 
-  def reachableAliasIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): List[InternalId] = {
-    getAcls(connectionIid, permissionType, permission).flatMap(_.reachableAliasIids)
+  def reachableAliasIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): List[InternalId] = {
+    getAcls(connectionIid, permissionType, permission, degreesOfVisibility).flatMap(_.reachableAliasIids)
   }
 
-  def reachableConnectionIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): List[InternalId] = {
-    getAcls(connectionIid, permissionType, permission).flatMap(_.reachableConnectionIids)
+  def reachableConnectionIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): List[InternalId] = {
+    getAcls(connectionIid, permissionType, permission, degreesOfVisibility).flatMap(_.reachableConnectionIids)
   }
 
-  def reachableContentIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): List[InternalId] = {
-    getAcls(connectionIid, permissionType, permission).flatMap(_.reachableContentIids)
+  def reachableContentIids(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): List[InternalId] = {
+    getAcls(connectionIid, permissionType, permission, degreesOfVisibility).flatMap(_.reachableContentIids)
   }
 
-  def hasLabelIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, iid: InternalId): Boolean = {
-    reachableLabelIids(connectionIid, permissionType, permission).contains(iid)
+  def hasLabelIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int, iid: InternalId): Boolean = {
+    reachableLabelIids(connectionIid, permissionType, permission, degreesOfVisibility).contains(iid)
   }
 
-  def hasAliasIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, iid: InternalId): Boolean = {
-    reachableAliasIids(connectionIid, permissionType, permission).contains(iid)
+  def hasAliasIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int, iid: InternalId): Boolean = {
+    reachableAliasIids(connectionIid, permissionType, permission, degreesOfVisibility).contains(iid)
   }
 
-  def hasConnectionIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, iid: InternalId): Boolean = {
-    reachableConnectionIids(connectionIid, permissionType, permission).contains(iid)
+  def hasConnectionIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int, iid: InternalId): Boolean = {
+    reachableConnectionIids(connectionIid, permissionType, permission, degreesOfVisibility).contains(iid)
   }
 
-  def hasContentIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, iid: InternalId): Boolean = {
-    reachableContentIids(connectionIid, permissionType, permission).contains(iid)
+  def hasContentIid(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int, iid: InternalId): Boolean = {
+    reachableContentIids(connectionIid, permissionType, permission, degreesOfVisibility).contains(iid)
   }
 
-  def hasPermission(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): Boolean = {
-    getAcls(connectionIid, permissionType, permission).nonEmpty
+  def hasPermission(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): Boolean = {
+    getAcls(connectionIid, permissionType, permission, degreesOfVisibility).nonEmpty
   }
 
   def invalidateAcls(): Unit = synchronized { aclsLoaded = false }
@@ -71,7 +71,10 @@ class AgentAclManager(agentId: AgentId, injector: ScalaInjector) {
     getAcls().filter(_.labelAcl.connectionIid == connectionIid)
   }
 
-  def getAcls(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission): List[Acl] = {
-    getAcls(connectionIid).filter(_.labelAcl.role.hasPermission(permissionType, permission))
+  def getAcls(connectionIid: InternalId, permissionType: BennuMapperCompanion[_], permission: Permission, degreesOfVisibility: Int): List[Acl] = {
+    getAcls(connectionIid).filter(acl =>
+      acl.labelAcl.role.hasPermission(permissionType, permission) &&
+      acl.labelAcl.maxDegreesOfVisibility >= degreesOfVisibility
+    )
   }
 }

@@ -101,7 +101,7 @@ object IntroductionResponse extends DistributedHandler with Logging {
         Alias.fetch(securityContext.aliasIid).connectionIid
       }
 
-      ConnectionSecurityContext(aliasConnectionIid, injector) {
+      ConnectionSecurityContext(aliasConnectionIid, message.replyRoute.size, injector) {
         val introduction = Introduction.fetch(response.introductionIid)
 
         // Update introduction record
@@ -208,7 +208,7 @@ object IntroductionConnect extends DistributedHandler with Logging {
         Alias.fetch(securityContext.aliasIid).connectionIid
       }
 
-      ConnectionSecurityContext(aliasConnectionIid, injector) {
+      ConnectionSecurityContext(aliasConnectionIid, message.replyRoute.size, injector) {
         connectionAssist.createConnection(introductionConnect.localPeerId, introductionConnect.remotePeerId)
       }
     } catch {

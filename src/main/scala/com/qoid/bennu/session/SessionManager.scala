@@ -35,7 +35,7 @@ class SessionManager @Inject()(
 
   def createSession(authenticationId: AuthenticationId, password: String): Session = {
     val connectionIid = authMgr.authenticate(authenticationId, password)
-    val securityContext = new ConnectionSecurityContext(connectionIid, injector)
+    val securityContext = new ConnectionSecurityContext(connectionIid, 1, injector)
     val session = new Session(injector, securityContext)
     sessions.put(session.channel.id, session)
     timeouts.put(session.channel.id, createTimeout(session.channel.id))
@@ -47,7 +47,7 @@ class SessionManager @Inject()(
 
     if (currentSecurityContext.canSpawnSession) {
       val alias = Alias.fetch(aliasIid)
-      val securityContext = new ConnectionSecurityContext(alias.connectionIid, injector)
+      val securityContext = new ConnectionSecurityContext(alias.connectionIid, 1, injector)
       val session = new Session(injector, securityContext)
       sessions.put(session.channel.id, session)
       timeouts.put(session.channel.id, createTimeout(session.channel.id))

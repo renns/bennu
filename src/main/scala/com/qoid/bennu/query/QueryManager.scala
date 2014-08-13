@@ -38,7 +38,7 @@ class QueryManager @Inject()(
 
     standingQueryRepo.find(agentId, mapper.typeName).foreach { sq =>
 
-      ConnectionSecurityContext(sq.replyRoute.head, injector) {
+      ConnectionSecurityContext(sq.replyRoute.head, sq.replyRoute.size, injector) {
         val securityContext = injector.instance[SecurityContext]
 
         if (Evaluator.evaluateQuery(securityContext.constrictQuery(mapper, Query.parse(sq.query)), instance) == Evaluator.VTrue) {

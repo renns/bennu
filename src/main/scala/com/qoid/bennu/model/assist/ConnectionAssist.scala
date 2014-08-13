@@ -29,6 +29,8 @@ class ConnectionAssist @Inject()(
     connectionIid: InternalId = InternalId.random
   ): Connection = {
 
+    val alias = Alias.fetch(aliasIid)
+
     // Create connection label
     val connectionLabel = Label.insert(Label(labelAssist.connectionLabelName, data = labelAssist.metaLabelData))
     LabelChild.insert(LabelChild(connectionsLabelIid, connectionLabel.iid))
@@ -40,8 +42,11 @@ class ConnectionAssist @Inject()(
     LabelAcl.insert(LabelAcl(connection.iid, connectionLabel.iid, Role.ContentViewer, 1))
 
     // Grant the ProfileViewer role to the alias' label (to 2 degrees of visibility)
-    val alias = Alias.fetch(aliasIid)
+
     LabelAcl.insert(LabelAcl(connection.iid, alias.labelIid, Role.ProfileViewer, 2))
+
+    // Grant the ConnectionViewer role to the alias' label
+    LabelAcl.insert(LabelAcl(connection.iid, alias.labelIid, Role.ConnectionViewer, 1))
 
     // Start listening on the connection
     distributedMgr.listen(connection)

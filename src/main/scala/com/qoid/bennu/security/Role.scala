@@ -74,10 +74,17 @@ object Role extends EnumCompanion[Role] {
     )
   }
 
+  case object ConnectionViewer extends Role {
+    override val permissions = Map[BennuMapperCompanion[_], List[Permission]](
+      Connection -> List(View)
+    )
+  }
+
   override val values: Set[Role] = Set(
     AgentAdmin,
     AliasAdmin,
     ContentViewer,
-    ProfileViewer
+    ProfileViewer,
+    ConnectionViewer
   )
 }

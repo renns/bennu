@@ -130,7 +130,7 @@ class DistributedManager @Inject()(
       case toConnectionIid :: toConnectionIids =>
         sendMessage(toConnectionIid, message2.copy(route = toConnectionIids))
       case _ =>
-        ConnectionSecurityContext(connectionIid, injector) {
+        ConnectionSecurityContext(connectionIid, message2.replyRoute.size, injector) {
           message2.kind.handler.handle(message2, injector)
         }
     }

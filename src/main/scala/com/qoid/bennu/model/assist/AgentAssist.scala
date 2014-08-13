@@ -201,11 +201,11 @@ class AgentAssist @Inject()(
     val peerId1 = PeerId.random
     val peerId2 = PeerId.random
 
-    ConnectionSecurityContext(connectionIid, injector) {
+    ConnectionSecurityContext(connectionIid, 1, injector) {
       connectionAssist.createConnection(peerId1, peerId2)
     }
 
-    ConnectionSecurityContext(introducerConnectionIid, injector) {
+    ConnectionSecurityContext(introducerConnectionIid, 1, injector) {
       connectionAssist.createConnection(peerId2, peerId1)
     }
   }
