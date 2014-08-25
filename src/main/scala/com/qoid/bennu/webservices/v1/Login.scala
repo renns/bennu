@@ -1,11 +1,12 @@
 package com.qoid.bennu.webservices.v1
 
 import com.google.inject.Inject
-import com.qoid.bennu.BennuException
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.id.AuthenticationId
 import com.qoid.bennu.session.SessionManager
+import com.qoid.bennu.BennuException
+import com.qoid.bennu.ErrorCode
 import m3.predef._
 import m3.servlet.HttpStatusCodes
 import m3.servlet.beans.Parm
@@ -23,7 +24,11 @@ case class Login @Inject()(
       ("channelId" -> session.channel.id.value) ~ ("connectionIid" -> session.securityContext.connectionIid)
     } catch {
       case e: BennuException =>
-        throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, e.getErrorCode()).initCause(e)
+        if (e.getErrorCode() == ErrorCode.authenticationFailed) {
+          throw new HttpResponseException(HttpStatusCodes.FORBIDDEN, e.getErrorCode()).initCause(e)
+        } else {
+          throw new HttpResponseException(HttpStatusCodes.BAD_REQUEST, e.getErrorCode()).initCause(e)
+        }
     }
   }
 }

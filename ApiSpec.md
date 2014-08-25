@@ -41,7 +41,7 @@
 **Response Parameters:**
 
 * channelId: String
-* connectionIid: String - The logged in alias's connectionId.  To get the alias object, you must query for it, using the connctionIid.
+* connectionIid: String - The logged in alias' connectionId.  To get the alias object, you must query for it, using the connctionIid.
 
 **Error Codes:**
 
@@ -61,6 +61,7 @@
 
 **Notes:**
 
+* Even though logout should not be called using the submit channel requests service, it still needs the ChannelId HTTP header value
 * Do not send using the submit channel requests server
 * Before calling logout, disable any future polling on the channel
 
