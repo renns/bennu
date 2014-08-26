@@ -17,6 +17,7 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object QueryRequest extends DistributedMessageKind { override val handler = handlers.QueryRequest }
   case object QueryResponse extends DistributedMessageKind { override val handler = handlers.QueryResponse }
   case object StandingQueryResponse extends DistributedMessageKind { override val handler = handlers.StandingQueryResponse }
+  case object CancelQueryRequest extends DistributedMessageKind { override val handler = handlers.CancelQueryRequest }
 
   // Alias
   case object CreateAliasRequest extends DistributedMessageKind { override val handler = handlers.CreateAliasRequest }

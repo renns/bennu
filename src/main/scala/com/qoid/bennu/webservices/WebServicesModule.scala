@@ -50,7 +50,7 @@ class WebServicesModule extends M3ServletModule {
 
     // Query
     serveBean[v1.Query](ServicePath.query)
-//    serveBean[CancelQuery](ServicePath.cancelQuery)
+    serveBean[v1.CancelQuery](ServicePath.cancelQuery)
 
     // Alias
     serveBean[v1.CreateAlias](ServicePath.createAlias)

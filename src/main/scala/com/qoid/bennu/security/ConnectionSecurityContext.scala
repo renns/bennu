@@ -25,8 +25,6 @@ class ConnectionSecurityContext(
   injector: ScalaInjector
 ) extends SecurityContext {
 
-  //TODO: check degreesOfVisibility in all permissions
-
   private lazy val agentAclMgr = injector.instance[AclManager].getAgentAclManager(agentId)
   private lazy val connection = SystemSecurityContext(Connection.fetch(connectionIid))
 

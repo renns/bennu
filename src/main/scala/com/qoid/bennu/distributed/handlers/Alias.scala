@@ -37,7 +37,7 @@ object CreateAliasResponse extends DistributedResponseHandler[messages.CreateAli
   override protected val responseKind = DistributedMessageKind.CreateAliasResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.CreateAliasResponse): JValue = {
+  override protected def getServiceResult(response: messages.CreateAliasResponse, message: DistributedMessage): JValue = {
     response.alias.toJson
   }
 }
@@ -58,7 +58,7 @@ object UpdateAliasResponse extends DistributedResponseHandler[messages.UpdateAli
   override protected val responseKind = DistributedMessageKind.UpdateAliasResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateAliasResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateAliasResponse, message: DistributedMessage): JValue = {
     response.alias.toJson
   }
 }
@@ -79,7 +79,7 @@ object DeleteAliasResponse extends DistributedResponseHandler[messages.DeleteAli
   override protected val responseKind = DistributedMessageKind.DeleteAliasResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.DeleteAliasResponse): JValue = {
+  override protected def getServiceResult(response: messages.DeleteAliasResponse, message: DistributedMessage): JValue = {
     "aliasIid" -> response.aliasIid
   }
 }
@@ -100,7 +100,7 @@ object CreateAliasLoginResponse extends DistributedResponseHandler[messages.Crea
   override protected val responseKind = DistributedMessageKind.CreateAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.CreateAliasLoginResponse): JValue = {
+  override protected def getServiceResult(response: messages.CreateAliasLoginResponse, message: DistributedMessage): JValue = {
     response.login.toJson
   }
 }
@@ -121,7 +121,7 @@ object UpdateAliasLoginResponse extends DistributedResponseHandler[messages.Upda
   override protected val responseKind = DistributedMessageKind.UpdateAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateAliasLoginResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateAliasLoginResponse, message: DistributedMessage): JValue = {
     response.login.toJson
   }
 }
@@ -142,7 +142,7 @@ object DeleteAliasLoginResponse extends DistributedResponseHandler[messages.Dele
   override protected val responseKind = DistributedMessageKind.DeleteAliasLoginResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.DeleteAliasLoginResponse): JValue = {
+  override protected def getServiceResult(response: messages.DeleteAliasLoginResponse, message: DistributedMessage): JValue = {
     "aliasIid" -> response.aliasIid
   }
 }
@@ -174,7 +174,7 @@ object UpdateAliasProfileResponse extends DistributedResponseHandler[messages.Up
   override protected val responseKind = DistributedMessageKind.UpdateAliasProfileResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateAliasProfileResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateAliasProfileResponse, message: DistributedMessage): JValue = {
     response.profile.toJson
   }
 }

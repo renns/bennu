@@ -34,7 +34,7 @@ object CreateLabelResponse extends DistributedResponseHandler[messages.CreateLab
   override protected val responseKind = DistributedMessageKind.CreateLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.CreateLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.CreateLabelResponse, message: DistributedMessage): JValue = {
     response.label.toJson
   }
 }
@@ -66,7 +66,7 @@ object UpdateLabelResponse extends DistributedResponseHandler[messages.UpdateLab
   override protected val responseKind = DistributedMessageKind.UpdateLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateLabelResponse, message: DistributedMessage): JValue = {
     response.label.toJson
   }
 }
@@ -88,7 +88,7 @@ object MoveLabelResponse extends DistributedResponseHandler[messages.MoveLabelRe
   override protected val responseKind = DistributedMessageKind.MoveLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.MoveLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.MoveLabelResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }
@@ -108,7 +108,7 @@ object CopyLabelResponse extends DistributedResponseHandler[messages.CopyLabelRe
   override protected val responseKind = DistributedMessageKind.CopyLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.CopyLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.CopyLabelResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }
@@ -129,7 +129,7 @@ object RemoveLabelResponse extends DistributedResponseHandler[messages.RemoveLab
   override protected val responseKind = DistributedMessageKind.RemoveLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.RemoveLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.RemoveLabelResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }
@@ -156,7 +156,7 @@ object GrantLabelAccessResponse extends DistributedResponseHandler[messages.Gran
   override protected val responseKind = DistributedMessageKind.GrantLabelAccessResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.GrantLabelAccessResponse): JValue = {
+  override protected def getServiceResult(response: messages.GrantLabelAccessResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }
@@ -180,7 +180,7 @@ object RevokeLabelAccessResponse extends DistributedResponseHandler[messages.Rev
   override protected val responseKind = DistributedMessageKind.RevokeLabelAccessResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.RevokeLabelAccessResponse): JValue = {
+  override protected def getServiceResult(response: messages.RevokeLabelAccessResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }
@@ -206,7 +206,7 @@ object UpdateLabelAccessResponse extends DistributedResponseHandler[messages.Upd
   override protected val responseKind = DistributedMessageKind.UpdateLabelAccessResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateLabelAccessResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateLabelAccessResponse, message: DistributedMessage): JValue = {
     "labelIid" -> response.labelIid
   }
 }

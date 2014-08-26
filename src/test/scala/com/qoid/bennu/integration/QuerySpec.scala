@@ -7,7 +7,8 @@ import m3.jdbc._
 import org.specs2.Specification
 import org.specs2.execute.Result
 import scala.async.Async
-import scala.concurrent.Promise
+import scala.concurrent._
+import scala.concurrent.duration.Duration
 
 class QuerySpec extends Specification {
   implicit val config = HttpClientConfig()
@@ -17,10 +18,10 @@ class QuerySpec extends Specification {
 
     Query should
       query standing        ${queryStanding()}
+      cancel standing       ${cancelStanding()}
 
     ${section("integration")}
   """
-
   //      query historical              ${queryLocalHistorical()}
   //      query standing                ${queryLocalStanding()}
   //      query sub-alias historical    ${querySubAliasLocalHistorical()}
@@ -36,9 +37,10 @@ class QuerySpec extends Specification {
         val labelName = "Label"
 
         Async.await(client.queryStanding[Label](sql"name = ${labelName}") { (label, action, context) =>
-          if (action == StandingQueryAction.Insert)
-          client.cancelSubmit(context)
-          p.success(label)
+          if (action == StandingQueryAction.Insert) {
+            client.cancelSubmit(context)
+            p.success(label)
+          }
         })
 
         client.createLabel(alias.labelIid, labelName)
@@ -46,6 +48,38 @@ class QuerySpec extends Specification {
         val l = Async.await(p.future)
 
         l.name must_== labelName
+      }
+    }.await(60)
+  }
+
+  def cancelStanding(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val p = Promise[Unit]()
+        var queryCancelled = false
+        val alias = Async.await(client.getCurrentAlias())
+        val label = Async.await(client.createLabel(alias.labelIid, "Label"))
+
+        Async.await(client.queryStanding[Label](sql"iid = ${label.iid}") { (label, action, context) =>
+          if (action == StandingQueryAction.Update && !queryCancelled) {
+            Async.async {
+              Async.await(client.cancelQuery(context))
+              queryCancelled = true
+              client.updateLabel(label.iid, "Label3")
+            }
+          } else {
+            p.success()
+          }
+        })
+
+        client.updateLabel(label.iid, "Label2")
+
+        try {
+          Await.result(p.future, Duration("5s"))
+          failure
+        } catch {
+          case e: TimeoutException => success
+        }
       }
     }.await(60)
   }

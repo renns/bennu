@@ -17,7 +17,7 @@ object ServicePath {
 
   // Query
   val query = "/api/v1/query"
-//  val cancelQuery = "/api/v1/query/cancel"
+  val cancelQuery = "/api/v1/query/cancel"
 
   // Alias
   val createAlias = "/api/v1/alias/create"

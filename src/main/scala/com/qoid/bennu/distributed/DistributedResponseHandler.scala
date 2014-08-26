@@ -9,7 +9,7 @@ abstract class DistributedResponseHandler[T : Manifest] extends DistributedHandl
   protected val responseKind: DistributedMessageKind
   protected val allowedVersions: List[Int]
 
-  protected def getServiceResult(response: T): JValue
+  protected def getServiceResult(response: T, message: DistributedMessage): JValue
 
   override def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
     val distributedMgr = injector.instance[DistributedManager]
@@ -22,7 +22,7 @@ abstract class DistributedResponseHandler[T : Manifest] extends DistributedHandl
           }
 
           val response = serializer.fromJson[T](message.data)
-          val result = getServiceResult(response)
+          val result = getServiceResult(response, message)
 
           distributedMgr.putResponseOnChannel(replyToMessageId, result)
         } catch {

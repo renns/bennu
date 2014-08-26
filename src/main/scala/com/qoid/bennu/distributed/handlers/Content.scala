@@ -38,7 +38,7 @@ object CreateContentResponse extends DistributedResponseHandler[messages.CreateC
   override protected val responseKind = DistributedMessageKind.CreateContentResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.CreateContentResponse): JValue = {
+  override protected def getServiceResult(response: messages.CreateContentResponse, message: DistributedMessage): JValue = {
     response.content.toJson
   }
 }
@@ -61,7 +61,7 @@ object UpdateContentResponse extends DistributedResponseHandler[messages.UpdateC
   override protected val responseKind = DistributedMessageKind.UpdateContentResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.UpdateContentResponse): JValue = {
+  override protected def getServiceResult(response: messages.UpdateContentResponse, message: DistributedMessage): JValue = {
     response.content.toJson
   }
 }
@@ -85,7 +85,7 @@ object AddContentLabelResponse extends DistributedResponseHandler[messages.AddCo
   override protected val responseKind = DistributedMessageKind.AddContentLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.AddContentLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.AddContentLabelResponse, message: DistributedMessage): JValue = {
     ("contentIid" -> response.contentIid) ~ ("labelIid" -> response.labelIid)
   }
 }
@@ -110,7 +110,7 @@ object RemoveContentLabelResponse extends DistributedResponseHandler[messages.Re
   override protected val responseKind = DistributedMessageKind.RemoveContentLabelResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.RemoveContentLabelResponse): JValue = {
+  override protected def getServiceResult(response: messages.RemoveContentLabelResponse, message: DistributedMessage): JValue = {
     ("contentIid" -> response.contentIid) ~ ("labelIid" -> response.labelIid)
   }
 }

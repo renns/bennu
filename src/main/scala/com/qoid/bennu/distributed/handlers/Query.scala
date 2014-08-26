@@ -1,8 +1,10 @@
 package com.qoid.bennu.distributed.handlers
 
+import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.JsonAssist
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.distributed.DistributedHandler
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.DistributedRequestHandler
@@ -66,8 +68,8 @@ object QueryResponse extends DistributedResponseHandler[messages.QueryResponse] 
   override protected val responseKind = DistributedMessageKind.QueryResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.QueryResponse): JValue = {
-    QueryResult(false, response.tpe, response.results, None).toJson
+  override protected def getServiceResult(response: messages.QueryResponse, message: DistributedMessage): JValue = {
+    QueryResult(message.replyRoute, false, response.tpe, response.results, None).toJson
   }
 }
 
@@ -75,7 +77,33 @@ object StandingQueryResponse extends DistributedResponseHandler[messages.Standin
   override protected val responseKind = DistributedMessageKind.StandingQueryResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.StandingQueryResponse): JValue = {
-    QueryResult(true, response.tpe, List(response.result), Some(response.action)).toJson
+  override protected def getServiceResult(response: messages.StandingQueryResponse, message: DistributedMessage): JValue = {
+    QueryResult(message.replyRoute, true, response.tpe, List(response.result), Some(response.action)).toJson
+  }
+}
+
+object CancelQueryRequest extends DistributedHandler with Logging {
+  private val requestKind = DistributedMessageKind.CancelQueryRequest
+  private val allowedVersions = List(1)
+
+  def handle(message: DistributedMessage, injector: ScalaInjector): Unit = {
+    message.replyToMessageId match {
+      case Some(replyToMessageId) =>
+        try {
+          if (message.kind != requestKind || !allowedVersions.contains(message.version)) {
+            throw new BennuException(ErrorCode.unsupportedMessage, s"${message.kind} v${message.version}")
+          }
+
+          val standingQueryRepo = injector.instance[StandingQueryRepository]
+          standingQueryRepo.delete(injector.instance[SecurityContext].agentId, replyToMessageId, message.replyRoute)
+        } catch {
+          case e: BennuException =>
+            logger.debug(s"BennuException: ${e.getErrorCode()} -- ${e.getMessage}")
+          case e: Exception =>
+            logger.warn(e)
+        }
+
+      case None => logger.warn(s"ReplyToMessageId not included in cancel query request")
+    }
   }
 }

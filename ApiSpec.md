@@ -145,6 +145,7 @@
 
 **Response Parameters:**
 
+* route: Array of Strings
 * standing: Boolean
 * type: String
 * results: Array of JSON
@@ -164,7 +165,19 @@
 
 ### Cancel Query
 
-*Not yet implemented*
+**Submit over channel:** Yes
+
+**Path:** */api/v1/query/cancel*
+
+**Parameters:** None
+
+**Response Parameters:** None
+
+**Error Codes:** None
+
+**Notes:**
+
+* The supplied context should match the context of the query to be cancelled
 
 ## Alias
 

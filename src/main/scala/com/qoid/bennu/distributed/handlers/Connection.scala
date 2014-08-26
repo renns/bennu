@@ -26,7 +26,7 @@ object DeleteConnectionResponse extends DistributedResponseHandler[messages.Dele
   override protected val responseKind = DistributedMessageKind.DeleteConnectionResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.DeleteConnectionResponse): JValue = {
+  override protected def getServiceResult(response: messages.DeleteConnectionResponse, message: DistributedMessage): JValue = {
     "connectionIid" -> response.connectionIid
   }
 }

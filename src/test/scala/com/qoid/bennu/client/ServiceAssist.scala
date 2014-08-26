@@ -102,6 +102,13 @@ trait ServiceAssist {
     promise.future
   }
 
+  def cancelQuery(context: JValue): Future[Unit] = {
+    async {
+      submit(ServicePath.cancelQuery, Map.empty[String, JValue], context)(_ => ())
+      cancelSubmit(context)
+    }
+  }
+
   def createAlias(
     name: String,
     profileName: String,

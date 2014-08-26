@@ -58,7 +58,7 @@ object InitiateIntroductionResponse extends DistributedResponseHandler[messages.
   override protected val responseKind = DistributedMessageKind.InitiateIntroductionResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.InitiateIntroductionResponse): JValue = {
+  override protected def getServiceResult(response: messages.InitiateIntroductionResponse, message: DistributedMessage): JValue = {
     "introductionIid" -> response.introductionIid
   }
 }
@@ -182,7 +182,7 @@ object AcceptIntroductionResponse extends DistributedResponseHandler[messages.Ac
   override protected val responseKind = DistributedMessageKind.AcceptIntroductionResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.AcceptIntroductionResponse): JValue = {
+  override protected def getServiceResult(response: messages.AcceptIntroductionResponse, message: DistributedMessage): JValue = {
     "notificationIid" -> response.notificationIid
   }
 }

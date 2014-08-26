@@ -26,7 +26,7 @@ object ConsumeNotificationResponse extends DistributedResponseHandler[messages.C
   override protected val responseKind = DistributedMessageKind.ConsumeNotificationResponse
   override protected val allowedVersions = List(1)
 
-  override protected def getServiceResult(response: messages.ConsumeNotificationResponse): JValue = {
+  override protected def getServiceResult(response: messages.ConsumeNotificationResponse, message: DistributedMessage): JValue = {
     "notificationIid" -> response.notificationIid
   }
 }

@@ -24,8 +24,6 @@ class DistributedManager @Inject()(
   sessionMgr: SessionManager
 ) extends Logging {
 
-  //TODO: If there is a problem forwarding message or handling message or any security problems, send a response back to message originator
-
   private val requestDataStore = LockFreeMap.empty[(InternalId, DistributedMessageId), RequestData]
 
   def initialize(): Unit = {

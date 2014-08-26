@@ -52,7 +52,7 @@ case class Query @Inject()(
 
   override protected def beforeSend(message: DistributedMessage): Unit = {
     if (standing) {
-      session.addStandingQuery(methodInvocation.context, message.messageId)
+      session.addStandingQuery(methodInvocation.context, message.messageId, route)
     }
   }
 }
