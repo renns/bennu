@@ -68,8 +68,12 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object UpdateLabelAccessResponse extends DistributedMessageKind { override val handler = handlers.UpdateLabelAccessResponse }
 
   // Notification
+  case object CreateNotificationRequest extends DistributedMessageKind { override val handler = handlers.CreateNotificationRequest }
+  case object CreateNotificationResponse extends DistributedMessageKind { override val handler = handlers.CreateNotificationResponse }
   case object ConsumeNotificationRequest extends DistributedMessageKind { override val handler = handlers.ConsumeNotificationRequest }
   case object ConsumeNotificationResponse extends DistributedMessageKind { override val handler = handlers.ConsumeNotificationResponse }
+  case object DeleteNotificationRequest extends DistributedMessageKind { override val handler = handlers.DeleteNotificationRequest }
+  case object DeleteNotificationResponse extends DistributedMessageKind { override val handler = handlers.DeleteNotificationResponse }
 
   // Introduction
   case object InitiateIntroductionRequest extends DistributedMessageKind { override val handler = handlers.InitiateIntroductionRequest }
@@ -88,6 +92,7 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     QueryRequest,
     QueryResponse,
     StandingQueryResponse,
+    CancelQueryRequest,
 
     CreateAliasRequest,
     CreateAliasResponse,
@@ -133,8 +138,12 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
     UpdateLabelAccessRequest,
     UpdateLabelAccessResponse,
 
+    CreateNotificationRequest,
+    CreateNotificationResponse,
     ConsumeNotificationRequest,
     ConsumeNotificationResponse,
+    DeleteNotificationRequest,
+    DeleteNotificationResponse,
 
     InitiateIntroductionRequest,
     InitiateIntroductionResponse,

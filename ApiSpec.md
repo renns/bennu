@@ -642,11 +642,51 @@
 
 ## Notification
 
+### Create Notification
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/notification/create*
+
+**Parameters:**
+
+* route: Array of Strings
+* kind: String
+* data: JSON (optional)
+
+**Response Parameters:**
+
+* notification fields
+
+**Error Codes:**
+
+* routeInvalid
+* kindInvalid
+
 ### Consume Notification
 
 **Submit over channel:** Yes
 
 **Path:** */api/v1/notification/consume*
+
+**Parameters:**
+
+* route: Array of Strings
+* notificationIid: String
+
+**Response Parameters:**
+
+* notificationIid: String
+
+**Error Codes:**
+
+* routeInvalid
+
+### Delete Notification
+
+**Submit over channel:** Yes
+
+**Path:** */api/v1/notification/delete*
 
 **Parameters:**
 

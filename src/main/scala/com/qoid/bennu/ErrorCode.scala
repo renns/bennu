@@ -31,4 +31,5 @@ object ErrorCode {
   val connectionDoesNotHaveAccess = "connectionDoesNotHaveAccess"
   val aMessageInvalid = "aMessageInvalid"
   val bMessageInvalid = "bMessageInvalid"
+  val kindInvalid = "kindInvalid"
 }

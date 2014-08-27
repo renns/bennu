@@ -7,14 +7,14 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.model.notification.NotificationKind
 import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object Notification extends BennuMapperCompanion[Notification] with FromJsonCapable[Notification]
 
 case class Notification(
-  kind: NotificationKind,
+  kind: String,
+  route: JValue,
   consumed: Boolean = false,
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,

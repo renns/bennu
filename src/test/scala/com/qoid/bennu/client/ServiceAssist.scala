@@ -478,6 +478,24 @@ trait ServiceAssist {
     }
   }
 
+  def createNotification(
+    kind: String,
+    data: JValue = JNothing,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[Notification] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "kind" -> kind,
+        "data" -> data
+      )
+
+      val result = await(submitSingleResponse(ServicePath.createNotification, parms))
+      serializer.fromJson[Notification](result)
+    }
+  }
+
   def consumeNotification(
     notificationIid: InternalId,
     route: List[InternalId] = List(connectionIid)
@@ -490,6 +508,22 @@ trait ServiceAssist {
       )
 
       val result = await(submitSingleResponse(ServicePath.consumeNotification, parms))
+      serializer.fromJson[NotificationIid](result).notificationIid
+    }
+  }
+
+  def deleteNotification(
+    notificationIid: InternalId,
+    route: List[InternalId] = List(connectionIid)
+  ): Future[InternalId] = {
+
+    async {
+      val parms = Map[String, JValue](
+        "route" -> route,
+        "notificationIid" -> notificationIid
+      )
+
+      val result = await(submitSingleResponse(ServicePath.deleteNotification, parms))
       serializer.fromJson[NotificationIid](result).notificationIid
     }
   }

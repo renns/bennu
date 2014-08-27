@@ -16,7 +16,6 @@ import com.qoid.bennu.model.Introduction
 import com.qoid.bennu.model.Notification
 import com.qoid.bennu.model.assist.ConnectionAssist
 import com.qoid.bennu.model.id.PeerId
-import com.qoid.bennu.model.notification.NotificationKind
 import com.qoid.bennu.security.AgentSecurityContext
 import com.qoid.bennu.security.ConnectionSecurityContext
 import com.qoid.bennu.security.SecurityContext
@@ -73,7 +72,7 @@ object IntroductionRequest extends DistributedHandler with Logging {
         throw new BennuException(ErrorCode.unsupportedMessage, s"${message.kind} v${message.version}")
       }
 
-      Notification.insert(Notification(NotificationKind.IntroductionRequest, data = message.data))
+      Notification.insert(Notification("IntroductionRequest", message.replyRoute, data = message.data))
     } catch {
       case e: BennuException => logger.debug(s"BennuException: ${e.getErrorCode()} -- ${e.getMessage}")
       case e: Exception => logger.warn(e)
