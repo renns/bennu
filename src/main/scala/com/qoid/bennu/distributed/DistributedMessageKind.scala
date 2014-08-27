@@ -84,8 +84,6 @@ object DistributedMessageKind extends EnumCompanion[DistributedMessageKind] {
   case object AcceptIntroductionResponse extends DistributedMessageKind { override val handler = handlers.AcceptIntroductionResponse }
   case object IntroductionConnect extends DistributedMessageKind { override val handler = handlers.IntroductionConnect }
 
-  // Verification
-
   override val values: Set[DistributedMessageKind] = Set(
     Error,
 

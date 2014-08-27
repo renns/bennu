@@ -7,7 +7,6 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.model.id.SharedId
 import com.qoid.bennu.query.ast.ContentQuery
 import com.qoid.bennu.query.ast.Node
 import m3.Chord
@@ -15,27 +14,7 @@ import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
 object Content extends BennuMapperCompanion[Content] with FromJsonCapable[Content] {
-
   override protected val queryTransformer: PartialFunction[Node, Chord] = ContentQuery.transformer
-
-  object MetaData extends FromJsonCapable[MetaData]
-
-  case class MetaData(
-    verifiedContent: Option[MetaDataVerifiedContent] = None,
-    verifications: Option[List[MetaDataVerification]] = None
-  ) extends ToJsonCapable
-
-  case class MetaDataVerifiedContent(
-    hash: JValue,
-    hashAlgorithm: String
-  )
-
-  case class MetaDataVerification(
-    verifierId: SharedId,
-    verificationIid: InternalId,
-    hash: JValue,
-    hashAlgorithm: String
-  )
 }
 
 case class Content(

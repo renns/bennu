@@ -745,21 +745,3 @@
 **Error Codes:**
 
 * routeInvalid
-
-## Verification
-
-### Request Verification
-
-*Not yet implemented*
-
-### Respond to Verification Request
-
-*Not yet implemented*
-
-### Accept Verification
-
-*Not yet implemented*
-
-### Verify
-
-*Not yet implemented*

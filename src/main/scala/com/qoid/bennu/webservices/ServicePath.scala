@@ -55,10 +55,4 @@ object ServicePath {
   // Introduction
   val initiateIntroduction = "/api/v1/introduction/initiate"
   val acceptIntroduction = "/api/v1/introduction/accept"
-
-  // Verification
-//  val requestVerification = "/api/v1/verification/request"
-//  val respondToVerification = "/api/v1/verification/respond"
-//  val verify = "/api/verification/v1/verify"
-//  val acceptVerification = "/api/v1/verification/accept"
 }
