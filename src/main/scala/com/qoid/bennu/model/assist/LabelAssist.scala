@@ -23,11 +23,12 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
   val connectionsLabelName = "Connections"
   val connectionLabelName = "Connection"
   val verificationsLabelName = "Verifications"
+  val auditLogLabelName = "Audit Log"
 
   val aliasLabelData: JValue = "color" -> "#000000"
   val metaLabelData: JValue = "color" -> "#7FBA00"
 
-  def createMetaLabels(labelIid: InternalId): (Label, Label, Label) = {
+  def createMetaLabels(labelIid: InternalId): Label = {
     val metaLabel = Label.insert(Label(metaLabelName, data = metaLabelData))
     LabelChild.insert(LabelChild(labelIid, metaLabel.iid))
 
@@ -37,7 +38,10 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
     val verificationsLabel = Label.insert(Label(verificationsLabelName, data = metaLabelData))
     LabelChild.insert(LabelChild(metaLabel.iid, verificationsLabel.iid))
 
-    (metaLabel, connectionsLabel, verificationsLabel)
+    val auditLogLabel = Label.insert(Label(auditLogLabelName, data = metaLabelData))
+    LabelChild.insert(LabelChild(metaLabel.iid, auditLogLabel.iid))
+
+    connectionsLabel
   }
 
   def findChildLabel(parentIid: InternalId, childName: String): Box[Label] = {
@@ -67,6 +71,10 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
 
   def resolveConnectionMetaLabel(): Box[InternalId] = {
     Full(Connection.fetch(injector.instance[SecurityContext].connectionIid).labelIid)
+  }
+
+  def resolveAuditLogMetaLabel(): Box[InternalId] = {
+    resolveLabel(List(metaLabelName, auditLogLabelName))
   }
 
   def resolveLabelAncestry(parentLabelIid: InternalId): Iterator[InternalId] = {

@@ -38,7 +38,7 @@ class AliasAssist @Inject()(
     val alias = Alias.insert(Alias(label.iid, connectionIid, iid = aliasIid))
 
     // Create meta labels
-    val (_, connectionsLabel, _) = labelAssist.createMetaLabels(label.iid)
+    val connectionsLabel = labelAssist.createMetaLabels(label.iid)
 
     // Create profile
     Profile.insert(Profile(alias.iid, profileName, profileImage))
@@ -67,7 +67,7 @@ class AliasAssist @Inject()(
     val alias = Alias.insert(Alias(label.iid, connectionIid = InternalId.random))
 
     // Create meta labels
-    val (_, connectionsLabel, _) = labelAssist.createMetaLabels(label.iid)
+    val connectionsLabel = labelAssist.createMetaLabels(label.iid)
 
     // Create profile
     Profile.insert(Profile(alias.iid, profileName, profileImage))
