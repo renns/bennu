@@ -10,7 +10,7 @@ import m3.servlet.beans.Parm
 
 case class RevokeLabelAccess @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm labelIid: InternalId,
   @Parm connectionIid: InternalId
 ) extends DistributedService {

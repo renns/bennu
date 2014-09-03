@@ -10,7 +10,7 @@ import m3.servlet.beans.Parm
 
 case class RemoveContentLabel @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm contentIid: InternalId,
   @Parm labelIid: InternalId
 ) extends DistributedService {

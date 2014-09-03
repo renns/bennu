@@ -29,11 +29,11 @@ trait DistributedService {
       val methodInvocation = injector.instance[MethodInvocation]
       val distributedMgr = injector.instance[DistributedManager]
 
-      if (route.isEmpty) throw new BennuException(ErrorCode.routeInvalid)
+      val actualRoute = if (route.isEmpty) List(session.securityContext.connectionIid) else route
 
       validateParameters()
 
-      val message = DistributedMessage(distributedMessageKind, 1, route, request)
+      val message = DistributedMessage(distributedMessageKind, 1, actualRoute, request)
       val requestData = RequestData(session.channel.id, methodInvocation.context, singleResponse)
 
       beforeSend(message)

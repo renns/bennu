@@ -13,7 +13,7 @@ import m3.servlet.beans.Parm
 
 case class CreateAlias @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm name: String,
   @Parm profileName: String,
   @Parm profileImage: String = "",

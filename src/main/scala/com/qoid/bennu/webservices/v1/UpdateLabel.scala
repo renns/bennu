@@ -13,7 +13,7 @@ import m3.servlet.beans.Parm
 
 case class UpdateLabel @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm labelIid: InternalId,
   @Parm name: Option[String] = None,
   @Parm data: Option[JValue] = None

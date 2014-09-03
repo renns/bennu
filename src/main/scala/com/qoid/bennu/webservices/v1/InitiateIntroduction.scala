@@ -12,7 +12,7 @@ import m3.servlet.beans.Parm
 
 case class InitiateIntroduction @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm aConnectionIid: InternalId,
   @Parm aMessage: String,
   @Parm bConnectionIid: InternalId,

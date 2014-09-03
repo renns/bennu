@@ -137,7 +137,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * type: String
 * query: String
 * historical: Boolean
@@ -153,7 +153,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * typeInvalid
 * queryInvalid
 * historicalStandingInvalid
@@ -189,7 +188,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * name: String
 * profileName: String
 * profileImage: String (optional)
@@ -201,7 +200,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * nameInvalid
 * profileNameInvalid
 
@@ -213,7 +211,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 * data: JSON
 
@@ -221,9 +219,7 @@
 
 * alias fields
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Delete Alias
 
@@ -233,16 +229,14 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 
 **Response Parameters:**
 
 * aliasIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 **Notes:**
 
@@ -257,7 +251,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 * password: String
 
@@ -267,7 +261,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * passwordInvalid
 
 ### Update Alias Login
@@ -278,7 +271,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 * password: String
 
@@ -288,7 +281,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * passwordInvalid
 
 ### Delete Alias Login
@@ -299,16 +291,14 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 
 **Response Parameters:**
 
 * aliasIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Update Alias Profile
 
@@ -318,7 +308,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aliasIid: String
 * profileName: String (optional)
 * profileImage: String (optional)
@@ -329,7 +319,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * profileNameInvalid
 * profileNameProfileImageInvalid
 
@@ -347,16 +336,14 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * connectionIid: String
 
 **Response Parameters:**
 
 * connectionIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ## Content
 
@@ -368,7 +355,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * contentType: String
 * data: JSON
 * labelIids: Array of Strings
@@ -379,7 +366,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * contentTypeInvalid
 * dataInvalid
 * labelIidsInvalid
@@ -392,7 +378,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * contentIid: InternalId
 * data: JSON
 
@@ -402,7 +388,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * dataInvalid
 
 ### Add Content Label
@@ -413,7 +398,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * contentIid: String
 * labelIid: String
 
@@ -424,7 +409,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * contentAlreadyHasLabel
 
 ### Remove Content Label
@@ -435,7 +419,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * contentIid: String
 * labelIid: String
 
@@ -446,7 +430,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * contentDoesNotHaveLabel
 
 **Notes:**
@@ -463,7 +446,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * parentLabelIid: String
 * name: String
 * data: JSON (optional)
@@ -474,7 +457,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * nameInvalid
 
 ### Update Label
@@ -485,7 +467,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * name: String (optional)
 * data: JSON (optional)
@@ -496,7 +478,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * nameInvalid
 * nameDataInvalid
 
@@ -512,7 +493,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * oldParentLabelIid: String,
 * newParentLabelIid: String
@@ -521,9 +502,7 @@
 
 * labelIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Copy Label
 
@@ -533,7 +512,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * newParentLabelIid: String
 
@@ -541,9 +520,7 @@
 
 * labelIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Remove Label
 
@@ -553,7 +530,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * parentLabelIid: String
 
@@ -561,9 +538,7 @@
 
 * labelIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Grant Label Access
 
@@ -573,7 +548,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * connectionIid: String
 * maxDoV: Integer
@@ -584,7 +559,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * maxDoVInvalid
 * connectionAlreadyHasAccess
 
@@ -600,7 +574,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * connectionIid: String
 
@@ -610,7 +584,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * connectionDoesNotHaveAccess
 
 ### Update Label Access
@@ -621,7 +594,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * labelId: String
 * connectionIid: String
 * maxDoV: Integer
@@ -632,7 +605,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * maxDoVInvalid
 * connectionDoesNotHaveAccess
 
@@ -650,7 +622,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * kind: String
 * data: JSON (optional)
 
@@ -660,7 +632,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * kindInvalid
 
 ### Consume Notification
@@ -671,16 +642,14 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * notificationIid: String
 
 **Response Parameters:**
 
 * notificationIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ### Delete Notification
 
@@ -690,16 +659,14 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * notificationIid: String
 
 **Response Parameters:**
 
 * notificationIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None
 
 ## Introduction
 
@@ -711,7 +678,7 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * aConnectionIid: String
 * aMessage: String
 * bConnectionIid: String
@@ -723,7 +690,6 @@
 
 **Error Codes:**
 
-* routeInvalid
 * aMessageInvalid
 * bMessageInvalid
 
@@ -735,13 +701,11 @@
 
 **Parameters:**
 
-* route: Array of Strings
+* route: Array of Strings (optional)
 * notificationIid: String
 
 **Response Parameters:**
 
 * notificationIid: String
 
-**Error Codes:**
-
-* routeInvalid
+**Error Codes:** None

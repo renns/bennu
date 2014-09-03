@@ -46,7 +46,7 @@ trait ServiceAssist {
     post(ServicePath.logout, Map.empty[String, JValue]).map(_ => ())
   }
 
-  def query[T : Manifest](query: String = "", route: List[InternalId] = List(connectionIid)): Future[List[T]] = {
+  def query[T : Manifest](query: String = "", route: List[InternalId] = Nil): Future[List[T]] = {
     async {
       val typeName = MapperAssist.findMapperByType[T].typeName
 
@@ -66,7 +66,7 @@ trait ServiceAssist {
 
   def queryStanding[T : Manifest](
     query: String = "",
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   )(
     fn: (T, StandingQueryAction, JValue) => Unit
   ): Future[List[T]] = {
@@ -114,7 +114,7 @@ trait ServiceAssist {
     profileName: String,
     profileImage: Option[String] = None,
     data: Option[JValue] = None,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Alias] = {
 
     async {
@@ -134,7 +134,7 @@ trait ServiceAssist {
   def updateAlias(
     aliasIid: InternalId,
     data: JValue,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Alias] = {
 
     async {
@@ -151,7 +151,7 @@ trait ServiceAssist {
 
   def deleteAlias(
     aliasIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -168,7 +168,7 @@ trait ServiceAssist {
   def createAliasLogin(
     aliasIid: InternalId,
     password: String,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Login] = {
 
     async {
@@ -186,7 +186,7 @@ trait ServiceAssist {
   def updateAliasLogin(
     aliasIid: InternalId,
     password: String,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Login] = {
 
     async {
@@ -203,7 +203,7 @@ trait ServiceAssist {
 
   def deleteAliasLogin(
     aliasIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -221,7 +221,7 @@ trait ServiceAssist {
     aliasIid: InternalId,
     profileName: Option[String] = None,
     profileImage: Option[String] = None,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Profile] = {
 
     async {
@@ -239,7 +239,7 @@ trait ServiceAssist {
 
   def deleteConnection(
     connectionIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -257,7 +257,7 @@ trait ServiceAssist {
     contentType: String,
     data: JValue,
     labelIids: List[InternalId],
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Content] = {
 
     async {
@@ -276,7 +276,7 @@ trait ServiceAssist {
   def updateContent(
     contentIid: InternalId,
     data: JValue,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Content] = {
 
     async {
@@ -294,7 +294,7 @@ trait ServiceAssist {
   def addContentLabel(
     contentIid: InternalId,
     labelIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[ContentLabel] = {
 
     async {
@@ -312,7 +312,7 @@ trait ServiceAssist {
   def removeContentLabel(
     contentIid: InternalId,
     labelIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[ContentLabel] = {
 
     async {
@@ -330,7 +330,7 @@ trait ServiceAssist {
   def createLabel(
     parentLabelIid: InternalId,
     name: String,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Label] = {
 
     async {
@@ -349,7 +349,7 @@ trait ServiceAssist {
   def updateLabel(
     labelIid: InternalId,
     name: String,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Label] = {
 
     async {
@@ -368,7 +368,7 @@ trait ServiceAssist {
     labelIid: InternalId,
     oldParentLabelIid: InternalId,
     newParentLabelIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -387,7 +387,7 @@ trait ServiceAssist {
   def copyLabel(
     labelIid: InternalId,
     newParentLabelIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -405,7 +405,7 @@ trait ServiceAssist {
   def removeLabel(
     labelIid: InternalId,
     parentLabelIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -424,7 +424,7 @@ trait ServiceAssist {
     labelIid: InternalId,
     connectionIid: InternalId,
     maxDoV: Int,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -443,7 +443,7 @@ trait ServiceAssist {
   def revokeLabelAccess(
     labelIid: InternalId,
     connectionIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -462,7 +462,7 @@ trait ServiceAssist {
     labelIid: InternalId,
     connectionIid: InternalId,
     maxDoV: Int,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -481,7 +481,7 @@ trait ServiceAssist {
   def createNotification(
     kind: String,
     data: JValue = JNothing,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[Notification] = {
 
     async {
@@ -498,7 +498,7 @@ trait ServiceAssist {
 
   def consumeNotification(
     notificationIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -514,7 +514,7 @@ trait ServiceAssist {
 
   def deleteNotification(
     notificationIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -533,7 +533,7 @@ trait ServiceAssist {
     aMessage: String,
     bConnectionIid: InternalId,
     bMessage: String,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {
@@ -552,7 +552,7 @@ trait ServiceAssist {
 
   def acceptIntroduction(
     notificationIid: InternalId,
-    route: List[InternalId] = List(connectionIid)
+    route: List[InternalId] = Nil
   ): Future[InternalId] = {
 
     async {

@@ -11,7 +11,7 @@ import m3.servlet.beans.Parm
 
 case class UpdateAlias @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm aliasIid: InternalId,
   @Parm data: JValue
 ) extends DistributedService {

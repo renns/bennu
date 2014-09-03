@@ -12,7 +12,7 @@ import m3.servlet.beans.Parm
 
 case class UpdateAliasProfile @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm aliasIid: InternalId,
   @Parm profileName: Option[String],
   @Parm profileImage: Option[String]

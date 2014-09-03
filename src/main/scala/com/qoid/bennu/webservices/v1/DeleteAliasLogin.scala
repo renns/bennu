@@ -10,7 +10,7 @@ import m3.servlet.beans.Parm
 
 case class DeleteAliasLogin @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm aliasIid: InternalId
 ) extends DistributedService {
 

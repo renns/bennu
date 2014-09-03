@@ -12,7 +12,7 @@ import m3.servlet.beans.Parm
 case class CreateAliasLogin @Inject()(
   injector: ScalaInjector,
   authenticationMgr: AuthenticationManager,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm aliasIid: InternalId,
   @Parm password: String
 ) extends DistributedService {

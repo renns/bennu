@@ -12,7 +12,7 @@ import m3.servlet.beans.Parm
 
 case class GrantLabelAccess @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm labelIid: InternalId,
   @Parm connectionIid: InternalId,
   @Parm maxDoV: Int

@@ -14,7 +14,6 @@ object ErrorCode {
   val authenticationFailed = "authenticationFailed"
   val timeoutMillisInvalid = "timeoutMillisInvalid"
   val byteCountInvalid = "byteCountInvalid"
-  val routeInvalid = "routeInvalid"
   val unexpectedError = "unexpectedError"
   val unsupportedMessage = "unsupportedMessage"
   val unsupportedResponseMessage = "unsupportedResponseMessage"

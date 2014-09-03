@@ -10,7 +10,7 @@ import m3.servlet.beans.Parm
 
 case class DeleteConnection @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm connectionIid: InternalId
 ) extends DistributedService {
 

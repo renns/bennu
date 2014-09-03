@@ -20,7 +20,7 @@ case class Query @Inject()(
   injector: ScalaInjector,
   session: Session,
   methodInvocation: MethodInvocation,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm("type") tpe: String,
   @Parm query: String,
   @Parm historical: Boolean,

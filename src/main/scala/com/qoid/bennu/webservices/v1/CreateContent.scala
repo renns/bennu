@@ -13,7 +13,7 @@ import m3.servlet.beans.Parm
 
 case class CreateContent @Inject()(
   injector: ScalaInjector,
-  @Parm route: List[InternalId],
+  @Parm route: List[InternalId] = Nil,
   @Parm contentType: String,
   @Parm data: JValue,
   @Parm labelIids: List[InternalId]
