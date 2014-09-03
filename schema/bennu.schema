@@ -50,7 +50,7 @@ table alias {
 
 table content {
   iid           InternalId key;
-  contentType   varchar(32);
+  contentType   varchar(100);
   metaData      Clob;
   import(CommonFields);
 }
@@ -75,7 +75,7 @@ table connection {
 table notification {
   iid                   InternalId key;
   consumed              Boolean;
-  kind                  varchar(50);
+  kind                  varchar(100);
   route                 Clob;
   import(CommonFields);
 }
