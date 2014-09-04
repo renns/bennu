@@ -28,6 +28,12 @@ object Node {
     }    
   }
 
+  def nodeToString(node: Node): String = {
+    node match {
+      case StringLit(s) => s
+      case _ => m3x.error(s"don't know how to handle -- ${node}")
+    }
+  }
 }
 
 object Query {

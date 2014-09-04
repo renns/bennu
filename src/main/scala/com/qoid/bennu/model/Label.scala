@@ -7,10 +7,15 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.query.ast.LabelQuery
+import com.qoid.bennu.query.ast.Node
+import m3.Chord
 import m3.jdbc.mapper.PrimaryKey
 import net.model3.chrono.DateTime
 
-object Label extends BennuMapperCompanion[Label] with FromJsonCapable[Label]
+object Label extends BennuMapperCompanion[Label] with FromJsonCapable[Label] {
+  override protected val queryTransformer: PartialFunction[Node, Chord] = LabelQuery.transformer
+}
 
 case class Label(
   name: String,

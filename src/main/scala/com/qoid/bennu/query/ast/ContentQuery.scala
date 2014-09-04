@@ -21,13 +21,19 @@ object ContentQuery {
   }
 
   private def fn_hasLabelPath(fc: FunctionCall): Chord = {
-    val path = stringLiterals(fc.parms)
+    val path = fc.parms.map(Node.nodeToString)
     val labelIid = labelAssist.resolveLabel(path)
+
     fn_contentHasLabelOrDescendant(labelIid)
   }
 
   private def fn_hasLabel(fc: FunctionCall): Chord = {
-    fn_contentHasLabelOrDescendant(Full(InternalId(stringLiteral(fc.parms))))
+    val parm = fc.parms match {
+      case node :: Nil => Node.nodeToString(node)
+      case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
+    }
+
+    fn_contentHasLabelOrDescendant(Full(InternalId(parm)))
   }
 
   private def fn_hasConnectionMetaLabel(fc: FunctionCall): Chord = {
@@ -51,15 +57,4 @@ object ContentQuery {
 
     "iid in (select contentIid from labeledcontent where " ~ whereClause ~ ")"
   }
-
-  def stringLiterals(parms: List[Node]): List[String] = parms match {
-    case Nil => Nil
-    case StringLit(s) :: tl => s :: stringLiterals(tl)
-    case _ => m3x.error(s"don't know how to handle -- ${parms}")
-  }
-  
-  def stringLiteral(parms: List[Node]): String = parms match {
-    case List(StringLit(s)) => s
-    case _ => m3x.error(s"don't know how to handle -- ${parms}")
-  } 
 }

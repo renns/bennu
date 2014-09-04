@@ -2,6 +2,8 @@ package com.qoid.bennu.query.ast
 
 import com.qoid.bennu.Enum
 import com.qoid.bennu.model.Content
+import com.qoid.bennu.model.Label
+import com.qoid.bennu.model.LabelChild
 import com.qoid.bennu.model.LabeledContent
 import com.qoid.bennu.model.assist.LabelAssist
 import com.qoid.bennu.model.id.InternalId
@@ -36,17 +38,41 @@ object Evaluator extends Logging {
   def invokeFunction(fc: FunctionCall, row: Any)(implicit propertyGetter: (Any,String) => Value = simplePropertyGetter) = {
     fc.name match {
       case "hasLabelPath" =>
-        val path = ContentQuery.stringLiterals(fc.parms)
+        val path = fc.parms.map(Node.nodeToString)
         labelAssist.resolveLabel(path) match {
           case Full(iid) => impl.hasLabel(row, iid, true)
           case _ => VFalse
         }
-      case "hasLabel" => impl.hasLabel(row, InternalId(ContentQuery.stringLiteral(fc.parms)), true)
+
+      case "hasLabel" =>
+        val parm = fc.parms match {
+          case node :: Nil => Node.nodeToString(node)
+          case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
+        }
+
+        impl.hasLabel(row, InternalId(parm), true)
+
       case "hasConnectionMetaLabel" =>
         labelAssist.resolveConnectionMetaLabel() match {
           case Full(iid) => impl.hasLabel(row, iid, false)
           case _ => VFalse
         }
+
+      case "hasParentLabelPath" =>
+        val path = fc.parms.map(Node.nodeToString)
+        labelAssist.resolveLabel(path) match {
+          case Full(iid) => impl.hasParentLabel(row, iid)
+          case _ => VFalse
+        }
+
+      case "hasParentLabel" =>
+        val parm = fc.parms match {
+          case node :: Nil => Node.nodeToString(node)
+          case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
+        }
+
+        impl.hasParentLabel(row, InternalId(parm))
+
       case _ => m3x.error("function call not supported -- " + reify(fc))
     }
   }
@@ -61,9 +87,20 @@ object Evaluator extends Logging {
             List(labelIid)
           }
 
-          val labeledContent = LabeledContent.select("labelIid in (" + labelIids.map("'" + _.value + "'").mkString(",") + ")")
+          val labeledContents = LabeledContent.select("labelIid in (" + labelIids.map("'" + _.value + "'").mkString(",") + ")")
 
-          if (labeledContent.exists(_.contentIid == c.iid)) VTrue else VFalse
+          if (labeledContents.exists(_.contentIid == c.iid)) VTrue else VFalse
+
+        case _ => VFalse
+      }
+    }
+
+    def hasParentLabel(row: Any, labelIid: InternalId): VBool = {
+      row match {
+        case l: Label =>
+          val labelChilds = LabelChild.select(s"parentIid = '${labelIid}'")
+          if (labelChilds.exists(_.childIid == l.iid)) VTrue else VFalse
+
         case _ => VFalse
       }
     }
