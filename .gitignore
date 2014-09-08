@@ -11,3 +11,4 @@ target
 .cache
 
 db
+*.DS_Store
