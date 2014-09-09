@@ -3,6 +3,7 @@ package com.qoid.bennu.integration
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.client._
+import com.qoid.bennu.model.id.SemanticId
 import org.specs2.Specification
 import org.specs2.execute.Result
 import scala.async.Async
@@ -14,10 +15,11 @@ class ContentSpec extends Specification {
     ${section("integration")}
 
     Content should
-      create content        ${createContent()}
-      update content        ${updateContent()}
-      add content label     ${addContentLabel()}
-      remove content label  ${removeContentLabel()}
+      create content            ${createContent()}
+      create semantic content   ${createSemanticContent()}
+      update content            ${updateContent()}
+      add content label         ${addContentLabel()}
+      remove content label      ${removeContentLabel()}
 
     ${section("integration")}
   """
@@ -34,6 +36,19 @@ class ContentSpec extends Specification {
         val content = Async.await(client.createContent("TEXT", data, List(label.iid)))
 
         content.data must_== data
+      }
+    }.await(60)
+  }
+
+  def createSemanticContent(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val label = Async.await(client.getCurrentAliasLabel())
+        val data: JValue = "text" -> "My content"
+        val semanticId = SemanticId.random
+        val content = Async.await(client.createContent("TEXT", data, List(label.iid), Some(semanticId)))
+
+        (content.data must_== data) and (content.semanticId must_== Some(semanticId))
       }
     }.await(60)
   }

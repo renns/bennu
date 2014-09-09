@@ -32,7 +32,7 @@ class ConnectionAssist @Inject()(
     val alias = Alias.fetch(aliasIid)
 
     // Create connection label
-    val connectionLabel = Label.insert(Label(labelAssist.connectionLabelName, data = labelAssist.metaLabelData))
+    val connectionLabel = Label.insert(Label(labelAssist.connectionLabelName, None, data = labelAssist.metaLabelData))
     LabelChild.insert(LabelChild(connectionsLabelIid, connectionLabel.iid))
 
     // Create connection

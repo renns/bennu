@@ -24,7 +24,7 @@ object CreateContentRequest extends DistributedRequestHandler[messages.CreateCon
     if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
     if (request.labelIids.isEmpty) throw new BennuException(ErrorCode.labelIidsInvalid)
 
-    val content = Content.insert(Content(request.contentType, data = request.data))
+    val content = Content.insert(Content(request.contentType, request.semanticId, data = request.data))
 
     request.labelIids.foreach { labelIid =>
       LabeledContent.insert(LabeledContent(content.iid, labelIid))

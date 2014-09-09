@@ -7,6 +7,7 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import com.qoid.bennu.query.ast.ContentQuery
 import com.qoid.bennu.query.ast.Node
 import m3.Chord
@@ -19,6 +20,7 @@ object Content extends BennuMapperCompanion[Content] with FromJsonCapable[Conten
 
 case class Content(
   contentType: String,
+  semanticId: Option[SemanticId],
   @PrimaryKey iid: InternalId = InternalId.random,
   agentId: AgentId = AgentId(""),
   data: JValue = JNothing,
@@ -45,4 +47,3 @@ case class Content(
     )
   }
 }
-

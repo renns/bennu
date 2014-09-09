@@ -7,6 +7,7 @@ import com.qoid.bennu.mapper.BennuMappedInstance
 import com.qoid.bennu.mapper.BennuMapperCompanion
 import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import com.qoid.bennu.query.ast.LabelQuery
 import com.qoid.bennu.query.ast.Node
 import m3.Chord
@@ -19,6 +20,7 @@ object Label extends BennuMapperCompanion[Label] with FromJsonCapable[Label] {
 
 case class Label(
   name: String,
+  semanticId: Option[SemanticId],
   agentId: AgentId = AgentId(""),
   @PrimaryKey iid: InternalId = InternalId.random,
   data: JValue = JNothing,

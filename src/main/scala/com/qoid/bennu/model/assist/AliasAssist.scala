@@ -32,7 +32,7 @@ class AliasAssist @Inject()(
   ): Alias = {
 
     // Create alias' label
-    val label = Label.insert(Label(name, data = labelAssist.aliasLabelData))
+    val label = Label.insert(Label(name, None, data = labelAssist.aliasLabelData))
 
     // Create alias
     val alias = Alias.insert(Alias(label.iid, connectionIid, iid = aliasIid))
@@ -60,7 +60,7 @@ class AliasAssist @Inject()(
     val currentAlias = Alias.fetch(securityContext.aliasIid)
 
     // Create alias' label
-    val label = Label.insert(Label(name, data = labelAssist.aliasLabelData))
+    val label = Label.insert(Label(name, None, data = labelAssist.aliasLabelData))
     LabelChild.insert(LabelChild(currentAlias.labelIid, label.iid))
 
     // Create alias

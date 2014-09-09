@@ -11,6 +11,7 @@ import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.model.LabelChild
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import com.qoid.bennu.security.AgentSecurityContext
 import com.qoid.bennu.security.SecurityContext
 import m3.jdbc._
@@ -29,16 +30,16 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
   val metaLabelData: JValue = "color" -> "#7FBA00"
 
   def createMetaLabels(labelIid: InternalId): Label = {
-    val metaLabel = Label.insert(Label(metaLabelName, data = metaLabelData))
+    val metaLabel = Label.insert(Label(metaLabelName, None, data = metaLabelData))
     LabelChild.insert(LabelChild(labelIid, metaLabel.iid))
 
-    val connectionsLabel = Label.insert(Label(connectionsLabelName, data = metaLabelData))
+    val connectionsLabel = Label.insert(Label(connectionsLabelName, None, data = metaLabelData))
     LabelChild.insert(LabelChild(metaLabel.iid, connectionsLabel.iid))
 
-    val verificationsLabel = Label.insert(Label(verificationsLabelName, data = metaLabelData))
+    val verificationsLabel = Label.insert(Label(verificationsLabelName, None, data = metaLabelData))
     LabelChild.insert(LabelChild(metaLabel.iid, verificationsLabel.iid))
 
-    val auditLogLabel = Label.insert(Label(auditLogLabelName, data = metaLabelData))
+    val auditLogLabel = Label.insert(Label(auditLogLabelName, None, data = metaLabelData))
     LabelChild.insert(LabelChild(metaLabel.iid, auditLogLabel.iid))
 
     connectionsLabel
@@ -91,5 +92,13 @@ class LabelAssist @Inject()(injector: ScalaInjector) {
       )
       select * from reachable_labels
     """)
+  }
+
+  def getSemanticLabels(semanticId: SemanticId): Iterator[InternalId] = {
+    val securityContext = injector.instance[SecurityContext]
+
+    AgentSecurityContext(securityContext.agentId) {
+      Label.select(sql"semanticId = ${semanticId}").map(_.iid)
+    }
   }
 }

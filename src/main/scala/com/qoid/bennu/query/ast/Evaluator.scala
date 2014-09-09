@@ -7,6 +7,7 @@ import com.qoid.bennu.model.LabelChild
 import com.qoid.bennu.model.LabeledContent
 import com.qoid.bennu.model.assist.LabelAssist
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import m3.StringConverters
 import m3.StringConverters.Converter
 import m3.TypeInfo
@@ -57,6 +58,15 @@ object Evaluator extends Logging {
           case Full(iid) => impl.hasLabel(row, iid, false)
           case _ => VFalse
         }
+
+      case "hasLabelSemantic" =>
+        val parm = fc.parms match {
+          case node :: Nil => Node.nodeToString(node)
+          case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
+        }
+
+        val labelIids = labelAssist.getSemanticLabels(SemanticId(parm))
+        VBool(labelIids.map(iid => impl.hasLabel(row, iid, true)).exists(_.value))
 
       case "hasParentLabelPath" =>
         val path = fc.parms.map(Node.nodeToString)

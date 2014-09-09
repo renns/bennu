@@ -60,7 +60,7 @@ abstract class DistributedRequestHandler[T : Manifest] extends DistributedHandle
       labelAssist.resolveAuditLogMetaLabel().foreach { labelIid =>
         AgentSecurityContext(injector.instance[SecurityContext].agentId) {
           val auditLog = AuditLog(message.kind, message.replyRoute, message.data, success, errorCode)
-          val content = Content.insert(Content("AUDIT_LOG", data = auditLog.toJson))
+          val content = Content.insert(Content("AUDIT_LOG", None, data = auditLog.toJson))
           LabeledContent.insert(LabeledContent(content.iid, labelIid))
         }
       }

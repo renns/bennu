@@ -1,6 +1,7 @@
 package com.qoid.bennu.integration
 
 import com.qoid.bennu.client._
+import com.qoid.bennu.model.id.SemanticId
 import org.specs2.Specification
 import org.specs2.execute.Result
 
@@ -14,6 +15,7 @@ class LabelSpec extends Specification {
 
     Label should
       create label          ${createLabel()}
+      create semantic label ${createSemanticLabel()}
       update label          ${updateLabel()}
       move label            ${moveLabel()}
       copy label            ${copyLabel()}
@@ -37,6 +39,19 @@ class LabelSpec extends Specification {
         val label = Async.await(client.createLabel(rootLabel.iid, name))
 
         label.name must_== name
+      }
+    }.await(60)
+  }
+
+  def createSemanticLabel(): Result = {
+    ClientAssist.channelClient1 { client =>
+      Async.async {
+        val rootLabel = Async.await(client.getCurrentAliasLabel())
+        val name = "Label"
+        val semanticId = SemanticId.random
+        val label = Async.await(client.createLabel(rootLabel.iid, name, Some(semanticId)))
+
+        (label.name must_== name) and (label.semanticId must_== Some(semanticId))
       }
     }.await(60)
   }

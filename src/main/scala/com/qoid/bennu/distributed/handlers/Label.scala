@@ -24,7 +24,7 @@ object CreateLabelRequest extends DistributedRequestHandler[messages.CreateLabel
   override def process(message: DistributedMessage, request: messages.CreateLabelRequest, injector: ScalaInjector): JValue = {
     if (request.name.isEmpty) throw new BennuException(ErrorCode.nameInvalid)
 
-    val label = Label.insert(Label(request.name, data = request.data))
+    val label = Label.insert(Label(request.name, request.semanticId, data = request.data))
     LabelChild.insert(LabelChild(request.parentLabelIid, label.iid))
     messages.CreateLabelResponse(label).toJson
   }

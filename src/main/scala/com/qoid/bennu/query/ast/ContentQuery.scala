@@ -2,6 +2,7 @@ package com.qoid.bennu.query.ast
 
 import com.qoid.bennu.model.assist.LabelAssist
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import m3.Chord
 import m3.Chord._
 import m3.predef._
@@ -13,7 +14,8 @@ object ContentQuery {
   private val functions = Map[String,FunctionCall => Chord](
     "hasLabelPath" -> fn_hasLabelPath,
     "hasLabel" -> fn_hasLabel,
-    "hasConnectionMetaLabel" -> fn_hasConnectionMetaLabel
+    "hasConnectionMetaLabel" -> fn_hasConnectionMetaLabel,
+    "hasLabelSemantic" -> fn_hasLabelSemantic
   )
   
   val transformer: PartialFunction[Node,Chord] = {
@@ -24,7 +26,7 @@ object ContentQuery {
     val path = fc.parms.map(Node.nodeToString)
     val labelIid = labelAssist.resolveLabel(path)
 
-    fn_contentHasLabelOrDescendant(labelIid)
+    fn_contentHasLabelOrDescendant(labelIid.toIterator)
   }
 
   private def fn_hasLabel(fc: FunctionCall): Chord = {
@@ -33,7 +35,7 @@ object ContentQuery {
       case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
     }
 
-    fn_contentHasLabelOrDescendant(Full(InternalId(parm)))
+    fn_contentHasLabelOrDescendant(List(InternalId(parm)).toIterator)
   }
 
   private def fn_hasConnectionMetaLabel(fc: FunctionCall): Chord = {
@@ -47,10 +49,24 @@ object ContentQuery {
     "iid in (select contentIid from labeledcontent where " ~ whereClause ~ ")"
   }
 
-  private def fn_contentHasLabelOrDescendant(parentLabelIid: Box[InternalId]): Chord = {
-    val ancestry = parentLabelIid.map(l => labelAssist.resolveLabelAncestry(l).toList).getOrElse(Nil)
-    
-    val whereClause = ancestry match {
+  private def fn_hasLabelSemantic(fc: FunctionCall): Chord = {
+    val parm = fc.parms match {
+      case node :: Nil => Node.nodeToString(node)
+      case _ => m3x.error(s"invalid parameters -- ${fc.parms}")
+    }
+
+    val labelIids = labelAssist.getSemanticLabels(SemanticId(parm))
+
+    fn_contentHasLabelOrDescendant(labelIids)
+  }
+
+  private def fn_contentHasLabelOrDescendant(parentLabelIids: Iterator[InternalId]): Chord = {
+    val ancestry = for {
+      parentLabelIid <- parentLabelIids
+      labelIid <- labelAssist.resolveLabelAncestry(parentLabelIid)
+    } yield labelIid
+
+    val whereClause = ancestry.toList match {
       case Nil => Chord("1 <> 1")
       case l => "labelIid in (" ~ l.map("'" ~ _.value ~ "'").mkChord(",") ~ ")"
     }

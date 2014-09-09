@@ -7,6 +7,7 @@ import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.messages.CreateLabelRequest
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import com.qoid.bennu.webservices.DistributedService
 import m3.predef._
 import m3.servlet.beans.Parm
@@ -16,10 +17,11 @@ case class CreateLabel @Inject()(
   @Parm route: List[InternalId] = Nil,
   @Parm parentLabelIid: InternalId,
   @Parm name: String,
+  @Parm semanticId: Option[SemanticId] = None,
   @Parm data: JValue = JNothing
 ) extends DistributedService {
 
-  override protected val request = CreateLabelRequest(parentLabelIid, name, data).toJson
+  override protected val request = CreateLabelRequest(parentLabelIid, name, semanticId, data).toJson
 
   def doPost(): Unit = {
     run(injector, DistributedMessageKind.CreateLabelRequest, route)

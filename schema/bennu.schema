@@ -4,6 +4,7 @@ types {
   PeerId            varchar(32);
   AgentId           varchar(32);
   SharedId          varchar(32);
+  SemanticId        varchar(32);
   Name              varchar(50);
   Url               varchar(1024);
   AuthenticationId  varchar(100);
@@ -28,8 +29,9 @@ table agent {
 }
 
 table label {
-  iid       InternalId key;
-  name      Name;
+  iid           InternalId key;
+  name          Name;
+  semanticId    SemanticId nullable;
   import(CommonFields);
 }
 
@@ -52,6 +54,7 @@ table content {
   iid           InternalId key;
   contentType   varchar(100);
   metaData      Clob;
+  semanticId    SemanticId nullable;
   import(CommonFields);
 }
 

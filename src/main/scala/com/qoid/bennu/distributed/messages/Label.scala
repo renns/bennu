@@ -4,8 +4,9 @@ import com.qoid.bennu.JsonAssist.JValue
 import com.qoid.bennu.ToJsonCapable
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 
-case class CreateLabelRequest(parentLabelIid: InternalId, name: String, data: JValue) extends ToJsonCapable
+case class CreateLabelRequest(parentLabelIid: InternalId, name: String, semanticId: Option[SemanticId], data: JValue) extends ToJsonCapable
 case class CreateLabelResponse(label: Label) extends ToJsonCapable
 
 case class UpdateLabelRequest(labelIid: InternalId, name: Option[String], data: Option[JValue]) extends ToJsonCapable

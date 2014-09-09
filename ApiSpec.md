@@ -357,6 +357,7 @@
 
 * route: Array of Strings (optional)
 * contentType: String
+* semanticId: String (optional)
 * data: JSON
 * labelIids: Array of Strings
 
@@ -449,6 +450,7 @@
 * route: Array of Strings (optional)
 * parentLabelIid: String
 * name: String
+* semanticId: String (optional)
 * data: JSON (optional)
 
 **Response Parameters:**

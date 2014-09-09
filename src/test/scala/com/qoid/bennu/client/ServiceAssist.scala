@@ -5,6 +5,7 @@ import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.mapper.MapperAssist
 import com.qoid.bennu.model._
 import com.qoid.bennu.model.id.InternalId
+import com.qoid.bennu.model.id.SemanticId
 import com.qoid.bennu.model.service.QueryResult
 import com.qoid.bennu.query.StandingQueryAction
 import com.qoid.bennu.webservices.ServicePath
@@ -257,6 +258,7 @@ trait ServiceAssist {
     contentType: String,
     data: JValue,
     labelIids: List[InternalId],
+    semanticId: Option[SemanticId] = None,
     route: List[InternalId] = Nil
   ): Future[Content] = {
 
@@ -264,6 +266,7 @@ trait ServiceAssist {
       val parms = Map[String, JValue](
         "route" -> route,
         "contentType" -> contentType,
+        "semanticId" -> semanticId,
         "data" -> data,
         "labelIids" -> labelIids
       )
@@ -330,6 +333,7 @@ trait ServiceAssist {
   def createLabel(
     parentLabelIid: InternalId,
     name: String,
+    semanticId: Option[SemanticId] = None,
     route: List[InternalId] = Nil
   ): Future[Label] = {
 
@@ -338,6 +342,7 @@ trait ServiceAssist {
         "route" -> route,
         "parentLabelIid" -> parentLabelIid,
         "name" -> name,
+        "semanticId" -> semanticId,
         "data" -> ("color" -> "#7F7F7F")
       )
 
