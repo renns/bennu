@@ -19,9 +19,11 @@ class QuerySpec extends Specification {
     Query should
       query standing        ${queryStanding()}
       cancel standing       ${cancelStanding()}
+      query hasLabelPath    ${queryHasLabelPath()}
 
     ${section("integration")}
   """
+
   //      query historical              ${queryLocalHistorical()}
   //      query standing                ${queryLocalStanding()}
   //      query sub-alias historical    ${querySubAliasLocalHistorical()}
@@ -80,6 +82,28 @@ class QuerySpec extends Specification {
         } catch {
           case e: TimeoutException => success
         }
+      }
+    }.await(60)
+  }
+
+  def queryHasLabelPath(): Result = {
+    ClientAssist.anonymousClient2 { (client1, client2) =>
+      Async.async {
+        val fAutoAccept1 = client1.autoAcceptIntroductions()
+        val fAutoAccept2 = client2.autoAcceptIntroductions()
+        Async.await(fAutoAccept1)
+        Async.await(fAutoAccept2)
+
+        val (conn12, conn21) = Async.await(client1.connectThroughIntroducer(client2))
+
+        val alias = Async.await(client1.getCurrentAlias())
+        val label1 = Async.await(client1.createLabel(alias.labelIid, "label1"))
+        val label2 = Async.await(client1.createLabel(label1.iid, "label2"))
+        Async.await(client1.grantLabelAccess(label2.iid, conn12.iid, 1))
+
+        val labels = Async.await(client2.query[Label](s"hasParentLabelPath('label1')", List(conn21.iid)))
+
+        labels.size must_== 1
       }
     }.await(60)
   }

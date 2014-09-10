@@ -4,6 +4,7 @@ import com.qoid.bennu.model.assist.LabelAssist
 import com.qoid.bennu.model.id.InternalId
 import m3.Chord
 import m3.Chord._
+import m3.jdbc._
 import m3.predef._
 import m3.predef.box._
 
@@ -36,7 +37,7 @@ object LabelQuery {
 
   private def hasParentLabel(parentLabelIid: Box[InternalId]): Chord = {
     parentLabelIid match {
-      case Full(iid) => s"iid in (select childIid from labelchild where parentIid = '${iid}')"
+      case Full(iid) => sql"iid in (select childIid from labelchild where parentIid = ${iid})"
       case _ => Chord("1 <> 1")
     }
   }
