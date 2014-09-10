@@ -33,7 +33,7 @@ trait ServiceAssist {
 
       val result = await(post(ServicePath.spawnSession, parms))
       val session = serializer.fromJson[Session](result)
-      val client = new HttpChannelClient(session.channelId, session.connectionIid)
+      val client = new HttpChannelClient(session.channelId, session.alias)
       val t = await(body(client))
 
       client.close()

@@ -24,9 +24,8 @@ class ConnectionSpec extends Specification {
   def deleteConnection(): Result = {
     ClientAssist.channelClient1 { client =>
       Async.async {
-        val alias = Async.await(client.getCurrentAlias())
         val connections = Async.await(client.getConnections())
-        val connection = connections.find(_.iid != alias.connectionIid).head
+        val connection = connections.find(_.iid != client.alias.connectionIid).head
         val connectionIid = Async.await(client.deleteConnection(connection.iid))
         connectionIid must_== connection.iid
       }

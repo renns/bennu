@@ -58,7 +58,7 @@ object AgentAssist {
       val json = parseJson(response)
       val session = serializer.fromJson[Session](json)
 
-      new HttpChannelClient(session.channelId, session.connectionIid)
+      new HttpChannelClient(session.channelId, session.alias)
     }
   }
 }

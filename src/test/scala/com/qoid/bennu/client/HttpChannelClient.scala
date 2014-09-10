@@ -2,6 +2,7 @@ package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
+import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.webservices.ServicePath
 import m3.LockFreeMap
@@ -15,7 +16,7 @@ import scala.concurrent.Future
 
 case class HttpChannelClient(
   channelId: ChannelId,
-  connectionIid: InternalId
+  alias: Alias
 )(
   implicit
   config: HttpClientConfig,

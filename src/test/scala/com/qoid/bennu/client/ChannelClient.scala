@@ -1,6 +1,7 @@
 package com.qoid.bennu.client
 
 import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.InternalId
 import m3.servlet.beans.MultiRequestHandler.MethodInvocationResult
 
@@ -10,7 +11,7 @@ import scala.concurrent.Promise
 
 trait ChannelClient extends ServiceAssist with QueryAssist with IntroductionAssist {
   implicit val ec: ExecutionContext
-  val connectionIid: InternalId
+  val alias: Alias
 
   // Submits a request over the channel. Any responses are passed to fn.
   def submit(

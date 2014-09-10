@@ -35,7 +35,6 @@ class QuerySpec extends Specification {
     ClientAssist.channelClient1 { client =>
       Async.async {
         val p = Promise[Label]()
-        val alias = Async.await(client.getCurrentAlias())
         val labelName = "Label"
 
         Async.await(client.queryStanding[Label](sql"name = ${labelName}") { (label, action, context) =>
@@ -45,7 +44,7 @@ class QuerySpec extends Specification {
           }
         })
 
-        client.createLabel(alias.labelIid, labelName)
+        client.createLabel(client.alias.labelIid, labelName)
 
         val l = Async.await(p.future)
 
@@ -59,8 +58,7 @@ class QuerySpec extends Specification {
       Async.async {
         val p = Promise[Unit]()
         var queryCancelled = false
-        val alias = Async.await(client.getCurrentAlias())
-        val label = Async.await(client.createLabel(alias.labelIid, "Label"))
+        val label = Async.await(client.createLabel(client.alias.labelIid, "Label"))
 
         Async.await(client.queryStanding[Label](sql"iid = ${label.iid}") { (label, action, context) =>
           if (action == StandingQueryAction.Update && !queryCancelled) {
@@ -96,8 +94,7 @@ class QuerySpec extends Specification {
 
         val (conn12, conn21) = Async.await(client1.connectThroughIntroducer(client2))
 
-        val alias = Async.await(client1.getCurrentAlias())
-        val label1 = Async.await(client1.createLabel(alias.labelIid, "label1"))
+        val label1 = Async.await(client1.createLabel(client1.alias.labelIid, "label1"))
         val label2 = Async.await(client1.createLabel(label1.iid, "label2"))
         Async.await(client1.grantLabelAccess(label2.iid, conn12.iid, 1))
 

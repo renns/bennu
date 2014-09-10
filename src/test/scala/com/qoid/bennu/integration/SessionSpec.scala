@@ -43,7 +43,9 @@ class SessionSpec extends Specification {
 
         val alias2 = Async.await {
           client1.spawnSession(alias1.iid) { client2 =>
-            client2.getCurrentAlias()
+            Async.async {
+              client2.alias
+            }
           }
         }
 

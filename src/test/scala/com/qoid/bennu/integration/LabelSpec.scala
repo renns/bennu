@@ -115,9 +115,8 @@ class LabelSpec extends Specification {
         val rootLabel = Async.await(client.getCurrentAliasLabel())
         val label = Async.await(client.createLabel(rootLabel.iid, "Label"))
 
-        val alias = Async.await(client.getCurrentAlias())
         val connections = Async.await(client.getConnections())
-        val connection = connections.find(_.iid != alias.connectionIid).head
+        val connection = connections.find(_.iid != client.alias.connectionIid).head
 
         val labelIid = Async.await(client.grantLabelAccess(label.iid, connection.iid, 1))
 
@@ -132,9 +131,8 @@ class LabelSpec extends Specification {
         val rootLabel = Async.await(client.getCurrentAliasLabel())
         val label = Async.await(client.createLabel(rootLabel.iid, "Label"))
 
-        val alias = Async.await(client.getCurrentAlias())
         val connections = Async.await(client.getConnections())
-        val connection = connections.find(_.iid != alias.connectionIid).head
+        val connection = connections.find(_.iid != client.alias.connectionIid).head
 
         Async.await(client.grantLabelAccess(label.iid, connection.iid, 1))
         val labelIid = Async.await(client.revokeLabelAccess(label.iid, connection.iid))
@@ -150,9 +148,8 @@ class LabelSpec extends Specification {
         val rootLabel = Async.await(client.getCurrentAliasLabel())
         val label = Async.await(client.createLabel(rootLabel.iid, "Label"))
 
-        val alias = Async.await(client.getCurrentAlias())
         val connections = Async.await(client.getConnections())
-        val connection = connections.find(_.iid != alias.connectionIid).head
+        val connection = connections.find(_.iid != client.alias.connectionIid).head
 
         Async.await(client.grantLabelAccess(label.iid, connection.iid, 1))
         val labelIid = Async.await(client.updateLabelAccess(label.iid, connection.iid, 2))
