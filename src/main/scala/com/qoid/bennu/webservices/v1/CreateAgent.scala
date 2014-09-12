@@ -31,6 +31,9 @@ case class CreateAgent @Inject()(
         val alias = aliasAssist.createAnonymousAlias(login.aliasIid)
         agentAssist.connectToIntroducer(alias.connectionIid)
 
+        //TODO: Remove code below. It is used to connect the root alias to the introducer, which is helpful for testing.
+        agentAssist.connectToIntroducer(connectionIid)
+
         "authenticationId" -> login.authenticationId
       }
     } catch {
