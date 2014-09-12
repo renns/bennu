@@ -173,6 +173,8 @@ object AcceptIntroductionRequest extends DistributedRequestHandler[messages.Acce
     val introductionResponseMessage = DistributedMessage(DistributedMessageKind.IntroductionResponse, 1, List(notification.createdByConnectionIid), introductionResponse.toJson)
     distributedMgr.send(introductionResponseMessage)
 
+    Notification.update(notification.copy(consumed = true))
+
     messages.AcceptIntroductionResponse(request.notificationIid).toJson
   }
 }
