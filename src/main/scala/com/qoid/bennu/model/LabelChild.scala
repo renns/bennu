@@ -34,8 +34,8 @@ case class LabelChild(
   data: JValue = JNothing,
   created: DateTime = new DateTime,
   modified: DateTime = new DateTime,
-  createdByConnectionIid: InternalId = InternalId(""),
-  modifiedByConnectionIid: InternalId = InternalId("")
+  @transient createdByConnectionIid: InternalId = InternalId(""),
+  @transient modifiedByConnectionIid: InternalId = InternalId("")
 ) extends BennuMappedInstance[LabelChild] with ToJsonCapable {
 
   override def copy2(
