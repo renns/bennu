@@ -115,13 +115,15 @@ class DistributedManager @Inject()(
   private def messageHandler(connectionIid: InternalId)(message: DistributedMessage): Unit = {
     val message2 = message.copy(replyRoute = connectionIid :: message.replyRoute)
 
-    SystemSecurityContext {
-      val connection = Connection.fetch(connectionIid)
+    if (logger.isDebugEnabled) {
+      SystemSecurityContext {
+        val connection = Connection.fetch(connectionIid)
 
-      logger.debug(
-        s"received message (${connection.remotePeerId.value} -> ${connection.localPeerId.value}):" +
-          message2.toJson.toJsonStr
-      )
+        logger.debug(
+          s"received message (${connection.remotePeerId.value} -> ${connection.localPeerId.value}):" +
+            message2.toJson.toJsonStr
+        )
+      }
     }
 
     message.route match {

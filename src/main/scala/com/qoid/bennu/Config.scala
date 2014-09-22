@@ -21,5 +21,6 @@ case class Config(
   startHsqldbTooling: Boolean = true,
   bcryptSaltRounds: Int = 10,
   amqpUri: String = "amqp://localhost",
-  sessionTimeoutSeconds: Int = 600
+  sessionTimeoutSeconds: Int = 600,
+  auditLogging: Boolean = false
 )

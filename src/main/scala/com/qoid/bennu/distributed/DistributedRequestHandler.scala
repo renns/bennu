@@ -1,6 +1,7 @@
 package com.qoid.bennu.distributed
 
 import com.qoid.bennu.BennuException
+import com.qoid.bennu.Config
 import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.model.Content
@@ -55,13 +56,16 @@ abstract class DistributedRequestHandler[T : Manifest] extends DistributedHandle
     errorCode: Option[String] = None
   ): Unit = {
     try {
+      val config = injector.instance[Config]
       val labelAssist = injector.instance[LabelAssist]
 
-      labelAssist.resolveAuditLogMetaLabel().foreach { labelIid =>
-        AgentSecurityContext(injector.instance[SecurityContext].agentId) {
-          val auditLog = AuditLog(message.kind, message.replyRoute, message.data, success, errorCode)
-          val content = Content.insert(Content("AUDIT_LOG", None, data = auditLog.toJson))
-          LabeledContent.insert(LabeledContent(content.iid, labelIid))
+      if (config.auditLogging) {
+        labelAssist.resolveAuditLogMetaLabel().foreach { labelIid =>
+          AgentSecurityContext(injector.instance[SecurityContext].agentId) {
+            val auditLog = AuditLog(message.kind, message.replyRoute, message.data, success, errorCode)
+            val content = Content.insert(Content("AUDIT_LOG", None, data = auditLog.toJson))
+            LabeledContent.insert(LabeledContent(content.iid, labelIid))
+          }
         }
       }
     } catch {

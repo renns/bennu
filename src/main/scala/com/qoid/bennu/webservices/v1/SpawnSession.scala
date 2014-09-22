@@ -21,11 +21,10 @@ case class SpawnSession @Inject()(
 
   def doPost(): JValue = {
     try {
-      val session = sessionMgr.createSession(aliasIid)
+      val (session, alias) = sessionMgr.createSession(aliasIid)
 
       Txn {
         Txn.setViaTypename[SecurityContext](session.securityContext)
-        val alias = Alias.fetch(session.securityContext.aliasIid)
         ("channelId" -> session.channel.id.value) ~ ("alias" -> alias.toJson)
       }
     } catch {

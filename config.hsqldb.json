@@ -10,5 +10,6 @@
         "maxConnections": 50,
         "jdbcLogging": true
     },
-    "startHsqldbTooling": true
+    "startHsqldbTooling": true,
+    "auditLogging": false
 }

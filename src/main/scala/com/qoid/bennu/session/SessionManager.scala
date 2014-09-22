@@ -33,16 +33,16 @@ class SessionManager @Inject()(
   private val timer = new HashedWheelTimer(10, TimeUnit.SECONDS)
   private val timeouts = LockFreeMap.empty[ChannelId, Timeout]
 
-  def createSession(authenticationId: AuthenticationId, password: String): Session = {
-    val connectionIid = authMgr.authenticate(authenticationId, password)
-    val securityContext = new ConnectionSecurityContext(connectionIid, 1, injector)
+  def createSession(authenticationId: AuthenticationId, password: String): (Session, Alias) = {
+    val alias = authMgr.authenticate(authenticationId, password)
+    val securityContext = new ConnectionSecurityContext(alias.connectionIid, 1, injector)
     val session = new Session(injector, securityContext)
     sessions.put(session.channel.id, session)
     timeouts.put(session.channel.id, createTimeout(session.channel.id))
-    session
+    (session, alias)
   }
 
-  def createSession(aliasIid: InternalId): Session = {
+  def createSession(aliasIid: InternalId): (Session, Alias) = {
     val currentSecurityContext = injector.instance[SecurityContext]
 
     if (currentSecurityContext.canSpawnSession) {
@@ -51,7 +51,7 @@ class SessionManager @Inject()(
       val session = new Session(injector, securityContext)
       sessions.put(session.channel.id, session)
       timeouts.put(session.channel.id, createTimeout(session.channel.id))
-      session
+      (session, alias)
     } else {
       throw new BennuException(ErrorCode.permissionDenied, "canSpawnSession")
     }

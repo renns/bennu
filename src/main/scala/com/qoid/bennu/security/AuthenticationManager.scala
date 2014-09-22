@@ -62,7 +62,7 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
     Login.delete(login)
   }
 
-  def authenticate(authenticationId: AuthenticationId, password: String): InternalId = {
+  def authenticate(authenticationId: AuthenticationId, password: String): Alias = {
     SystemSecurityContext {
       val loginOpt = Login.selectOpt(sql"authenticationId = ${authenticationId.value.toLowerCase}").orElse {
         for {
@@ -75,7 +75,7 @@ class AuthenticationManager @Inject()(injector: ScalaInjector, config: Config) {
       loginOpt match {
         case Some(login) =>
           if (BCrypt.checkpw(password, login.passwordHash)) {
-            Alias.fetch(login.aliasIid).connectionIid
+            Alias.fetch(login.aliasIid)
           } else {
             throw new BennuException(ErrorCode.authenticationFailed)
           }

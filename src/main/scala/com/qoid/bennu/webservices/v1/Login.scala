@@ -3,7 +3,6 @@ package com.qoid.bennu.webservices.v1
 import com.google.inject.Inject
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
-import com.qoid.bennu.model.Alias
 import com.qoid.bennu.model.id.AuthenticationId
 import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.session.SessionManager
@@ -23,11 +22,10 @@ case class Login @Inject()(
 
   def doPost(): JValue = {
     try {
-      val session = sessionMgr.createSession(authenticationId, password)
+      val (session, alias) = sessionMgr.createSession(authenticationId, password)
 
       Txn {
         Txn.setViaTypename[SecurityContext](session.securityContext)
-        val alias = Alias.fetch(session.securityContext.aliasIid)
         ("channelId" -> session.channel.id.value) ~ ("alias" -> alias.toJson)
       }
     } catch {
