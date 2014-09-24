@@ -4,11 +4,9 @@ import com.google.inject.Inject
 import com.qoid.bennu.JsonAssist._
 import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.model.id.AuthenticationId
-import com.qoid.bennu.security.SecurityContext
 import com.qoid.bennu.session.SessionManager
 import com.qoid.bennu.BennuException
 import com.qoid.bennu.ErrorCode
-import m3.Txn
 import m3.predef._
 import m3.servlet.HttpStatusCodes
 import m3.servlet.beans.Parm
@@ -23,11 +21,7 @@ case class Login @Inject()(
   def doPost(): JValue = {
     try {
       val (session, alias) = sessionMgr.createSession(authenticationId, password)
-
-      Txn {
-        Txn.setViaTypename[SecurityContext](session.securityContext)
-        ("channelId" -> session.channel.id.value) ~ ("alias" -> alias.toJson)
-      }
+      ("channelId" -> session.channel.id.value) ~ ("alias" -> alias.toJson)
     } catch {
       case e: BennuException =>
         if (e.getErrorCode() == ErrorCode.authenticationFailed) {
