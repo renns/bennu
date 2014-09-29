@@ -11,4 +11,13 @@ target
 .cache
 
 db
+db*
 *.DS_Store
+
+
+src/main/webapp/aphoto
+src/main/webapp/client
+src/main/webapp/www
+src/main/webapp/pinter
+src/main/webapp/pinteragent
+src/main/webapp/terminal

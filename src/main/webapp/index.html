@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <title>QoiD</title>
+        <!-- <link rel="icon" type="image/jpeg" href="media/gfm.jpg" /> -->
+
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+        <link rel="stylesheet" href="jqui/jquery-ui.min.css" />
+        <style type="text/css">
+            a {
+                text-decoration: none;
+            }
+            .ui-widget-content {
+                padding: 20px;
+                width: 60%;
+                margin: auto;
+            }
+        </style>
+    </head>
+    <body>
+    	<div id="wrap">
+    		<div id="header" class="ui-widget-header ui-corner-top" style='text-align: center;'>
+				<strong style='font-size: 60px;'>QOID</strong>
+    		</div>
+            
+            <div id="provider" class='ui-widget-content' style='margin-top: 20px;text-align: center; font-size: 24px;'>
+                <span style='border-bottom: 1px solid black;'>Select provider:</span>
+                <br/>
+                <br/>
+                <select id='providerSelect' style='min-width: 500px;'>
+                    <option></option>
+                    <option>QoiD</option>
+                    <option>QoiD 2</option>
+                </select>
+            </div>
+
+            <div id="apps" class='ui-widget-content' style='margin-top: 20px;text-align: center; font-size: 24px; display: none;'>
+                <span style='border-bottom: 1px solid black; font-size: 24px;'>Select application:</span>
+                <br/>
+                <br/>
+                <a href='pinteragent/index.html' target='_blank'>PinterAgent</a>
+                <br/>
+                <br/>
+                <a href='aphoto/index.html' target='_blank'>aPhoto</a>
+                <br/>
+                <br/>
+                <a href='terminal/index.html' target='_blank'>Terminal</a>
+                <br/>
+                <br/>
+                <a href='www/index.html' target='_blank'>Reference</a>
+            </div>
+    	</div>
+        <script src="jqui/external/jquery/jquery.js"></script>
+        <script src="jqui/jquery-ui.min.js"></script> 
+
+        <script>
+            $(document).ready(function() {
+                $("#providerSelect")
+                    .selectmenu({
+                        change: function() {
+                            var appsDiv = $("#apps");
+                            if($(this).val() != "") {
+                                appsDiv.show();
+                            } else {
+                                appsDiv.hide();
+                            }
+                        }
+                    });
+            });
+        </script>
+    </body>
+</html>
