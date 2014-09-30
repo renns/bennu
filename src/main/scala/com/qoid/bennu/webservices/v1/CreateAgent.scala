@@ -28,7 +28,9 @@ case class CreateAgent @Inject()(
 
       AgentSecurityContext(agentId, connectionIid) {
         val login = agentAssist.createAgent(name, password)
-        val alias = aliasAssist.createAnonymousAlias(login.aliasIid)
+
+        // Create anonymous alias
+        //val alias = aliasAssist.createAnonymousAlias(login.aliasIid)
 
         // Connects the anonymous alias to the introducer
         //agentAssist.connectToIntroducer(alias.connectionIid)
