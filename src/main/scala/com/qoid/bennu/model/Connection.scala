@@ -9,14 +9,11 @@ import com.qoid.bennu.model.id.AgentId
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.model.id.PeerId
 import com.qoid.bennu.security.AgentAclManager
-import m3.LockFreeMap
 import m3.jdbc.mapper.PrimaryKey
 import m3.predef.inject
 import net.model3.chrono.DateTime
 
 object Connection extends BennuMapperCompanion[Connection] with FromJsonCapable[Connection] {
-  private val cachedConnections = LockFreeMap.empty[InternalId, Connection]
-
   override def insert(instance: Connection): Connection = {
     val instance2 = super.insert(instance)
     inject[AgentAclManager].invalidateConnections()
@@ -27,10 +24,6 @@ object Connection extends BennuMapperCompanion[Connection] with FromJsonCapable[
     val instance2 = super.delete(instance)
     inject[AgentAclManager].invalidateConnections()
     instance2
-  }
-
-  override def fetch(iid: InternalId): Connection = {
-    cachedConnections.getOrElse(iid, cachedConnections.synchronized(cachedConnections.getOrElseUpdate(iid, super.fetch(iid))))
   }
 }
 

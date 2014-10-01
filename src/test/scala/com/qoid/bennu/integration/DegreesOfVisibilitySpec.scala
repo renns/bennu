@@ -30,4 +30,3 @@ class DegreesOfVisibilitySpec extends Specification {
     }.await(60)
   }
 }
-

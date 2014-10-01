@@ -31,4 +31,5 @@ object ErrorCode {
   val aMessageInvalid = "aMessageInvalid"
   val bMessageInvalid = "bMessageInvalid"
   val kindInvalid = "kindInvalid"
+  val routeInvalid = "routeInvalid"
 }
