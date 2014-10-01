@@ -39,7 +39,7 @@ class SessionSpec extends Specification {
   def spawnSession(): Result = {
     ClientAssist.channelClient1 { client1 =>
       Async.async {
-        val alias1 = Async.await(client1.getAlias("Anonymous"))
+        val alias1 = Async.await(client1.createAlias("Test", "Test"))
 
         val alias2 = Async.await {
           client1.spawnSession(alias1.iid) { client2 =>

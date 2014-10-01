@@ -27,7 +27,7 @@ class NotificationSpec extends Specification {
   //TODO: Test DoV
 
   def createNotification(): Result = {
-    ClientAssist.anonymousClient2 { (client1, client2) =>
+    ClientAssist.channelClient2 { (client1, client2) =>
       Async.async {
         val fAutoAccept1 = client1.autoAcceptIntroductions()
         val fAutoAccept2 = client2.autoAcceptIntroductions()
