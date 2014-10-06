@@ -27,12 +27,36 @@ class EvaluatorSpec extends Specification {
       Evaluator.evaluateQuery(Query.parse("i = 5"), TestRow()) must_== VFalse
     }
 
-    "match equal boolean" in {
+    "match equal boolean true" in {
       Evaluator.evaluateQuery(Query.parse("b = true"), TestRow()) must_== VTrue
     }
 
-    "not match not equal boolean" in {
+    "not match not equal boolean false" in {
       Evaluator.evaluateQuery(Query.parse("b = false"), TestRow()) must_== VFalse
+    }
+
+    "match equal boolean 'true'" in {
+      Evaluator.evaluateQuery(Query.parse("b = 'true'"), TestRow()) must_== VTrue
+    }
+
+    "not match not equal boolean 'false'" in {
+      Evaluator.evaluateQuery(Query.parse("b = 'false'"), TestRow()) must_== VFalse
+    }
+
+    "match equal boolean 't'" in {
+      Evaluator.evaluateQuery(Query.parse("b = 't'"), TestRow()) must_== VTrue
+    }
+
+    "not match not equal boolean 'f'" in {
+      Evaluator.evaluateQuery(Query.parse("b = 'f'"), TestRow()) must_== VFalse
+    }
+
+    "match equal boolean '1'" in {
+      Evaluator.evaluateQuery(Query.parse("b = '1'"), TestRow()) must_== VTrue
+    }
+
+    "not match not equal boolean '0'" in {
+      Evaluator.evaluateQuery(Query.parse("b = '0'"), TestRow()) must_== VFalse
     }
 
     "match equal DateTime" in {
@@ -79,12 +103,36 @@ class EvaluatorSpec extends Specification {
       Evaluator.evaluateQuery(Query.parse("i <> 6"), TestRow()) must_== VFalse
     }
 
-    "match not equal boolean" in {
+    "match not equal boolean false" in {
       Evaluator.evaluateQuery(Query.parse("b <> false"), TestRow()) must_== VTrue
     }
 
-    "not match equal boolean" in {
+    "not match equal boolean true" in {
       Evaluator.evaluateQuery(Query.parse("b <> true"), TestRow()) must_== VFalse
+    }
+
+    "match not equal boolean 'false'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> 'false'"), TestRow()) must_== VTrue
+    }
+
+    "not match equal boolean 'true'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> 'true'"), TestRow()) must_== VFalse
+    }
+
+    "match not equal boolean 'f'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> 'f'"), TestRow()) must_== VTrue
+    }
+
+    "not match equal boolean 't'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> 't'"), TestRow()) must_== VFalse
+    }
+
+    "match not equal boolean '0'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> '0'"), TestRow()) must_== VTrue
+    }
+
+    "not match equal boolean '1'" in {
+      Evaluator.evaluateQuery(Query.parse("b <> '1'"), TestRow()) must_== VFalse
     }
 
     "match not equal DateTime" in {

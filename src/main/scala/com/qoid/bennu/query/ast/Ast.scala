@@ -150,6 +150,10 @@ object operators {
   val equal = BooleanOperator("=") {
     case (VNum(l), VNum(r)) => VBool(l == r)
     case (VBool(l), VBool(r)) => VBool(l == r)
+    case (VBool(true), VStr(r)) if r =:= "true" || r =:= "t" || r == "1" => VBool(true)
+    case (VBool(true), VStr(r)) if r =:= "false" || r =:= "f" || r == "0" => VBool(false)
+    case (VBool(false), VStr(r)) if r =:= "true" || r =:= "t" || r == "1" => VBool(false)
+    case (VBool(false), VStr(r)) if r =:= "false" || r =:= "f" || r == "0" => VBool(true)
     case (VStr(l), VStr(r)) => VBool(l == r)
     case (VDate(l), VStr(r)) => VBool(l == parseDateTime(r))
   }
@@ -157,6 +161,10 @@ object operators {
   val notEqual = BooleanOperator("<>") {
     case (VNum(l), VNum(r)) => VBool(l != r)
     case (VBool(l), VBool(r)) => VBool(l != r)
+    case (VBool(true), VStr(r)) if r =:= "true" || r =:= "t" || r == "1" => VBool(false)
+    case (VBool(true), VStr(r)) if r =:= "false" || r =:= "f" || r == "0" => VBool(true)
+    case (VBool(false), VStr(r)) if r =:= "true" || r =:= "t" || r == "1" => VBool(true)
+    case (VBool(false), VStr(r)) if r =:= "false" || r =:= "f" || r == "0" => VBool(false)
     case (VStr(l), VStr(r)) => VBool(l != r)
     case (VDate(l), VStr(r)) => VBool(l != parseDateTime(r))
   }
