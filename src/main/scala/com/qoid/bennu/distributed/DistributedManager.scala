@@ -126,13 +126,13 @@ class DistributedManager @Inject()(
       }
     }
 
-    message.route match {
-      case toConnectionIid :: toConnectionIids =>
-        sendMessage(toConnectionIid, message2.copy(route = toConnectionIids))
-      case _ =>
-        ConnectionSecurityContext(connectionIid, message2.replyRoute.size, injector) {
+    ConnectionSecurityContext(connectionIid, message2.replyRoute.size, injector) {
+      message.route match {
+        case toConnectionIid :: toConnectionIids =>
+          sendMessage(toConnectionIid, message2.copy(route = toConnectionIids))
+        case _ =>
           message2.kind.handler.handle(message2, injector)
-        }
+      }
     }
   }
 
@@ -145,15 +145,13 @@ class DistributedManager @Inject()(
   }
 
   private def sendMessage(connectionIid: InternalId, message: DistributedMessage): Unit = {
-    SystemSecurityContext {
-      val connection = Connection.fetch(connectionIid)
+    val connection = Connection.fetch(connectionIid)
 
-      logger.debug(
-        s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
-          message.toJson.toJsonStr
-      )
+    logger.debug(
+      s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
+        message.toJson.toJsonStr
+    )
 
-      messageQueue.enqueue(connection, message)
-    }
+    messageQueue.enqueue(connection, message)
   }
 }

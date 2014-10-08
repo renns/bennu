@@ -19,7 +19,7 @@ class DegreesOfVisibilitySpec extends Specification {
   """
 
   def queryProfile(): Result = {
-    ClientAssist.anonymousClient1 { client =>
+    ClientAssist.channelClient1 { client =>
       Async.async {
         val introducerConnection = Async.await(client.getIntroducerConnection())
         val connections = Async.await(client.query[Connection](route = List(introducerConnection.iid)))
@@ -30,4 +30,3 @@ class DegreesOfVisibilitySpec extends Specification {
     }.await(60)
   }
 }
-

@@ -20,7 +20,6 @@ mkdir target/dist/lib
 mvn dependency:copy-dependencies
 cp -r target/*.jar target/dist/lib/
 cp -r target/dependency/*.jar target/dist/lib/
-cp -RH src/main/webapp target/dist
 
 mkdir target/dist/bin
 cp schema/* target/dist/bin
@@ -32,6 +31,7 @@ rsync \
  	--exclude=config.json \
  	--exclude=.logs \
  	--exclude=db \
+ 	--exclude=webapp \
  	--delete \
  	--compress \
  	--copy-links \

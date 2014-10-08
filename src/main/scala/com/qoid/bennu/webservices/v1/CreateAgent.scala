@@ -28,10 +28,14 @@ case class CreateAgent @Inject()(
 
       AgentSecurityContext(agentId, connectionIid) {
         val login = agentAssist.createAgent(name, password)
-        val alias = aliasAssist.createAnonymousAlias(login.aliasIid)
-        agentAssist.connectToIntroducer(alias.connectionIid)
 
-        //TODO: Remove code below. It is used to connect the root alias to the introducer, which is helpful for testing.
+        // Create anonymous alias
+        //val alias = aliasAssist.createAnonymousAlias(login.aliasIid)
+
+        // Connects the anonymous alias to the introducer
+        //agentAssist.connectToIntroducer(alias.connectionIid)
+
+        // Connects the root alias to the introducer
         agentAssist.connectToIntroducer(connectionIid)
 
         "authenticationId" -> login.authenticationId

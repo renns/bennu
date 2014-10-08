@@ -7,6 +7,7 @@ import com.qoid.bennu.distributed.DistributedManager
 import com.qoid.bennu.distributed.DistributedMessage
 import com.qoid.bennu.distributed.DistributedMessageKind
 import com.qoid.bennu.distributed.RequestData
+import com.qoid.bennu.model.Connection
 import com.qoid.bennu.model.id.InternalId
 import com.qoid.bennu.session.Session
 import m3.predef._
@@ -30,6 +31,10 @@ trait DistributedService {
       val distributedMgr = injector.instance[DistributedManager]
 
       val actualRoute = if (route.isEmpty) List(session.securityContext.connectionIid) else route
+
+      if (Connection.fetchOpt(actualRoute(0)).isEmpty) {
+        throw new BennuException(ErrorCode.routeInvalid)
+      }
 
       validateParameters()
 
