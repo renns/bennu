@@ -34,6 +34,18 @@
                 </select>
             </div>
 
+            <div id="options" class='ui-widget-content' style='margin-top: 20px;text-align: center; font-size: 24px; display: none;'>
+                <span style='border-bottom: 1px solid black; font-size: 24px;'>Options</span>
+                <br/>
+                <br/>
+                <a>Backup My Agent</a>
+                <br/>
+                <br/>
+                <a>Import My Agent</a>
+                <br/>
+                <br/>
+                <a>Delete My Agent</a>
+            </div>
             <div id="apps" class='ui-widget-content' style='margin-top: 20px;text-align: center; font-size: 24px; display: none;'>
                 <span style='border-bottom: 1px solid black; font-size: 24px;'>Select application:</span>
                 <br/>
@@ -48,6 +60,51 @@
                 <br/>
                 <br/>
                 <a href='www/index.html' target='_blank'>Reference</a>
+                <br/>
+                <br/>
+                <a>Home Security</a>
+                <br/>
+                <br/>
+                <a>Friend Map</a>
+                <br/>
+                <br/>
+                <a>Health Monitor</a>
+                <br/>
+                <br/>
+                <a>My Graph</a>
+                <br/>
+                <br/>
+                <a>Calendar</a>
+                <br/>
+                <br/>
+                <a>Powerchat</a>
+                <br/>
+                <br/>
+                <a>Chess</a>
+                <br/>
+                <br/>
+                <a>Representative Hobart</a>
+                <br/>
+                <br/>
+                <a>Senator Bergstrom</a>
+                <br/>
+                <br/>
+                <a>Nordstrom</a>
+                <br/>
+                <br/>
+                <a>REI</a>
+                <br/>
+                <br/>
+                <a>Eddie Bauer</a>
+                <br/>
+                <br/>
+                <a>Louis CK</a>
+                <br/>
+                <br/>
+                <a>The Heavy Metal Club</a>
+                <br/>
+                <br/>
+                <a>App Store</a>
             </div>
     	</div>
         <script src="jqui/external/jquery/jquery.js"></script>
@@ -59,10 +116,13 @@
                     .selectmenu({
                         change: function() {
                             var appsDiv = $("#apps");
+                            var optsDiv = $("#options");
                             if($(this).val() != "") {
                                 appsDiv.show();
+                                optsDiv.show();
                             } else {
                                 appsDiv.hide();
+                                optsDiv.hide();
                             }
                         }
                     });
