@@ -20,7 +20,7 @@ class QueryManager @Inject()(
   injector: ScalaInjector,
   standingQueryRepo: StandingQueryRepository,
   distributedMgr: DistributedManager
-) {
+) extends Logging {
 
   def notifyStandingQueries[T : Manifest](instance: T, action: StandingQueryAction): Unit = {
     val txn = injector.instance[Transaction]
@@ -41,7 +41,11 @@ class QueryManager @Inject()(
       ConnectionSecurityContext(sq.replyRoute.head, sq.replyRoute.size, injector) {
         val securityContext = injector.instance[SecurityContext]
 
-        if (Evaluator.evaluateQuery(securityContext.constrictQuery(mapper, Query.parse(sq.query)), instance) == Evaluator.VTrue) {
+        val query = securityContext.constrictQuery(mapper, Query.parse(sq.query))
+
+        logger.debug("Evaluating query: " + ast.Node.reify(query))
+
+        if (Evaluator.evaluateQuery(query, instance) == Evaluator.VTrue) {
           val result = serializer.toJson(instance)
           val response = messages.StandingQueryResponse(sq.tpe, result, action)
 
