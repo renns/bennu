@@ -1,16 +1,20 @@
 package com.qoid.bennu.mapper
 
-import java.sql.{Connection => JdbcConn}
+import com.qoid.bennu.BennuException
+import com.qoid.bennu.ErrorCode
 import com.qoid.bennu.model.id.InternalId
-import com.qoid.bennu.query.{StandingQueryAction, QueryManager}
 import com.qoid.bennu.query.ast.Node
 import com.qoid.bennu.query.ast.Query
 import com.qoid.bennu.query.ast.Transformer
+import com.qoid.bennu.query.QueryManager
+import com.qoid.bennu.query.StandingQueryAction
 import com.qoid.bennu.security.SecurityContext
-import com.qoid.bennu.BennuException
-import com.qoid.bennu.ErrorCode
+import java.sql.{Connection => JdbcConn}
+import m3.CaseClassReflector
 import m3.Chord
 import m3.jdbc.mapper.Mapper
+import m3.jdbc.mapper.MapperFactory
+import m3.jdbc.mapper.MapperInternal
 import m3.predef._
 import m3.predef.box._
 import net.model3.chrono.DateTime
@@ -32,16 +36,20 @@ class BennuMapperCompanion[T <: BennuMappedInstance[T]](implicit mT: Manifest[T]
 
   /** The internal mapper companion */
   private val mapper = new Mapper.MapperCompanion[T, InternalId] { mapper =>
-    /** Performs a query and returns the results in a collection */
-    override def select(where: String, maxRows: Int = -1)(implicit conn: JdbcConn): Iterator[T] = {
-      // Constrict query so that only allowed results are returned
-      val query = securityContext.constrictQuery(self, Query.parse(where))
+    override val internalMapper = new MapperInternal[T, InternalId] {
+      override def caseClassReflector = CaseClassReflector[T](mT)
+      override def mapperFactory = inject[MapperFactory]
 
-      // Transform query object to a SQL string
-      val querySql = Transformer.queryToSql(query, queryTransformer).toString()
+      override def select(where: String, maxRows: Int = -1)(implicit conn: JdbcConn): Iterator[T] = {
+        // Constrict query so that only allowed results are returned
+        val query = securityContext.constrictQuery(self, Query.parse(where))
 
-      // Do the select
-      super.select(querySql, maxRows)
+        // Transform query object to a SQL string
+        val querySql = Transformer.queryToSql(query, queryTransformer).toString()
+
+        // Do the select
+        super.select(querySql, maxRows)
+      }
     }
   }
 

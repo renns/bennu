@@ -145,13 +145,17 @@ class DistributedManager @Inject()(
   }
 
   private def sendMessage(connectionIid: InternalId, message: DistributedMessage): Unit = {
-    val connection = Connection.fetch(connectionIid)
+    val securityContext = injector.instance[SecurityContext]
 
-    logger.debug(
-      s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
-        message.toJson.toJsonStr
-    )
+    ConnectionSecurityContext(securityContext.connectionIid, 1, injector) {
+      val connection = Connection.fetch(connectionIid)
 
-    messageQueue.enqueue(connection, message)
+      logger.debug(
+        s"sending message (${connection.localPeerId.value} -> ${connection.remotePeerId.value}):" +
+          message.toJson.toJsonStr
+      )
+
+      messageQueue.enqueue(connection, message)
+    }
   }
 }

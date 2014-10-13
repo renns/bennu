@@ -1,6 +1,9 @@
 package com.qoid.bennu.integration
 
+import com.qoid.bennu.JsonAssist._
+import com.qoid.bennu.JsonAssist.jsondsl._
 import com.qoid.bennu.client._
+import com.qoid.bennu.model.Content
 import com.qoid.bennu.model.Label
 import com.qoid.bennu.query.StandingQueryAction
 import m3.jdbc._
@@ -17,13 +20,14 @@ class QuerySpec extends Specification {
     ${section("integration")}
 
     Query should
-      query standing        ${queryStanding()}
-      cancel standing       ${cancelStanding()}
-      query hasLabelPath    ${queryHasLabelPath()}
+      query standing                      ${queryStanding()}
+      cancel standing                     ${cancelStanding()}
+      query hasLabelPath                  ${queryHasLabelPath()}
 
     ${section("integration")}
   """
 
+  //      prevent using another's connection  ${preventUsingAnotherConnection()}
   //      query historical              ${queryLocalHistorical()}
   //      query standing                ${queryLocalStanding()}
   //      query sub-alias historical    ${querySubAliasLocalHistorical()}
@@ -101,6 +105,17 @@ class QuerySpec extends Specification {
         val labels = Async.await(client2.query[Label](s"hasParentLabelPath('label1')", List(conn21.iid)))
 
         labels.size must_== 1
+      }
+    }.await(60)
+  }
+
+  def preventUsingAnotherConnection(): Result = {
+    ClientAssist.channelClient2 { (client1, client2) =>
+      Async.async {
+        val content = Async.await(client1.createContent("TEXT", "text" -> "My content", List(client1.alias.labelIid)))
+        val results = Async.await(client2.query[Content](sql"iid = ${content.iid}", List(client1.alias.connectionIid)))
+        results.size must_== 0
+        //TODO: Figure out how to catch the exception. If there is an exception, the test should pass
       }
     }.await(60)
   }
