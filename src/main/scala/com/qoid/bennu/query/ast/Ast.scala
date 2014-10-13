@@ -148,6 +148,9 @@ object operators {
   }
   
   val equal = BooleanOperator("=") {
+    case (VNull, VNull) => VBool(false)
+    case (VNull, _) => VBool(false)
+    case (_, VNull) => VBool(false)
     case (VNum(l), VNum(r)) => VBool(l == r)
     case (VBool(l), VBool(r)) => VBool(l == r)
     case (VBool(true), VStr(r)) if r =:= "true" || r =:= "t" || r == "1" => VBool(true)
