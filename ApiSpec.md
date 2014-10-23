@@ -378,18 +378,19 @@
 **Path:** */api/v1/content/update*
 
 **Parameters:**
-
 * route: Array of Strings (optional)
 * contentIid: InternalId
-* data: JSON
+* data: JSON (optional)
+* metaData: JSON (optional)
 
 **Response Parameters:**
-
 * content fields
 
 **Error Codes:**
-
 * dataInvalid
+
+**Notes:**
+* Either data or metaData must be defined
 
 ### Add Content Label
 
