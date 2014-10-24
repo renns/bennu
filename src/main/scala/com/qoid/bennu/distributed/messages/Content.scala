@@ -9,7 +9,7 @@ import com.qoid.bennu.model.id.SemanticId
 case class CreateContentRequest(contentType: String, semanticId: Option[SemanticId], data: JValue, labelIids: List[InternalId]) extends ToJsonCapable
 case class CreateContentResponse(content: Content) extends ToJsonCapable
 
-case class UpdateContentRequest(contentIid: InternalId, data: JValue) extends ToJsonCapable
+case class UpdateContentRequest(contentIid: InternalId, data: JValue, metaData:JValue) extends ToJsonCapable
 case class UpdateContentResponse(content: Content) extends ToJsonCapable
 
 case class AddContentLabelRequest(contentIid: InternalId, labelIid: InternalId) extends ToJsonCapable

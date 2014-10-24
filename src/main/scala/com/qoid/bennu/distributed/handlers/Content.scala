@@ -49,11 +49,13 @@ object UpdateContentRequest extends DistributedRequestHandler[messages.UpdateCon
   override protected val allowedVersions = List(1)
 
   override def process(message: DistributedMessage, request: messages.UpdateContentRequest, injector: ScalaInjector): JValue = {
-    if (request.data == JNothing) throw new BennuException(ErrorCode.dataInvalid)
+    if (request.data == JNothing && request.metaData == JNothing) throw new BennuException(ErrorCode.dataInvalid)
 
-    val content = Content.fetch(request.contentIid)
-    val content2 = Content.update(content.copy(data = request.data))
-    messages.UpdateContentResponse(content2).toJson
+    var content = Content.fetch(request.contentIid)
+    if (request.data != JNothing) {content = Content.update(content.copy(data = request.data))}
+    if (request.metaData != JNothing) {content = Content.update(content.copy(metaData = request.metaData))}
+
+    messages.UpdateContentResponse(content).toJson
   }
 }
 
