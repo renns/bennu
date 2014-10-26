@@ -25,7 +25,7 @@ mkdir target/dist/bin
 cp schema/* target/dist/bin
 cp src/main/scripts/* target/dist/bin
 
-ssh fabio@dev.qoid.com "sudo stop $SERVER"
+ssh dev.qoid.com "sudo stop $SERVER"
 
 rsync \
  	--exclude=config.json \
@@ -39,8 +39,8 @@ rsync \
  	--partial \
  	--progress \
  	target/dist/ \
- 	fabio@dev.qoid.com:/opt/$SERVER/
+ 	dev.qoid.com:/opt/$SERVER/
 
-ssh fabio@dev.qoid.com "sudo chmod g+rw -R /opt/$SERVER/ ; sudo chown -R fabio:bennu /opt/$SERVER/ ; sudo chmod u+rw -R /opt/$SERVER/ "
+ssh dev.qoid.com "sudo chmod g+rw -R /opt/$SERVER/ ; sudo chown -R fabio:bennu /opt/$SERVER/ ; sudo chmod u+rw -R /opt/$SERVER/ "
 
-ssh fabio@dev.qoid.com "sudo start $SERVER"
+ssh dev.qoid.com "sudo start $SERVER"
